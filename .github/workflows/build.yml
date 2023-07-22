@@ -96,7 +96,7 @@ jobs:
 
       - name: Cache R-x.y.z Windows Installer Exe
         if: {{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
-        id: cache-R.windows.installer.exe
+        id: cacheRWindowsInstallerExe
         uses: actions/cache@v3.3.1
         with:
           path: R-4.2.3-win.exe
