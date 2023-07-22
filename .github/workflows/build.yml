@@ -3,10 +3,8 @@ run-name: ${{ github.actor }} is testing creating PL/R using meson
 on: [push]
 jobs:
   build_test_install:
-    name: ${{ compileenv.os }} ${{ matrix.os }}
+    name: ${{ matrix.compileenv }} ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
-    defaults:
-      run:
     strategy:
       # Disable fail-fast as we want results from all even if one fails.
       fail-fast: false
