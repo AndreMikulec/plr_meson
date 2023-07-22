@@ -31,7 +31,7 @@ jobs:
 
       - name: Matrix Verification Result
         if: matrix.os == 'windows-latest'
-        run: echo "${env:compiler}"
+        run: echo "${{ env.compiler }}"
 
 
 
