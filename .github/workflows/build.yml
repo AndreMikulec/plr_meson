@@ -1,0 +1,30 @@
+name: plr_meson Windows experiments
+run-name: ${{ github.actor }} is testing creating PL/R using meson
+on: [push]
+jobs:
+  build_test_install:
+    name: ${{ compileenv.os }} ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+    strategy:
+      # Disable fail-fast as we want results from all even if one fails.
+      fail-fast: false
+      matrix:
+        include:
+          - compileenv: cygwin
+            os: windows-latest
+
+          - compileenv: cygwin
+            os: windows-latest
+
+          - compileenv: msvc
+            os: windows-latest
+
+    steps:
+      - name: Windows System
+        if: matrix.os == 'windows-latest'
+        run: |
+          systeminfo
+          echo ${{ matrix.compileenv }} on ${{ matrix.os }}
+
