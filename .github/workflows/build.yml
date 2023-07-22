@@ -33,8 +33,9 @@ jobs:
           ${env:os} = "${{ matrix.os }}"
           Set-EnvVar "os=${env:os}"
           #
-          echo "PATH: ${env:PATH}"
-          Set-EnvVar "PATH=C:\ANYWHERE;${env:PATH}"
+          # echo "PATH: ${env:PATH}"
+          # DOES set env.PATH but pollutes the output
+          # Set-EnvVar "PATH=C:\ANYWHERE;${env:PATH}"
           echo "MATRIX.FAKE ${{ matrix.FAKE }}"
 
       - name: matrix FAKE death
@@ -101,6 +102,7 @@ jobs:
           msystem: UCRT64
       - shell: msys2 {0}
         run: |
+          echo "mingw Who and What Place"
           echo "uname: $(uname -a)"
           echo "whoami: $(whoami)"
           echo "id: $(id)"
@@ -111,7 +113,6 @@ jobs:
         uses: msys2/setup-msys2@v2
         with:
           msystem: UCRT64
-          update: true
           install: mingw-w64-ucrt-x86_64-postgresql
 
       # NOTE: ONLY RUN IF I KNOW THAT postgres IS IN THE PATH
@@ -122,6 +123,7 @@ jobs:
           msystem: UCRT64
       - shell: msys2 {0}
         run: |
+          echo "What Place Is postgres"
           echo "which postgres: $(which postgres)"
 
       - name: Cache R-x.y.z Windows Installer Exe
