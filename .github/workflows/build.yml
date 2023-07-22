@@ -61,18 +61,37 @@ jobs:
         with:
           architecture: ${{ env.msvc_architecture }}
 
-
-      # Allowed values: MSYS | MINGW64 | MINGW32 | UCRT64 | CLANG32 | CLANG64 | CLANGARM64
-      # https://github.com/msys2/setup-msys2
-      # EXCEPT NOT SUPPORTING "MSYS" because of inconsistent (non-standard "old" bare) package naming
-      #
-      # - name: Install Windows mingw Software - 34 seconds with zero packages
-      #   if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
-      #   uses: msys2/setup-msys2@v2
-      #   with:
-      #     msystem: ${{ matrix.compiler }}
-      #     update: true
-
+      # 34 seconds with zero packages
+      - name: Install Windows mingw Software - 
+        if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: >-
+            mingw-w64-ucrt-x86_64-pkg-config
+            mingw-w64-ucrt-x86_64-curl
+            git
+            mingw-w64-ucrt-x86_64-meson
+            mingw-w64-ucrt-x86_64-make
+            mingw-w64-ucrt-x86_64-gcc
+            tar
+            gzip 
+            mingw-w64-ucrt-x86_64-readline
+            mingw-w64-ucrt-x86_64-zlib
+            mingw-w64-ucrt-x86_64-icu
+            icu-devel  
+            git
+            flex       
+            bison      
+            mingw-w64-ucrt-x86_64-perl
+            mingw-w64-ucrt-x86_64-winpty
+            p7zip   
+            tar       
+            zstd
+            mingw-w64-ucrt-x86_64-tools-git
+            mingw-w64-ucrt-x86_64-binutils
+            mingw-w64-ucrt-x86_64-diffutils
 
 
 
