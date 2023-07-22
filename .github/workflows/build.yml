@@ -10,6 +10,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
+
           - compiler: UCRT64
             os: windows-latest
 
@@ -53,6 +54,18 @@ jobs:
         uses: bus1/cabuild/action/msdevshell@v1
         with:
           architecture: ${{ env.msvc_architecture }}
+
+
+      # Allowed values: MSYS | MINGW64 | MINGW32 | UCRT64 | CLANG32 | CLANG64 | CLANGARM64
+      # https://github.com/msys2/setup-msys2
+      # EXCEPT NOT SUPPORTING "MSYS" because of inconsistent (non-standard "old" bare) package naming
+      #
+      - name: Install Windows mingw Software
+        if: ${{ matrix.os == 'windows-latest' && env.compiler == 'UCRT' }}
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: ${{ matrix.compiler }}
+          update: true
 
 
 
