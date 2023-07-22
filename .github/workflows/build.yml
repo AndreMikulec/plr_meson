@@ -29,11 +29,15 @@ jobs:
           ${env:compiler} = "${{ matrix.compiler }}"
           Set-EnvVar "compiler=${env:compiler}"
           echo "PATH: ${env:PATH}"
+          Set-EnvVar "PATH=C:\ANYWHERE;${env:PATH}"
 
       - name: Matrix Verification Result
         if: matrix.os == 'windows-latest'
         run: |
           echo "compiler: ${{ env.compiler }}"
+          echo "PATH: ${env:PATH}"
+        env: |
+          PATH: ${{ env.PATH }}"
 
 
 
