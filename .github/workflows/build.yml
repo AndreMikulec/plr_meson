@@ -1,28 +1,27 @@
 name: plr_meson Windows experiments
-run-name: ${{ github.actor }} is testing creating PL/R using meson
+run-name: Testing Creating PL/R using meson
 on: [push]
 jobs:
   build_test_install:
-    name: ${{ matrix.compileenv }} ${{ matrix.os }}
+    name: ${{ matrix.compiler }} ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       # Disable fail-fast as we want results from all even if one fails.
       fail-fast: false
       matrix:
         include:
-          - compileenv: cygwin
+          - compiler: UCRT64
             os: windows-latest
 
-          - compileenv: cygwin
-            os: windows-latest
-
-          - compileenv: msvc
-            os: windows-latest
-
+#         - compiler: cygwin
+#           os: windows-latest
+# 
+#         - compiler: msvc
+#           os: windows-latest
     steps:
       - name: Matrix Verification
         if: matrix.os == 'windows-latest'
         run: |
-          systeminfo
-          echo "${{ matrix.compileenv }} on ${{ matrix.os }}"
-
+          # systeminfo
+          echo "${{ matrix.compiler }} on ${{ matrix.os }}"
+          if( Test-Path "C:\Program Files\PostgreSQL\14" ) {  "pg x64-14 exists."  } else {  "pg x64-14 not exists." }
