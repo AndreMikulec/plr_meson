@@ -20,9 +20,9 @@ jobs:
             os: windows-latest
 
     steps:
-      - name: Windows System
+      - name: Matrix Verification
         if: matrix.os == 'windows-latest'
         run: |
           systeminfo
-          echo ${{ matrix.compileenv }} on ${{ matrix.os }}
+          echo "${{ matrix.compileenv }} on ${{ matrix.os }}"
 
