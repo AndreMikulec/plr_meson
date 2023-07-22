@@ -106,7 +106,7 @@ jobs:
 
       # five seconds
       - name: Download R for Windows R-x.y.z R-rmajor.rminor.rpatch
-        if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
+        if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' && steps.cacheRWindowsInstallerExe.outputs.cache-hit != 'true' }}
         uses: suisei-cn/actions-download-file@v1.3.0
         id: downloadfileRforWindows 
         with:
