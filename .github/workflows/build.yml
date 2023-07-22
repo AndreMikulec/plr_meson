@@ -94,12 +94,10 @@ jobs:
 #             mingw-w64-ucrt-x86_64-binutils
 #             mingw-w64-ucrt-x86_64-diffutils
 
-
       - name: Download R for Windows R-x.y.z R-rmajor.rminor.rpatch
         if: ${{ matrix.os == 'windows-latest' && ( env.compiler == 'UCRT64' ) }}
         uses: suisei-cn/actions-download-file@v1.3.0
         id: downloadfileRforWindows 
-        name: Download R for Windows
         with:
           url: https://cran.r-project.org/bin/windows/base/old/4.2.3/R-4.2.3-win.exe
 
