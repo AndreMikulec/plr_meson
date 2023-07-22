@@ -20,6 +20,8 @@ jobs:
 #         - compiler: msvc
 #           os: windows-latest
     steps:
+
+
       - name: Matrix Verification
         if: matrix.os == 'windows-latest'
         run: |
@@ -150,4 +152,13 @@ jobs:
         run: |
           function Start-App  {param($X,$Y) Start-Process -NoNewWindow -FilePath "$X" -ArgumentList $Y }
           Start-App "R-4.2.3-win.exe" "/VERYSILENT", "/DIR=C:\RINSTALL",  "/NOICONS", "/TASKS="
+
+      - name: Prepare to Download Files from Github
+        run: |
+          git config --global core.autocrlf input
+          git config --global advice.detachedHead false
+
+      - name: Checkout Code of This Repository
+        uses: actions/checkout@v3
+
 
