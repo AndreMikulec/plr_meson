@@ -112,9 +112,9 @@ jobs:
         with:
           url: https://cran.r-project.org/bin/windows/base/old/4.2.3/R-4.2.3-win.exe
 
-      - name: Install R for Windows R-x.y.z R-rmajor.rminor.rpatch
-        if: {{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
-        run: |
-          function Start-App  {param($X,$Y) Start-Process -NoNewWindow -FilePath "$X" -ArgumentList $Y }
-          Start-App "R-4.2.3-win.exe" "/VERYSILENT", "/DIR=C:\RINSTALL",  "/NOICONS", "/TASKS="
+#       - name: Install R for Windows R-x.y.z R-rmajor.rminor.rpatch
+#         if: {{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
+#         run: |
+#           function Start-App  {param($X,$Y) Start-Process -NoNewWindow -FilePath "$X" -ArgumentList $Y }
+#           Start-App "R-4.2.3-win.exe" "/VERYSILENT", "/DIR=C:\RINSTALL",  "/NOICONS", "/TASKS="
 
