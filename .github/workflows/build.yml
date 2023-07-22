@@ -28,6 +28,7 @@ jobs:
           function Set-EnvVar {param($X)     Add-Content -Path ${env:GITHUB_ENV} -Value "$X"}
           ${env:compiler} = "${{ matrix.compiler }}"
           Set-EnvVar "compiler=${env:compiler}"
+          echo "PATH: ${env:PATH}"
 
       - name: Matrix Verification Result
         if: matrix.os == 'windows-latest'
