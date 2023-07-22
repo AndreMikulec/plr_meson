@@ -35,6 +35,7 @@ jobs:
           #
           echo "PATH: ${env:PATH}"
           Set-EnvVar "PATH=C:\ANYWHERE;${env:PATH}"
+          echo "MATRIX.FAKE ${{ matrix.FAKE }}"
 
       - name: Matrix Verification Result
         if: matrix.os == 'windows-latest'
@@ -60,12 +61,12 @@ jobs:
       # https://github.com/msys2/setup-msys2
       # EXCEPT NOT SUPPORTING "MSYS" because of inconsistent (non-standard "old" bare) package naming
       #
-      - name: Install Windows mingw Software
-        if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
-        uses: msys2/setup-msys2@v2
-        with:
-          msystem: ${{ matrix.compiler }}
-          update: true
+      # - name: Install Windows mingw Software - 34 seconds with zero packages
+      #   if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
+      #   uses: msys2/setup-msys2@v2
+      #   with:
+      #     msystem: ${{ matrix.compiler }}
+      #     update: true
 
 
 
