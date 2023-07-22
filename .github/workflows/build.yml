@@ -37,7 +37,7 @@ jobs:
           echo "compiler: ${{ env.compiler }}"
           echo "PATH2: ${env:PATH}"
         env: |
-          PATH2: "${{ env.PATH }}"
+          PATH2: ${{ env.PATH }}
 
 
 
