@@ -61,41 +61,44 @@ jobs:
 #         with:
 #           architecture: ${{ env.msvc_architecture }}
 
-#       # 34 seconds with zero packages
-#       # 2 minutes and seven(7) seconds with everything
-#       - name: Install Windows mingw Software - 
-#         if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
-#         uses: msys2/setup-msys2@v2
-#         with:
-#           msystem: UCRT64
-#           update: true
-#           install: >-
-#             mingw-w64-ucrt-x86_64-pkg-config
-#             mingw-w64-ucrt-x86_64-curl
-#             git
-#             mingw-w64-ucrt-x86_64-meson
-#             mingw-w64-ucrt-x86_64-make
-#             mingw-w64-ucrt-x86_64-gcc
-#             tar
-#             gzip 
-#             mingw-w64-ucrt-x86_64-readline
-#             mingw-w64-ucrt-x86_64-zlib
-#             mingw-w64-ucrt-x86_64-icu
-#             icu-devel  
-#             git
-#             flex       
-#             bison      
-#             mingw-w64-ucrt-x86_64-perl
-#             mingw-w64-ucrt-x86_64-winpty
-#             p7zip   
-#             tar       
-#             zstd
-#             mingw-w64-ucrt-x86_64-tools-git
-#             mingw-w64-ucrt-x86_64-binutils
-#             mingw-w64-ucrt-x86_64-diffutils
+      # 34 seconds with zero packages
+      # 2 minutes and seven(7) seconds with everything
+      - name: Install Windows mingw Software - 
+        if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: >-
+            mingw-w64-ucrt-x86_64-pkg-config
+            mingw-w64-ucrt-x86_64-curl
+            git
+            mingw-w64-ucrt-x86_64-meson
+            mingw-w64-ucrt-x86_64-make
+            mingw-w64-ucrt-x86_64-gcc
+            tar
+            gzip 
+            mingw-w64-ucrt-x86_64-readline
+            mingw-w64-ucrt-x86_64-zlib
+            mingw-w64-ucrt-x86_64-icu
+            icu-devel  
+            git
+            flex       
+            bison      
+            mingw-w64-ucrt-x86_64-perl
+            mingw-w64-ucrt-x86_64-winpty
+            p7zip   
+            tar       
+            zstd
+            mingw-w64-ucrt-x86_64-tools-git
+            mingw-w64-ucrt-x86_64-binutils
+            mingw-w64-ucrt-x86_64-diffutils
 
       - name: mingw Who and What Place
         if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
       - shell: msys2 {0}
         run: |
           echo "uname: $(uname -a)"
@@ -114,6 +117,9 @@ jobs:
       # NOTE: ONLY RUN IF I KNOW THAT postgres IS IN THE PATH
       - name: What Place Is "postgres"
         if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
       - shell: msys2 {0}
         run: |
           echo "which postgres: $(which postgres)"
