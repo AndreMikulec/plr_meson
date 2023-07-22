@@ -113,6 +113,7 @@ jobs:
         uses: msys2/setup-msys2@v2
         with:
           msystem: UCRT64
+          # DO NOT DO "update: true"
           install: mingw-w64-ucrt-x86_64-postgresql
 
       # NOTE: ONLY RUN IF I KNOW THAT postgres IS IN THE PATH
