@@ -3,7 +3,7 @@ run-name: Testing Creating PL/R using meson
 on: [push]
 jobs:
   build_test_install:
-    name: ${{ matrix.compiler }} ${{ matrix.os }}
+    name: ${{ matrix.compiler }} ${{ matrix.os }} ${{ matrix.FAKE }}
     runs-on: ${{ matrix.os }}
     strategy:
       # Disable fail-fast as we want results from all even if one fails.
