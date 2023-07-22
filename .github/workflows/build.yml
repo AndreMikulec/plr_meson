@@ -94,6 +94,30 @@ jobs:
 #             mingw-w64-ucrt-x86_64-binutils
 #             mingw-w64-ucrt-x86_64-diffutils
 
+      - name: mingw Who and What Place
+        if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
+      - shell: msys2 {0}
+        run: |
+          echo "uname: $(uname -a)"
+          echo "whoami: $(whoami)"
+          echo "id: $(id)"
+          echo "pwd: $(pwd)"
+
+      - name: Install Windows mingw Software - PostgreSQL
+        if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: mingw-w64-ucrt-x86_64-postgresql
+
+      # NOTE: ONLY RUN IF I KNOW THAT postgres IS IN THE PATH
+      - name: What Place Is "postgres"
+        if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
+      - shell: msys2 {0}
+        run: |
+          echo "which postgres: $(which postgres)"
+
       - name: Cache R-x.y.z Windows Installer Exe
         if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
         uses: actions/cache@v3.3.1
