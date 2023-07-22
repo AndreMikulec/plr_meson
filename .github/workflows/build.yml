@@ -35,9 +35,8 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: |
           echo "compiler: ${{ env.compiler }}"
-          echo "PATH2: ${env:PATH}"
-        env: |
-          First_Name: Mona
+          echo "PATH: ${env:PATH}"
+
 
 
 
