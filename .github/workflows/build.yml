@@ -24,4 +24,10 @@ jobs:
         run: |
           # systeminfo
           echo "${{ matrix.compiler }} on ${{ matrix.os }}"
-          if( Test-Path "C:\Program Files\PostgreSQL\14" ) {  "pg x64-14 exists."  } else {  "pg x64-14 not exists." }
+          if( Test-Path "C:\Program Files\PostgreSQL\16" ) { "pg x64-16 exists."  } else {  "pg x64-16 not exists." }
+          if( Test-Path "C:\Program Files\PostgreSQL\15" ) { "pg x64-15 exists."  } else {  "pg x64-15 not exists." }
+          if( Test-Path "C:\Program Files\PostgreSQL\14" ) { "pg x64-14 exists."  } else {  "pg x64-14 not exists." }
+          if( Test-Path "C:\Program Files\PostgreSQL\13" ) { "pg x64-13 exists."  } else {  "pg x64-13 not exists." }
+          if( Test-Path "C:\Program Files\PostgreSQL\12" ) { "pg x64-12 exists."  } else {  "pg x64-12 not exists." }
+          if( Test-Path "C:\Program Files\PostgreSQL\11" ) { "pg x64-11 exists."  } else {  "pg x64-11 not exists." }
+          if( Test-Path "C:\Program Files\PostgreSQL\10" ) { "pg x64-10 exists."  } else {  "pg x64-10 not exists." }
