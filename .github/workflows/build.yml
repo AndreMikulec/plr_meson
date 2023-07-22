@@ -49,7 +49,7 @@ jobs:
       # `x64` for 64-bit x86 machines, `x86` for 32-bit x86 machines.
       # https://github.com/bus1/cabuild/blob/8c91ebf06b7a5f8405cf93c89a6928e4c76967e0/action/msdevshell/action.yml
       - name: Prepare Github Actions, MSVC, and Meson
-        if: ${{ matrix.os == 'windows-latest' && env.compiler = 'msvc' }}
+        if: ${{ matrix.os == 'windows-latest' && env.compiler == 'msvc' }}
         uses: bus1/cabuild/action/msdevshell@v1
         with:
           architecture: ${{ env.msvc_architecture }}
