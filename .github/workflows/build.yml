@@ -280,7 +280,7 @@ jobs:
           fi
           if [ ! -f "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}/pkgconfig/libR.pc" ]
           then
-            cat "libR.pc" | sed "s/R_HOME/${R_HOME}/" | sed "s/R_ARCH/${R_ARCH}/" | sed "s/rversion/${rversion}/" > "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}/pkgconfig/libR.pc"
+            cat "libR.pc" | sed "s|R_HOME|${R_HOME}|" | sed "s|R_ARCH|${R_ARCH}|" | sed "s/rversion/${rversion}/" > "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}/pkgconfig/libR.pc"
           fi
           # WHAT FILENAMES DO THEY USE ON LINUX??
           if [ ! -f "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}/libR.dll.a" ]
