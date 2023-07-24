@@ -92,7 +92,7 @@ jobs:
           function Set-EnvVar {param($X)     Add-Content -Path ${env:GITHUB_ENV} -Value "$X"}
           #
           # ${env:R_HOME}="C:\Program Files\R\R-4.2.3"
-          ${env:R_HOME}="${env:GITHUB_WORKSPACE}\RINSTALL"
+          ${env:R_HOME}="D:\RINSTALL"
           Set-EnvVar "R_HOME=${env:R_HOME}"
           #
           ${env:R_ARCH}="/x64"
@@ -105,8 +105,9 @@ jobs:
         if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
         shell: cmd
         run: |
-          "R-4.2.3-win.exe" /VERYSILENT /DIR=%GITHUB_WORKSPACE%\RINSTALL /NOICONS /TASKS=
-          dir "%GITHUB_WORKSPACE%\RINSTALL"
+           set R_HOME="${{ env.R_HOME }}"
+          "R-4.2.3-win.exe" /VERYSILENT /DIR=%R_HOME% /NOICONS /TASKS=
+          dir "%R_HOME%"
 
       # 34 seconds with zero packages
       # 2 minutes and seven(7) seconds with everything
@@ -268,12 +269,12 @@ jobs:
           ls -alrt "${PG_HOME}"/lib/libpostgres*
 
           # WHAT DO THEY USE ON LINUX??
-          if [ ! -f "${PKG_CONFIG_SYSTEM_LIBRARY_PATH}/libR.dll.a" ]
+          if [ ! -f "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}/libR.dll.a" ]
           then
             pushd "${R_HOME}/bin${R_ARCH}"
             gendef - R.dll > R.def
             dlltool --dllname R.dll --def R.def --output-lib libR.dll.a
-            mv libR.dll.a "${PKG_CONFIG_SYSTEM_LIBRARY_PATH}/libR.dll.a"
+            mv libR.dll.a "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}/libR.dll.a"
             popd
           fi
           # Some environments that use R_ARCH
