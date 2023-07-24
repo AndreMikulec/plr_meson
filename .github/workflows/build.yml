@@ -85,7 +85,7 @@ jobs:
         with:
           msystem: UCRT64
           update: true
-          location: C:\
+          location: D:\
           install: >-
             mingw-w64-ucrt-x86_64-pkg-config
             mingw-w64-ucrt-x86_64-curl
@@ -134,7 +134,7 @@ jobs:
         with:
           msystem: UCRT64
           # DO NOT DO "update: true"
-          location: C:\
+          location: D:\
           install: mingw-w64-ucrt-x86_64-postgresql
 
       - name: Cache R-x.y.z Windows Installer Exe
