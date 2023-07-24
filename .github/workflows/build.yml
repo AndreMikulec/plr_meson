@@ -141,13 +141,6 @@ jobs:
         with:
           url: https://cran.r-project.org/bin/windows/base/old/4.2.3/R-4.2.3-win.exe
 
-      - name: Install R for Windows R-x.y.z R-rmajor.rminor.rpatch
-        if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
-        run: |
-          function Start-App  {param($X,$Y) Start-Process -NoNewWindow -FilePath "$X" -ArgumentList $Y }
-          # "/DIR=C:\RINSTALL" - if a custom install
-          Start-App "R-4.2.3-win.exe" "/VERYSILENT", "/NOICONS", "/TASKS="
-
       - name: Prepare Before - Meson Setup Compile and Non-Meson Manual Test
         if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
         run: |
@@ -161,6 +154,14 @@ jobs:
           #
           ${env:PG_HOME}=""
           Set-EnvVar "PG_HOME="
+
+      - name: Install R for Windows R-x.y.z R-rmajor.rminor.rpatch
+        if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
+        run: |
+          function Start-App  {param($X,$Y) Start-Process -NoNewWindow -FilePath "$X" -ArgumentList $Y }
+          ${env:R_HOME}="${{ env.R_HOME }}"
+          Start-App "R-4.2.3-win.exe" "/VERYSILENT", "/DIR="${env:R_HOME}", "/NOICONS", "/TASKS="
+          dir "${env:R_HOME}"
 
       # C:\msys${{ env.bit }}
       - name: Meson Setup Compile and Non-Meson Manual Test
