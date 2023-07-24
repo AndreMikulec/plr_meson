@@ -112,8 +112,8 @@ jobs:
           msystem: UCRT64
       - shell: msys2 {0}
         run: |
-          set -x -v -e
           echo "mingw Who and What Place"
+          set -x -v -e
           echo "uname: $(uname -a)"
           echo "whoami: $(whoami)"
           echo "id: $(id)"
@@ -128,14 +128,15 @@ jobs:
           install: mingw-w64-ucrt-x86_64-postgresql
 
       # NOTE: ONLY RUN IF I KNOW THAT postgres IS IN THE PATH
-      - name: What Place Is "postgres"
+      - name: 
         if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
         uses: msys2/setup-msys2@v2
         with:
           msystem: UCRT64
       - shell: msys2 {0}
         run: |
-          set -x -v ie
+          echo "What Place Is postgres"
+          set -x -v -e
           echo "What Place Is postgres"
           echo "postgres: $(which postgres)"
           
@@ -185,6 +186,7 @@ jobs:
           msystem: UCRT64
       - shell: msys2 {0}
         run: |
+          echo "Meson Setup Compile and Non-Meson Manual Test"
           set -x -v -e
 
           # Msys
