@@ -47,16 +47,6 @@ jobs:
           ${env:Platform} = "${{ matrix.Platform }}"
           Set-EnvVar "Platform=${env:Platform}"
           Set-EnvVar "bit=64"
-          #
-          # echo "PATH: ${env:PATH}"
-          # DOES set env.PATH but pollutes the output
-          # Set-EnvVar "PATH=C:\ANYWHERE;${env:PATH}"
-          echo "MATRIX.FAKE ${{ matrix.FAKE }}"
-
-      - name: matrix FAKE death
-        if: matrix.FAKE == ''
-        run: |
-          echo "DID NOT DIE"
 
       - name: Matrix Verification Result
         if: matrix.os == 'windows-latest'
@@ -155,7 +145,8 @@ jobs:
         if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
         run: |
           function Start-App  {param($X,$Y) Start-Process -NoNewWindow -FilePath "$X" -ArgumentList $Y }
-          Start-App "R-4.2.3-win.exe" "/VERYSILENT", "/DIR=C:\RINSTALL",  "/NOICONS", "/TASKS="
+          # "/DIR=C:\RINSTALL" - if a custom install
+          Start-App "R-4.2.3-win.exe" "/VERYSILENT", "/NOICONS", "/TASKS="
 
       - name: Prepare Before - Meson Setup Compile and Non-Meson Manual Test
         if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
@@ -276,12 +267,12 @@ jobs:
 
           # WHAT DO THEY USE ON LINUX?
           if [ ! -f "${PKG_CONFIG_SYSTEM_LIBRARY_PATH}/libR.dll.a" ]
-            then
+          then
             pushd "${R_HOME}/bin${R_ARCH}"
             gendef - R.dll > R.def
             dlltool --dllname R.dll --def R.def --output-lib libR.dll.a
             mv libR.dll.a "${PKG_CONFIG_SYSTEM_LIBRARY_PATH}/libR.dll.a"
-          popd
+            popd
           fi
           # Some environments that use R_ARCH
           # E.g. OperatingSystem  "Msys" (and Microsoft Visual C++)
