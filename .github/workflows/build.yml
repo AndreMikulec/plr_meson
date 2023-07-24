@@ -265,7 +265,7 @@ jobs:
 
           ls -alrt "${PG_HOME}"/lib/libpostgres*
 
-          # WHAT DO THEY USE ON LINUX?
+          # WHAT DO THEY USE ON LINUX??
           if [ ! -f "${PKG_CONFIG_SYSTEM_LIBRARY_PATH}/libR.dll.a" ]
           then
             pushd "${R_HOME}/bin${R_ARCH}"
