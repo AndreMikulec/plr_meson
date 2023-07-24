@@ -105,8 +105,8 @@ jobs:
         if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
         shell: cmd
         run: |
-          "R-4.2.3-win.exe" "/VERYSILENT" "/DIR=${env:GITHUB_WORKSPACE}\RINSTALL" "/NOICONS" "/TASKS="
-          dir "${env:GITHUB_WORKSPACE}\RINSTALL"
+          "R-4.2.3-win.exe" /VERYSILENT /DIR=%GITHUB_WORKSPACE%\RINSTALL /NOICONS /TASKS=
+          dir "%GITHUB_WORKSPACE%\RINSTALL"
 
       # 34 seconds with zero packages
       # 2 minutes and seven(7) seconds with everything
