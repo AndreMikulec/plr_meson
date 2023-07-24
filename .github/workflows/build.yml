@@ -191,8 +191,9 @@ jobs:
           # Msys
           # export OperatingSystem=$(uname -o)
 
-          export | grep R_
-          export | grep PG_
+          echo "R_ARCH: ${R_ARCH}"
+          echo "R_HOME: ${R_HOME}"
+          echo "PG_HOME: ${PG_HOME}"
 
           if [    "${R_HOME}" == "" ]
           then
@@ -200,20 +201,18 @@ jobs:
             exit 1
           fi
 
-          if [ ! "${R_HOME}"  == "" ]; then export  R_HOME=$(echo "\""$(echo $(cygpath "${R_HOME}" ))"\"");  fi
-          if [ ! "${PG_HOME}" == "" ]; then export PG_HOME=$(echo "\""$(echo $(cygpath "${PG_HOME}"))"\""); fi
-          if [   "${PG_HOME}" == "" ]; then export PG_HOME=$(echo "\""$(echo $(dirname $(dirname $(which postgres))))"\""); fi
+          if [ ! "${R_HOME}"  == "" ]; then export  R_HOME=$(cygpath "${R_HOME}");  fi
+          if [ ! "${PG_HOME}" == "" ]; then export PG_HOME=$(cygpath "${PG_HOME}"); fi
+          if [   "${PG_HOME}" == "" ]; then export PG_HOME="$(dirname $(dirname $(which postgres)))"; fi
 
-          export | grep R_
-          export | grep PG_
+          echo "R_HOME: ${R_HOME}"
+          echo "PG_HOME: ${PG_HOME}"
 
           # needed so "meson" can find "libraries"
           export PATH="${PG_HOME}/lib:${PATH}"
           #
           # needed so "meson" can find "libraries"
           export PATH="${PG_HOME}/bin:${PATH}"
-
-          echo ${PATH}
 
           # note "cygwin" has "no defaults"
           #
