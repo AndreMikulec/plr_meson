@@ -105,7 +105,7 @@ jobs:
         if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
         shell: cmd
         run: |
-           set R_HOME="${{ env.R_HOME }}"
+          set R_HOME="${{ env.R_HOME }}"
           "R-4.2.3-win.exe" /VERYSILENT /DIR=%R_HOME% /NOICONS /TASKS=
           dir "%R_HOME%"
 
