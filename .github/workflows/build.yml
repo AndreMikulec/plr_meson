@@ -139,7 +139,6 @@ jobs:
           echo "What Place Is postgres"
           echo "postgres: $(which postgres)"
           
-
       - name: Cache R-x.y.z Windows Installer Exe
         if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
         uses: actions/cache@v3.3.1
@@ -164,6 +163,126 @@ jobs:
           function Start-App  {param($X,$Y) Start-Process -NoNewWindow -FilePath "$X" -ArgumentList $Y }
           Start-App "R-4.2.3-win.exe" "/VERYSILENT", "/DIR=C:\RINSTALL",  "/NOICONS", "/TASKS="
 
+      - name: Prepare Before - Meson Setup Compile and Non-Meson Manual Test
+        if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
+        run: |
+          function Set-EnvVar {param($X)     Add-Content -Path ${env:GITHUB_ENV} -Value "$X"}
+          #
+          ${env:R_HOME}="C:\Program Files\R\R-4.2.3"
+          Set-EnvVar "R_HOME=${env:R_HOME}"
+          #
+          ${env:R_ARCH}="/x64"
+          Set-EnvVar "R_HOME=${env:R_HOME}"
+          #
+          ${env:PG_HOME}=""
+          Set-EnvVar "PG_HOME="
 
 
+      - name: Meson Setup Compile and Non-Meson Manual Test
+        if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+      - shell: msys2 {0}
+        run: |
+          set -x -v -e
+
+          # Msys
+          # export OperatingSystem=$(uname -o)
+
+          export | grep R_
+          export | grep PG_
+
+          if [    "${R_HOME}" == "" ]
+          then
+            echo "One must set R_HOME=value"
+            exit 1
+          fi
+
+          if [ ! "${R_HOME}"  == "" ]; then export  R_HOME="$(cygpath "${R_HOME}" );  fi
+          if [ ! "${PG_HOME}" == "" ]; then export PG_HOME="$(cygpath "${PG_HOME}"); fi
+          if [   "${PG_HOME}" == "" ]; then export PG_HOME="$(echo $(dirname $(dirname $(which postgres))))"; fi
+
+          export | grep R_
+          export | grep PG_
+
+          # needed so "meson" can find "libraries"
+          export PATH="${PG_HOME}/lib:${PATH}"
+          #
+          # needed so "meson" can find "libraries"
+          export PATH="${PG_HOME}/bin:${PATH}"
+
+          echo ${PATH}
+
+          # note "cygwin" has "no defaults"
+          #
+          # note mingw MSYS UCRT uses MSYSTEM_PREFIX="/ucrt64" in place of "/usr"
+          # note mingw MSYS UCRT variable PKG_CONFIG_PATH at the tail also has "/ucrt64/share/pkgconfig"
+          #
+          # For OperatingSystem Msys and R environment variable R_ARCH
+          export PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG=${PKG_CONFIG_SYSTEM_LIBRARY_PATH}
+          # MSYS2 UCRT
+          # export PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG="/ucrt64/lib"
+
+          export | grep PKG_
+
+          # OperatingSystem Cygwin
+          if [ "${PKG_CONFIG_PATH}" == "" ];                then export PKG_CONFIG_PATH="/usr/lib/pkgconfig"; fi 
+          if [ "${PKG_CONFIG_SYSTEM_INCLUDE_PATH}" == "" ]; then export PKG_CONFIG_SYSTEM_INCLUDE_PATH="/usr/include"; fi 
+          if [ "${PKG_CONFIG_SYSTEM_LIBRARY_PATH}" == "" ]; then export PKG_CONFIG_SYSTEM_LIBRARY_PATH="/usr/lib"; fi
+
+          export | grep PKG_
+
+          # Garantee to find the PostgreSQL libraries.
+          # Some packages may also install an old "libpg" that is located in the default install location. 
+          # We do not want to use that old "libpg" in compiling PL/R.
+          #
+          export PKG_CONFIG_PATH="${PG_HOME}/lib/pkgconfig:${PKG_CONFIG_PATH}"
+          export PKG_CONFIG_SYSTEM_INCLUDE_PATH="${PG_HOME}/include:${PKG_CONFIG_SYSTEM_INCLUDE_PATH}"
+          export PKG_CONFIG_SYSTEM_LIBRARY_PATH="${PG_HOME}/bin:${PG_HOME}/lib:${PKG_CONFIG_SYSTEM_INCLUDE_PATH}"
+
+          export | grep PKG_
+
+          # Part 1 of 2 of a hack to make "meson" think that "libpostgres" is a library
+          # from libpq.pc create a libpostgres.pc
+          cat "${PG_HOME}/lib/pkgconfig/libpq.pc" | sed "s/libpq/libpostgres/g" | sed "s/-lpq/-lpostgres/" > "${PG_HOME}/lib/pkgconfig/libpostgres.pc"
+
+          cat "${PG_HOME}/lib/pkgconfig/libpostgres.pc"
+
+          # Part 2 of 2 of a hack to make "meson" think that "libpostgres" is a library
+          # libpostgres.exe.a is not recognized as a static library
+          # libpostgres.a     is     recognized as a static library
+          if [ ! -f "${PG_HOME}/lib/libpostgres.a" ]
+          then 
+            cp -f   "${PG_HOME}/lib/libpostgres.exe.a" "${PG_HOME}/lib/libpostgres.a"
+          fi
+
+          ls -alrt "${PG_HOME}"/lib/libpostgres*
+
+          # Some environments that use R_ARCH
+          # E.g. OperatingSystem  "Msys" (and Microsoft Visual C++)
+          #
+          if [ ! -d "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}${R_ARCH}" ] 
+          then
+            mkdir   "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}${R_ARCH}"
+          fi
+          #
+          if [ ! -f "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}${R_ARCH}/libR.dll.a" ]
+          then 
+            cp -f   "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}/libR.dll.a" "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}${R_ARCH}/libR.dll.a"
+          fi
+
+          ls -alrt "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}${R_ARCH}/libR.dll.a"
+
+          mkdir     "${PG_HOME}/contribplr"
+          cp -R   * "${PG_HOME}/contribplr"
+          #
+          pushd     "${PG_HOME}/contribplr"
+          rm -Rf ../contrib/plr
+          meson setup --prefix="${PG_HOME}/contrib/plr" -DR_HOME="${R_HOME}" -DPG_HOME="${PG_HOME}" -Db_pie=true ../contrib/plr
+          meson compile -C ../contrib/plr  -v
+          # Some environments require it
+          export PGUSER=$(whoami)
+          "${PG_HOME}/lib/postgresql/pgxs/src/test/regress/pg_regress" --bindir="${PG_HOME}\bin" --dbname=pl_regression plr bad_fun opt_window do out_args plr_transaction opt_window_frame
+          popd
 
