@@ -85,7 +85,7 @@ jobs:
         with:
           msystem: UCRT64
           update: true
-          location: C:\msys${{ env.bit }}
+          location: C:\
           install: >-
             mingw-w64-ucrt-x86_64-pkg-config
             mingw-w64-ucrt-x86_64-curl
@@ -110,6 +110,9 @@ jobs:
             mingw-w64-ucrt-x86_64-tools-git
             mingw-w64-ucrt-x86_64-binutils
             mingw-w64-ucrt-x86_64-diffutils
+            mingw-w64-ucrt-x86_64-libxml2
+            mingw-w64-ucrt-x86_64-libxslt
+            mingw-w64-ucrt-x86_64-lz4
 
       - name: mingw Who and What Place
         if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
@@ -131,7 +134,7 @@ jobs:
         with:
           msystem: UCRT64
           # DO NOT DO "update: true"
-          location: C:\msys${{ env.bit }}
+          location: C:\
           install: mingw-w64-ucrt-x86_64-postgresql
 
       - name: Cache R-x.y.z Windows Installer Exe
@@ -172,12 +175,7 @@ jobs:
           ${env:PG_HOME}=""
           Set-EnvVar "PG_HOME="
 
-      - name: Meson Setup Compile and Non-Meson Manual Test
-        if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
-        uses: msys2/setup-msys2@v2
-        with:
-        run: |
-
+      # C:\msys${{ env.bit }}
       - name: Meson Setup Compile and Non-Meson Manual Test
         if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
         uses: msys2/setup-msys2@v2
@@ -185,9 +183,9 @@ jobs:
           msystem: UCRT64
       - shell: msys2 {0}
         env:
-         R_HOME: ${{ env.R_HOME }}
-         R_ARCH: ${{ env.R_ARCH }}
-         PG_HOME: ${{ env.PG_HOME }}
+          R_HOME: ${{ env.R_HOME }}
+          R_ARCH: ${{ env.R_ARCH }}
+          PG_HOME: ${{ env.PG_HOME }}
         run: |
           echo "Meson Setup Compile and Non-Meson Manual Test"
           set -x -v -e
@@ -211,6 +209,12 @@ jobs:
 
           echo "R_HOME: ${R_HOME}"
           echo "PG_HOME: ${PG_HOME}"
+
+          # needed so "meson" can find "libraries"
+          # R Non-Sub-Architectures
+          export PATH="${PG_HOME}/bin:${PATH}"
+          # R    Sub-Architectures
+          export PATH="${PG_HOME}/bin${R_ARCH}:${PATH}"
 
           # needed so "meson" can find "libraries"
           export PATH="${PG_HOME}/lib:${PATH}"
@@ -255,15 +259,20 @@ jobs:
 
           # Part 1 of 2 of a hack to make "meson" think that "libpostgres" is a library
           # from libpq.pc create a libpostgres.pc
-          cat "${PG_HOME}/lib/pkgconfig/libpq.pc" | sed "s/libpq/libpostgres/g" | sed "s/-lpq/-lpostgres/" > "${PG_HOME}/lib/pkgconfig/libpostgres.pc"
+          if [ ! -f "${PG_HOME}/lib/pkgconfig/libpostgres.pc" ]
+          then
+            cat "${PG_HOME}/lib/pkgconfig/libpq.pc" | sed "s/libpq/libpostgres/g" | sed "s/-lpq/-lpostgres/" > "${PG_HOME}/lib/pkgconfig/libpostgres.pc"
+          fi
 
           cat "${PG_HOME}/lib/pkgconfig/libpostgres.pc"
 
           # Part 2 of 2 of a hack to make "meson" think that "libpostgres" is a library
           # libpostgres.exe.a is not recognized as a static library
           # libpostgres.a     is     recognized as a static library
-          if [ ! -f "${PG_HOME}/lib/libpostgres.a" ]
+          #                         # typical Repository default install
+          if [ ! -f "${PG_HOME}/lib/libpostgres.a" ] && [ ! -f "${PG_HOME}/lib/libpostgres.dll.a" ]
           then 
+            #                       # meson built postgres install
             cp -f   "${PG_HOME}/lib/libpostgres.exe.a" "${PG_HOME}/lib/libpostgres.a"
           fi
 
@@ -284,6 +293,8 @@ jobs:
 
           ls -alrt "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}${R_ARCH}/libR.dll.a"
 
+          mkdir     "${PG_HOME}/contrib"
+          #
           mkdir     "${PG_HOME}/contribplr"
           cp -R   * "${PG_HOME}/contribplr"
           #
@@ -291,8 +302,13 @@ jobs:
           rm -Rf ../contrib/plr
           meson setup --prefix="${PG_HOME}/contrib/plr" -DR_HOME="${R_HOME}" -DPG_HOME="${PG_HOME}" -Db_pie=true ../contrib/plr
           meson compile -C ../contrib/plr  -v
+          #
+          mkdir     PGDATA
+          initdb -D PGDATA
+          pg_ctl -D PGDATA -l logfile start
           # Some environments require it
           export PGUSER=$(whoami)
           "${PG_HOME}/lib/postgresql/pgxs/src/test/regress/pg_regress" --bindir="${PG_HOME}\bin" --dbname=pl_regression plr bad_fun opt_window do out_args plr_transaction opt_window_frame
+          pg_ctl -D PGDATA -l logfile stop
           popd
 
