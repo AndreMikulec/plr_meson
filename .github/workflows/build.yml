@@ -178,7 +178,6 @@ jobs:
           ${env:PG_HOME}=""
           Set-EnvVar "PG_HOME="
 
-
       - name: Meson Setup Compile and Non-Meson Manual Test
         if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
         uses: msys2/setup-msys2@v2
@@ -201,9 +200,9 @@ jobs:
             exit 1
           fi
 
-          if [ ! "${R_HOME}"  == "" ]; then export  R_HOME="$(cygpath "${R_HOME}" );  fi
-          if [ ! "${PG_HOME}" == "" ]; then export PG_HOME="$(cygpath "${PG_HOME}"); fi
-          if [   "${PG_HOME}" == "" ]; then export PG_HOME="$(echo $(dirname $(dirname $(which postgres))))"; fi
+          if [ ! "${R_HOME}"  == "" ]; then export  R_HOME=$(echo "\""$(echo $(cygpath "${R_HOME}" ))"\"");  fi
+          if [ ! "${PG_HOME}" == "" ]; then export PG_HOME=$(echo "\""$(echo $(cygpath "${PG_HOME}"))"\""); fi
+          if [   "${PG_HOME}" == "" ]; then export PG_HOME=$(echo "\""$(echo $(dirname $(dirname $(which postgres))))"\""); fi
 
           export | grep R_
           export | grep PG_
