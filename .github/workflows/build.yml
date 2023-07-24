@@ -160,8 +160,7 @@ jobs:
         if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
         run: |
           function Start-App  {param($X,$Y) Start-Process -NoNewWindow -FilePath "$X" -ArgumentList $Y }
-          ${env:R_HOME}="${{ env.R_HOME }}"
-          Start-App "R-4.2.3-win.exe" "/VERYSILENT", "/DIR="C:\RINSTALL", "/NOICONS", "/TASKS="
+          Start-App "R-4.2.3-win.exe" "/VERYSILENT", "/DIR=C:\RINSTALL",  "/NOICONS", "/TASKS="
           dir "C:\RINSTALL"
 
       # C:\msys${{ env.bit }}
