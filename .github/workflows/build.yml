@@ -103,9 +103,9 @@ jobs:
 
       - name: Install R for Windows R-x.y.z R-rmajor.rminor.rpatch
         if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
+        shell: cmd
         run: |
-          function Start-App  {param($X,$Y) Start-Process -NoNewWindow -FilePath "$X" -ArgumentList $Y }
-          Start-App "R-4.2.3-win.exe" "/VERYSILENT", "/DIR=${env:GITHUB_WORKSPACE}\RINSTALL",  "/NOICONS", "/TASKS="
+          "R-4.2.3-win.exe" "/VERYSILENT" "/DIR=${env:GITHUB_WORKSPACE}\RINSTALL" "/NOICONS" "/TASKS="
           dir "${env:GITHUB_WORKSPACE}\RINSTALL"
 
       # 34 seconds with zero packages
