@@ -300,15 +300,29 @@ jobs:
           #
           pushd     "${PG_HOME}/contribplr"
           rm -Rf ../contrib/plr
+          rm  -f "${PG_HOME}/share/postgresql/extension/plr.control"
+          rm  -f  ${PG_HOME}/share/postgresql/extension/plr--*.sql
+          rm  -f "${PG_HOME}/lib/postgresql/plr.dll.a"
+          rm  -f "${PG_HOME}/lib/postgresql/plr.dll"
           meson setup --prefix="${PG_HOME}/contrib/plr" -DR_HOME="${R_HOME}" -DPG_HOME="${PG_HOME}" -Db_pie=true ../contrib/plr
           meson compile -C ../contrib/plr  -v
+          #
+          cp plr.control "${PG_HOME}/share/postgresql/extension/plr.control"
+          cp plr--*.sql  "${PG_HOME}/share/postgresql/extension"
+          # 
+          if [ -f "../contrib/plr/plr.dll" ];   then cp ../contrib/plr/plr.dll   "${PG_HOME}/lib/postgresql"; fi
+          if [ -f "../contrib/plr/plr.dll.a" ]; then cp ../contrib/plr/plr.dll.a "${PG_HOME}/lib/postgresql"; fi
+          #
+          if [ -f "../contrib/plr/plr.so" ];    then cp ../contrib/plr/plr.dll   "${PG_HOME}/lib/postgresql"; fi
+          # I am guessing. I will later find out.
+          if [ -f "../contrib/plr/plr.so.a" ];  then cp ../contrib/plr/plr.dll.a "${PG_HOME}/lib/postgresql"; fi
           #
           mkdir     PGDATA
           initdb -D PGDATA
           pg_ctl -D PGDATA -l logfile start
           # Some environments require it
           export PGUSER=$(whoami)
-          "${PG_HOME}/lib/postgresql/pgxs/src/test/regress/pg_regress" --bindir="${PG_HOME}\bin" --dbname=pl_regression plr bad_fun opt_window do out_args plr_transaction opt_window_frame
+          "${PG_HOME}/lib/postgresql/pgxs/src/test/regress/pg_regress" --bindir="${PG_HOME}\bin" --dbname=pl_regression plr bad_fun opt_window do out_args plr_transaction opt_window_frame || (cat regression.diffs && false)
           pg_ctl -D PGDATA -l logfile stop
           popd
 
