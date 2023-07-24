@@ -67,6 +67,47 @@ jobs:
 #         with:
 #           architecture: ${{ env.msvc_architecture }}
 
+
+      - name: Cache R-x.y.z Windows Installer Exe
+        if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
+        uses: actions/cache@v3.3.1
+        id: cacheRWindowsInstallerExe
+        with:
+          path: R-4.2.3-win.exe
+          key:  R-4.2.3-win.exe
+        env:
+          SEGMENT_DOWNLOAD_TIMEOUT_MINS: 1
+
+      # five seconds
+      - name: Download R for Windows R-x.y.z R-rmajor.rminor.rpatch
+        if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' && steps.cacheRWindowsInstallerExe.outputs.cache-hit != 'true' }}
+        uses: suisei-cn/actions-download-file@v1.3.0
+        id: downloadfileRforWindows 
+        with:
+          url: https://cran.r-project.org/bin/windows/base/old/4.2.3/R-4.2.3-win.exe
+
+      - name: Prepare Before - Meson Setup Compile and Non-Meson Manual Test
+        if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
+        run: |
+          function Set-EnvVar {param($X)     Add-Content -Path ${env:GITHUB_ENV} -Value "$X"}
+          #
+          # ${env:R_HOME}="C:\Program Files\R\R-4.2.3"
+          ${env:R_HOME}="${env:GITHUB_WORKSPACE}\RINSTALL"
+          Set-EnvVar "R_HOME=${env:R_HOME}"
+          #
+          ${env:R_ARCH}="/x64"
+          Set-EnvVar "R_ARCH=${env:R_ARCH}"
+          #
+          ${env:PG_HOME}=""
+          Set-EnvVar "PG_HOME="
+
+      - name: Install R for Windows R-x.y.z R-rmajor.rminor.rpatch
+        if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
+        run: |
+          function Start-App  {param($X,$Y) Start-Process -NoNewWindow -FilePath "$X" -ArgumentList $Y }
+          Start-App "R-4.2.3-win.exe" "/VERYSILENT", "/DIR=${env:GITHUB_WORKSPACE}\RINSTALL",  "/NOICONS", "/TASKS="
+          dir "${env:GITHUB_WORKSPACE}\RINSTALL"
+
       # 34 seconds with zero packages
       # 2 minutes and seven(7) seconds with everything
       - name: Install Windows mingw Software - 
@@ -122,46 +163,6 @@ jobs:
           echo "whoami: $(whoami)"
           echo "id: $(id)"
           echo "pwd: $(pwd)"
-
-      - name: Cache R-x.y.z Windows Installer Exe
-        if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
-        uses: actions/cache@v3.3.1
-        id: cacheRWindowsInstallerExe
-        with:
-          path: R-4.2.3-win.exe
-          key:  R-4.2.3-win.exe
-        env:
-          SEGMENT_DOWNLOAD_TIMEOUT_MINS: 1
-
-      # five seconds
-      - name: Download R for Windows R-x.y.z R-rmajor.rminor.rpatch
-        if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' && steps.cacheRWindowsInstallerExe.outputs.cache-hit != 'true' }}
-        uses: suisei-cn/actions-download-file@v1.3.0
-        id: downloadfileRforWindows 
-        with:
-          url: https://cran.r-project.org/bin/windows/base/old/4.2.3/R-4.2.3-win.exe
-
-      - name: Prepare Before - Meson Setup Compile and Non-Meson Manual Test
-        if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
-        run: |
-          function Set-EnvVar {param($X)     Add-Content -Path ${env:GITHUB_ENV} -Value "$X"}
-          #
-          # ${env:R_HOME}="C:\Program Files\R\R-4.2.3"
-          ${env:R_HOME}="${env:GITHUB_WORKSPACE}\RINSTALL"
-          Set-EnvVar "R_HOME=${env:R_HOME}"
-          #
-          ${env:R_ARCH}="/x64"
-          Set-EnvVar "R_ARCH=${env:R_ARCH}"
-          #
-          ${env:PG_HOME}=""
-          Set-EnvVar "PG_HOME="
-
-      - name: Install R for Windows R-x.y.z R-rmajor.rminor.rpatch
-        if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
-        run: |
-          function Start-App  {param($X,$Y) Start-Process -NoNewWindow -FilePath "$X" -ArgumentList $Y }
-          Start-App "R-4.2.3-win.exe" "/VERYSILENT", "/DIR=${env:GITHUB_WORKSPACE}\RINSTALL",  "/NOICONS", "/TASKS="
-          dir "${env:GITHUB_WORKSPACE}\RINSTALL"
 
       # C:\msys${{ env.bit }}
       - name: Meson Setup Compile and Non-Meson Manual Test
