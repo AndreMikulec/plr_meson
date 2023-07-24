@@ -85,6 +85,9 @@ jobs:
         with:
           msystem: UCRT64
           update: true
+          # if a 2nd run (not the proper way to install "postgres" separately)
+          # if a 2nd run DO NOT DO "update: true"
+          # if a 2nd run May not be able to find "postgres"
           location: D:\
           install: >-
             mingw-w64-ucrt-x86_64-pkg-config
@@ -113,6 +116,7 @@ jobs:
             mingw-w64-ucrt-x86_64-libxml2
             mingw-w64-ucrt-x86_64-libxslt
             mingw-w64-ucrt-x86_64-lz4
+            mingw-w64-ucrt-x86_64-postgresql
 
       - name: mingw Who and What Place
         if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
