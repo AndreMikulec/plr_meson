@@ -132,15 +132,6 @@ jobs:
           echo "id: $(id)"
           echo "pwd: $(pwd)"
 
-      - name: Install Windows mingw Software - PostgreSQL
-        if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
-        uses: msys2/setup-msys2@v2
-        with:
-          msystem: UCRT64
-          # DO NOT DO "update: true"
-          location: D:\
-          install: mingw-w64-ucrt-x86_64-postgresql
-
       - name: Cache R-x.y.z Windows Installer Exe
         if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
         uses: actions/cache@v3.3.1
