@@ -160,7 +160,7 @@ jobs:
         run: |
           function Start-App  {param($X,$Y) Start-Process -NoNewWindow -FilePath "$X" -ArgumentList $Y }
           ${env:R_HOME}="${{ env.R_HOME }}"
-          Start-App "R-4.2.3-win.exe" "/VERYSILENT", "/DIR="${env:R_HOME}", "/NOICONS", "/TASKS="
+          Start-App "R-4.2.3-win.exe" "/VERYSILENT", "/DIR="`"${env:R_HOME}`"", "/NOICONS", "/TASKS="
           dir "${env:R_HOME}"
 
       # C:\msys${{ env.bit }}
