@@ -146,7 +146,8 @@ jobs:
         run: |
           function Set-EnvVar {param($X)     Add-Content -Path ${env:GITHUB_ENV} -Value "$X"}
           #
-          ${env:R_HOME}="C:\Program Files\R\R-4.2.3"
+          # ${env:R_HOME}="C:\Program Files\R\R-4.2.3"
+          ${env:R_HOME}="C:\RINSTALL"
           Set-EnvVar "R_HOME=${env:R_HOME}"
           #
           ${env:R_ARCH}="/x64"
@@ -160,8 +161,8 @@ jobs:
         run: |
           function Start-App  {param($X,$Y) Start-Process -NoNewWindow -FilePath "$X" -ArgumentList $Y }
           ${env:R_HOME}="${{ env.R_HOME }}"
-          Start-App "R-4.2.3-win.exe" "/VERYSILENT", "/DIR="`"${env:R_HOME}`"", "/NOICONS", "/TASKS="
-          dir "${env:R_HOME}"
+          Start-App "R-4.2.3-win.exe" "/VERYSILENT", "/DIR="C:\RINSTALL", "/NOICONS", "/TASKS="
+          dir "C:\RINSTALL"
 
       # C:\msys${{ env.bit }}
       - name: Meson Setup Compile and Non-Meson Manual Test
