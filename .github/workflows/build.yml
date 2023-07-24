@@ -218,24 +218,24 @@ jobs:
           # needed so "meson" can find "libraries"
           export PATH="${PG_HOME}/bin:${PATH}"
 
+          echo "PKG_CONFIG_PATH: ${PKG_CONFIG_PATH}"
+          echo "PKG_CONFIG_SYSTEM_INCLUDE_PATH: ${PKG_CONFIG_SYSTEM_INCLUDE_PATH}"
+          echo "PKG_CONFIG_SYSTEM_LIBRARY_PATH: ${PKG_CONFIG_SYSTEM_LIBRARY_PATH}"
+
           # note "cygwin" has "no defaults"
           #
           # note mingw MSYS UCRT uses MSYSTEM_PREFIX="/ucrt64" in place of "/usr"
           # note mingw MSYS UCRT variable PKG_CONFIG_PATH at the tail also has "/ucrt64/share/pkgconfig"
           #
-          # For OperatingSystem Msys and R environment variable R_ARCH
-          export PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG=${PKG_CONFIG_SYSTEM_LIBRARY_PATH}
-          # MSYS2 UCRT
-          # export PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG="/ucrt64/lib"
-
-          echo "PKG_CONFIG_PATH: ${PKG_CONFIG_PATH}"
-          echo "PKG_CONFIG_SYSTEM_INCLUDE_PATH: ${PKG_CONFIG_SYSTEM_INCLUDE_PATH}"
-          echo "PKG_CONFIG_SYSTEM_LIBRARY_PATH: ${PKG_CONFIG_SYSTEM_LIBRARY_PATH}"
-
           # OperatingSystem Cygwin
           if [ "${PKG_CONFIG_PATH}" == "" ];                then export PKG_CONFIG_PATH="/usr/lib/pkgconfig"; fi 
           if [ "${PKG_CONFIG_SYSTEM_INCLUDE_PATH}" == "" ]; then export PKG_CONFIG_SYSTEM_INCLUDE_PATH="/usr/include"; fi 
           if [ "${PKG_CONFIG_SYSTEM_LIBRARY_PATH}" == "" ]; then export PKG_CONFIG_SYSTEM_LIBRARY_PATH="/usr/lib"; fi
+
+          # For OperatingSystem Msys and R environment variable R_ARCH
+          export PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG=${PKG_CONFIG_SYSTEM_LIBRARY_PATH}
+          # MSYS2 UCRT
+          # export PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG="/ucrt64/lib"
 
           echo "PKG_CONFIG_PATH: ${PKG_CONFIG_PATH}"
           echo "PKG_CONFIG_SYSTEM_INCLUDE_PATH: ${PKG_CONFIG_SYSTEM_INCLUDE_PATH}"
@@ -274,6 +274,15 @@ jobs:
 
           ls -alrt "${PG_HOME}"/lib/libpostgres*
 
+          # WHAT DO THEY USE ON LINUX?
+          if [ ! -f "${PKG_CONFIG_SYSTEM_LIBRARY_PATH}/libR.dll.a" ]
+            then
+            pushd "$R_HOME/bin$R_ARCH"
+            gendef - R.dll > R.def
+            dlltool --dllname R.dll --def R.def --output-lib libR.dll.a
+            mv libR.dll.a "${PKG_CONFIG_SYSTEM_LIBRARY_PATH}/libR.dll.a"
+          popd
+          fi
           # Some environments that use R_ARCH
           # E.g. OperatingSystem  "Msys" (and Microsoft Visual C++)
           #
