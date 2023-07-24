@@ -88,7 +88,8 @@ jobs:
           # if a 2nd run (not the proper way to install "postgres" separately)
           # if a 2nd run DO NOT DO "update: true"
           # if a 2nd run May not be able to find "postgres"
-          location: D:\
+          # MAY BE BROKEN?
+          # location: D:\
           install: >-
             mingw-w64-ucrt-x86_64-pkg-config
             mingw-w64-ucrt-x86_64-curl
