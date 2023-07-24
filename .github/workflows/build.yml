@@ -260,7 +260,7 @@ jobs:
             cat "${PG_HOME}/lib/pkgconfig/libpq.pc" | sed "s/libpq/libpostgres/g" | sed "s/-lpq/-lpostgres/" > "${PG_HOME}/lib/pkgconfig/libpostgres.pc"
           fi
 
-          cat "${PG_HOME}/lib/pkgconfig/libpostgres.pc"
+          # cat "${PG_HOME}/lib/pkgconfig/libpostgres.pc"
 
           # Part 2 of 2 of a hack to make "meson" think that "libpostgres" is a library
           # libpostgres.exe.a is not recognized as a static library
@@ -277,7 +277,7 @@ jobs:
           # WHAT DO THEY USE ON LINUX?
           if [ ! -f "${PKG_CONFIG_SYSTEM_LIBRARY_PATH}/libR.dll.a" ]
             then
-            pushd "$R_HOME/bin$R_ARCH"
+            pushd "${R_HOME}/bin${R_ARCH}"
             gendef - R.dll > R.def
             dlltool --dllname R.dll --def R.def --output-lib libR.dll.a
             mv libR.dll.a "${PKG_CONFIG_SYSTEM_LIBRARY_PATH}/libR.dll.a"
