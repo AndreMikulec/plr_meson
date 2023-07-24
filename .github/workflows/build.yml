@@ -92,6 +92,10 @@ jobs:
           function Set-EnvVar {param($X)     Add-Content -Path ${env:GITHUB_ENV} -Value "$X"}
           #
           # ${env:R_HOME}="C:\Program Files\R\R-4.2.3"
+          #
+          ${env:rversion}="4.2.3"
+          Set-EnvVar "rversion=${env:rversion}"
+          #
           ${env:R_HOME}="D:\RINSTALL"
           Set-EnvVar "R_HOME=${env:R_HOME}"
           #
@@ -176,6 +180,7 @@ jobs:
           R_HOME: ${{ env.R_HOME }}
           R_ARCH: ${{ env.R_ARCH }}
           PG_HOME: ${{ env.PG_HOME }}
+          rversion: ${{ env.rversion }}
         run: |
           echo "Meson Setup Compile and Non-Meson Manual Test"
           set -x -v -e
@@ -268,7 +273,16 @@ jobs:
 
           ls -alrt "${PG_HOME}"/lib/libpostgres*
 
-          # WHAT DO THEY USE ON LINUX??
+          # Make R into a library
+          if [ ! -d "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}/pkgconfig" ]
+          then
+            mkdir "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}/pkgconfig"
+          fi
+          if [ ! -f "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}/pkgconfig/libR.pc" ]
+          then
+            cat "libR.pc" | sed "s/R_HOME/${R_HOME}/" | sed "s/R_ARCH/${R_ARCH}/" | sed "s/rversion/${rversion}/" > "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}/pkgconfig/libR.pc"
+          fi
+          # WHAT FILENAMES DO THEY USE ON LINUX??
           if [ ! -f "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}/libR.dll.a" ]
           then
             pushd "${R_HOME}/bin${R_ARCH}"
