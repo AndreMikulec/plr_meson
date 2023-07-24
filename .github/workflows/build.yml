@@ -13,6 +13,7 @@ jobs:
 
           - compiler: UCRT64
             os: windows-latest
+            Platform: x64
 
 #         - compiler: cygwin
 #           os: windows-latest
@@ -42,6 +43,10 @@ jobs:
           Set-EnvVar "compiler=${env:compiler}"
           ${env:os} = "${{ matrix.os }}"
           Set-EnvVar "os=${env:os}"
+          #
+          ${env:Platform} = "${{ matrix.Platform }}"
+          Set-EnvVar "Platform=${env:Platform}"
+          Set-EnvVar "bit=64"
           #
           # echo "PATH: ${env:PATH}"
           # DOES set env.PATH but pollutes the output
@@ -80,6 +85,7 @@ jobs:
         with:
           msystem: UCRT64
           update: true
+          location: C:\msys${{ env.bit }}
           install: >-
             mingw-w64-ucrt-x86_64-pkg-config
             mingw-w64-ucrt-x86_64-curl
@@ -125,21 +131,9 @@ jobs:
         with:
           msystem: UCRT64
           # DO NOT DO "update: true"
+          location: C:\msys${{ env.bit }}
           install: mingw-w64-ucrt-x86_64-postgresql
 
-      # NOTE: ONLY RUN IF I KNOW THAT postgres IS IN THE PATH
-      - name: 
-        if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
-        uses: msys2/setup-msys2@v2
-        with:
-          msystem: UCRT64
-      - shell: msys2 {0}
-        run: |
-          echo "What Place Is postgres"
-          set -x -v -e
-          echo "What Place Is postgres"
-          echo "postgres: $(which postgres)"
-          
       - name: Cache R-x.y.z Windows Installer Exe
         if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
         uses: actions/cache@v3.3.1
@@ -182,8 +176,18 @@ jobs:
         if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
         uses: msys2/setup-msys2@v2
         with:
+        run: |
+
+      - name: Meson Setup Compile and Non-Meson Manual Test
+        if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
+        uses: msys2/setup-msys2@v2
+        with:
           msystem: UCRT64
       - shell: msys2 {0}
+        env:
+         R_HOME: ${{ env.R_HOME }}
+         R_ARCH: ${{ env.R_ARCH }}
+         PG_HOME: ${{ env.PG_HOME }}
         run: |
           echo "Meson Setup Compile and Non-Meson Manual Test"
           set -x -v -e
@@ -224,14 +228,18 @@ jobs:
           # MSYS2 UCRT
           # export PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG="/ucrt64/lib"
 
-          export | grep PKG_
+          echo "PKG_CONFIG_PATH: ${PKG_CONFIG_PATH}"
+          echo "PKG_CONFIG_SYSTEM_INCLUDE_PATH: ${PKG_CONFIG_SYSTEM_INCLUDE_PATH}"
+          echo "PKG_CONFIG_SYSTEM_LIBRARY_PATH: ${PKG_CONFIG_SYSTEM_LIBRARY_PATH}"
 
           # OperatingSystem Cygwin
           if [ "${PKG_CONFIG_PATH}" == "" ];                then export PKG_CONFIG_PATH="/usr/lib/pkgconfig"; fi 
           if [ "${PKG_CONFIG_SYSTEM_INCLUDE_PATH}" == "" ]; then export PKG_CONFIG_SYSTEM_INCLUDE_PATH="/usr/include"; fi 
           if [ "${PKG_CONFIG_SYSTEM_LIBRARY_PATH}" == "" ]; then export PKG_CONFIG_SYSTEM_LIBRARY_PATH="/usr/lib"; fi
 
-          export | grep PKG_
+          echo "PKG_CONFIG_PATH: ${PKG_CONFIG_PATH}"
+          echo "PKG_CONFIG_SYSTEM_INCLUDE_PATH: ${PKG_CONFIG_SYSTEM_INCLUDE_PATH}"
+          echo "PKG_CONFIG_SYSTEM_LIBRARY_PATH: ${PKG_CONFIG_SYSTEM_LIBRARY_PATH}"
 
           # Garantee to find the PostgreSQL libraries.
           # Some packages may also install an old "libpg" that is located in the default install location. 
@@ -239,9 +247,11 @@ jobs:
           #
           export PKG_CONFIG_PATH="${PG_HOME}/lib/pkgconfig:${PKG_CONFIG_PATH}"
           export PKG_CONFIG_SYSTEM_INCLUDE_PATH="${PG_HOME}/include:${PKG_CONFIG_SYSTEM_INCLUDE_PATH}"
-          export PKG_CONFIG_SYSTEM_LIBRARY_PATH="${PG_HOME}/bin:${PG_HOME}/lib:${PKG_CONFIG_SYSTEM_INCLUDE_PATH}"
+          export PKG_CONFIG_SYSTEM_LIBRARY_PATH="${PG_HOME}/bin:${PG_HOME}/lib:${PKG_CONFIG_SYSTEM_LIBRARY_PATH}"
 
-          export | grep PKG_
+          echo "PKG_CONFIG_PATH: ${PKG_CONFIG_PATH}"
+          echo "PKG_CONFIG_SYSTEM_INCLUDE_PATH: ${PKG_CONFIG_SYSTEM_INCLUDE_PATH}"
+          echo "PKG_CONFIG_SYSTEM_LIBRARY_PATH: ${PKG_CONFIG_SYSTEM_LIBRARY_PATH}"
 
           # Part 1 of 2 of a hack to make "meson" think that "libpostgres" is a library
           # from libpq.pc create a libpostgres.pc
