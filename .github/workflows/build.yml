@@ -112,6 +112,7 @@ jobs:
           msystem: UCRT64
       - shell: msys2 {0}
         run: |
+          set -x -v -e
           echo "mingw Who and What Place"
           echo "uname: $(uname -a)"
           echo "whoami: $(whoami)"
@@ -134,8 +135,10 @@ jobs:
           msystem: UCRT64
       - shell: msys2 {0}
         run: |
+          set -x -v ie
           echo "What Place Is postgres"
-          echo "which postgres: $(which postgres)"
+          echo "postgres: $(which postgres)"
+          
 
       - name: Cache R-x.y.z Windows Installer Exe
         if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
