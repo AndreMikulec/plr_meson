@@ -191,6 +191,7 @@ jobs:
           echo "R_ARCH: ${R_ARCH}"
           echo "R_HOME: ${R_HOME}"
           echo "PG_HOME: ${PG_HOME}"
+          echo "rversion: ${rversion}"
 
           if [    "${R_HOME}" == "" ]
           then
@@ -241,7 +242,7 @@ jobs:
           echo "PKG_CONFIG_SYSTEM_LIBRARY_PATH: ${PKG_CONFIG_SYSTEM_LIBRARY_PATH}"
 
           # Garantee to find the PostgreSQL libraries.
-          # Some packages may also install an old "libpg" that is located in the default install location. 
+          # Some packages may also install an old "libpq" that is located in the default install location. 
           # We do not want to use that old "libpg" in compiling PL/R.
           #
           export PKG_CONFIG_PATH="${PG_HOME}/lib/pkgconfig:${PKG_CONFIG_PATH}"
@@ -282,14 +283,14 @@ jobs:
           then
             cat "libR.pc" | sed "s|R_HOME|${R_HOME}|" | sed "s|R_ARCH|${R_ARCH}|" | sed "s/rversion/${rversion}/" > "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}/pkgconfig/libR.pc"
           fi
-          # WHAT FILENAMES DO THEY USE ON LINUX??
+          #
           if [ ! -f "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}/libR.dll.a" ]
           then
             pushd "${R_HOME}/bin${R_ARCH}"
             gendef - R.dll > R.def
             dlltool --dllname R.dll --def R.def --output-lib libR.dll.a
-            mv libR.dll.a "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}/libR.dll.a"
-            popd
+            cp libR.dll.a "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}/libR.dll.a"
+            popd # from "${R_HOME}/bin${R_ARCH}"
           fi
           # Some environments that use R_ARCH
           # E.g. OperatingSystem  "Msys" (and Microsoft Visual C++)
@@ -302,10 +303,8 @@ jobs:
           if [ ! -f "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}${R_ARCH}/libR.dll.a" ]
           then 
             cp -f   "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}/libR.dll.a" "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}${R_ARCH}/libR.dll.a"
+            ls -alrt                                                    "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}${R_ARCH}/libR.dll.a"
           fi
-
-          ls -alrt "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}${R_ARCH}/libR.dll.a"
-
           mkdir     "${PG_HOME}/contrib"
           #
           mkdir     "${PG_HOME}/contribplr"
@@ -320,22 +319,30 @@ jobs:
           meson setup --prefix="${PG_HOME}/contrib/plr" -DR_HOME="${R_HOME}" -DPG_HOME="${PG_HOME}" -Db_pie=true ../contrib/plr
           meson compile -C ../contrib/plr  -v
           #
-          cp plr.control "${PG_HOME}/share/postgresql/extension/plr.control"
-          cp plr--*.sql  "${PG_HOME}/share/postgresql/extension"
           # 
-          if [ -f "../contrib/plr/plr.dll" ];   then cp ../contrib/plr/plr.dll   "${PG_HOME}/lib/postgresql"; fi
-          if [ -f "../contrib/plr/plr.dll.a" ]; then cp ../contrib/plr/plr.dll.a "${PG_HOME}/lib/postgresql"; fi
+          if [ -f "../contrib/plr/plr.dll" ]
+          then 
+            cp ../contrib/plr/plr.dll   "${PG_HOME}/lib/postgresql"
+            ls -alrt                    "${PG_HOME}/lib/postgresql/plr.dll"
+          fi
           #
-          if [ -f "../contrib/plr/plr.so" ];    then cp ../contrib/plr/plr.dll   "${PG_HOME}/lib/postgresql"; fi
-          # I am guessing. I will later find out.
-          if [ -f "../contrib/plr/plr.so.a" ];  then cp ../contrib/plr/plr.dll.a "${PG_HOME}/lib/postgresql"; fi
+          if [ -f "../contrib/plr/plr.dll.a" ]
+            then cp ../contrib/plr/plr.dll.a "${PG_HOME}/lib/postgresql/plr.dll.a"
+            ls -alrt                         "${PG_HOME}/lib/postgresql/plr.dll.a"
+          fi
           #
+          cp plr.control "${PG_HOME}/share/postgresql/extension"
+          ls -alrt       "${PG_HOME}/share/postgresql/extension/plr.control"
+
+          cp plr--*.sql  "${PG_HOME}/share/postgresql/extension"
+          ls -alrt       "${PG_HOME}/share/postgresql/extension/plr--*.sql"
+
           mkdir     PGDATA
           initdb -D PGDATA
           pg_ctl -D PGDATA -l logfile start
           # Some environments require it
           export PGUSER=$(whoami)
-          "${PG_HOME}/lib/postgresql/pgxs/src/test/regress/pg_regress" --bindir="${PG_HOME}\bin" --dbname=pl_regression plr bad_fun opt_window do out_args plr_transaction opt_window_frame || (cat regression.diffs && false)
+          "${PG_HOME}/lib/postgresql/pgxs/src/test/regress/pg_regress" --bindir="${PG_HOME}/bin" --dbname=pl_regression plr bad_fun opt_window do out_args plr_transaction opt_window_frame || (cat regression.diffs && false)
           pg_ctl -D PGDATA -l logfile stop
-          popd
+          popd # from "${PG_HOME}/contribplr"
 
