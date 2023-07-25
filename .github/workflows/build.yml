@@ -206,17 +206,7 @@ jobs:
           echo "R_HOME: ${R_HOME}"
           echo "PG_HOME: ${PG_HOME}"
 
-          # needed so the plr runtime can find "libraries"
-          # R Non-Sub-Architectures
-          export PATH="${R_HOME}/bin:${PATH}"
-          # R    Sub-Architectures
-          export PATH="${R_HOME}/bin${R_ARCH}:${PATH}"
 
-          # needed so "meson" can find "libraries"
-          export PATH="${PG_HOME}/lib:${PATH}"
-          #
-          # needed so "meson" can find "libraries"
-          export PATH="${PG_HOME}/bin:${PATH}"
 
           echo "PKG_CONFIG_PATH: ${PKG_CONFIG_PATH}"
           echo "PKG_CONFIG_SYSTEM_INCLUDE_PATH: ${PKG_CONFIG_SYSTEM_INCLUDE_PATH}"
@@ -297,9 +287,8 @@ jobs:
             pushd "${R_HOME}/bin${R_ARCH}"
             gendef - R.dll > R.def
             dlltool --dllname R.dll --def R.def --output-lib libR.dll.a
-            ### 
-            ### mv libR.dll.a "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}/libR.dll.a"
-            ### required to leave {ORIG}/libR.dll.a or ONLY {ORIG}x64/libR.dll.a
+            #
+            # Put libR.dll.a into the general library location {...ORIG}${R_ARCH}/libR.dll.a
             mv libR.dll.a "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}${R_ARCH}/libR.dll.a"
             popd # from "${R_HOME}/bin${R_ARCH}"
           fi
@@ -359,6 +348,21 @@ jobs:
           mkdir     PGDATA
           initdb -D PGDATA
           pg_ctl -D PGDATA -l logfile start
+
+          # TEST - PATHs are only needed for runtime resolution
+          #
+          # needed so the plr runtime can find "libraries"
+          # R Non-Sub-Architectures
+          export PATH="${R_HOME}/bin:${PATH}"
+          # R    Sub-Architectures
+          export PATH="${R_HOME}/bin${R_ARCH}:${PATH}"
+
+          # needed so "meson" can find "libraries"
+          export PATH="${PG_HOME}/lib:${PATH}"
+          #
+          # needed so "meson" can find "libraries"
+          export PATH="${PG_HOME}/bin:${PATH}"
+
           # Some environments require it
           export PGUSER=$(whoami)
           "${PG_HOME}/lib/postgresql/pgxs/src/test/regress/pg_regress" --bindir="${PG_HOME}/bin" --dbname=pl_regression plr bad_fun opt_window do out_args plr_transaction opt_window_frame || (cat regression.diffs && false)
