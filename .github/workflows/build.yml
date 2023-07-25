@@ -135,6 +135,7 @@ jobs:
           if("${env:R_ARCH}" -eq "none")  {${env:R_ARCHplat} = "none"}
           Set-EnvVar "R_ARCHplat=${env:R_ARCHplat}"
 
+
       - name: Matrix Windows Platform Specific Variables
         if: ${{ env.os == 'windows-latest' && ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) }}
         run: |
