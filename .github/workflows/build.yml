@@ -11,6 +11,7 @@ jobs:
       matrix:
         include:
 
+          # last PL/R that can be compiled is Microsoft Visual Studio
           - compiler: UCRT64
             os: windows-latest
             Platform: x64
@@ -33,11 +34,13 @@ jobs:
             rversion: 2.11.1
             R_HOME: 'D:\RINSTALL'
 
-#         - compiler: cygwin
-#           os: windows-latest
-# 
-#         - compiler: msvc
-#           os: windows-latest
+          - compiler: cygwin
+            os: windows-latest
+            Platform: x64
+
+          - compiler: msvc
+            os: windows-latest
+            Platform: x86
 
     steps:
 
@@ -121,6 +124,36 @@ jobs:
           }
           Set-EnvVar "rversionlong=${env:rversionlong}"
 
+          # R-major.minor.patch
+
+          ${env:rversion} -match '(\d+)'
+          ${env:rmajor} = $matches[1]
+          Set-EnvVar "rmajor=${env:rmajor}"
+
+          ${env:rversion} -match '\d+[.](\d+)'
+          ${env:rminor} = $matches[1]
+          Set-EnvVar "rminor=${env:rminor}"
+
+          ${env:rversion} -match '\d+[.]\d+[.](\d+)'
+          ${env:rpatch} = $matches[1]
+          Set-EnvVar "rpatch=${env:rpatch}"
+
+          ${env:rversionnumeric} = ([int]"${env:rmajor}" * 10000) + ([int]"${env:rminor}" * 100) + ([int]"${env:rpatch}")
+          Set-EnvVar "rversionnumeric=${env:rversionnumeric}"
+
+          # CRAN download URL
+          ${env:CRAN_R_DOWNLOAD_URL} ="none"
+          
+          if([int]"${{ env.rversionnumeric }}" -ge 30600 ) {
+            ${env:CRAN_R_DOWNLOAD_URL} = "https://cran.r-project.org/bin/windows/base/old/${{ matrix.rversion }}/R-${{ matrix.rversionlong }}.exe"
+          }
+
+          if([int]"${{ env.rversionnumeric }}" -ls 30600 ) {
+            ${env:CRAN_R_DOWNLOAD_URL} = "https://cran-archive.r-project.org/bin/windows/base/old/${{ matrix.rversion }}/R-${{ matrix.rversionlong }}.exe"
+          }
+          Set-EnvVar "CRAN_R_DOWNLOAD_URL=${env:CRAN_R_DOWNLOAD_URL}"
+          echo "CRAN_R_DOWNLOAD_URL ${env:CRAN_R_DOWNLOAD_URL}"
+
 #       # running Meson on GitHub Actions will end up using GCC rather than MSVC
 #       #
 #       # His fix . 
@@ -159,8 +192,8 @@ jobs:
         uses: suisei-cn/actions-download-file@v1.3.0
         id: downloadfileRforWindows 
         with:
-          url: https://cran.r-project.org/bin/windows/base/old/${{ env.rversion }}/R-${{ env.rversionlong }}.exe
-
+          url: ${env:CRAN_R_DOWNLOAD_URL}
+ 
       - name: Install R for Windows R-x.y.z R-rmajor.rminor.rpatch
         if: ${{ env.os == 'windows-latest' && ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) }}
         shell: cmd
@@ -177,11 +210,11 @@ jobs:
 
       # 34 seconds with zero packages
       # 2 minutes and seven(7) seconds with everything
-      - name: Install Windows mingw Software - 
+      - name: Install Windows mingw Software 
         if: ${{ env.os == 'windows-latest' && ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) }}
         uses: msys2/setup-msys2@v2
         with:
-          msystem: UCRT64
+          msystem: ${{ env.compiler }}
           update: true
           # if a 2nd run (not the proper way to install "postgres" separately)
           # if a 2nd run DO NOT DO "update: true"
