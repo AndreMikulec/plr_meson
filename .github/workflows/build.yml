@@ -15,27 +15,23 @@ jobs:
             os: windows-latest
             Platform: x64
             rversion: 4.2.3
-            R_HOME: "D:\RINSTALL"
+            R_HOME: 'D:\RINSTALL'
             R_ARCH: /x64
-            PG_HOME:
 
           # last "R for Windows" supports x86 and sub-architecture
           - compiler: MINGW32
             os: windows-latest
             Platform: x86
             rversion: 4.1.3
-            R_HOME: "D:\RINSTALL"
+            R_HOME: 'D:\RINSTALL'
             R_ARCH: /i386
-            PG_HOME:
 
           # last "R for Windows" supports x86 and single architecure
           - compiler: MINGW32
             os: windows-latest
             Platform: x86
             rversion: 2.11.1
-            R_HOME: "D:\RINSTALL"
-            R_ARCH: /i386
-            PG_HOME
+            R_HOME: 'D:\RINSTALL'
 
 #         - compiler: cygwin
 #           os: windows-latest
@@ -172,6 +168,8 @@ jobs:
           set R_HOME="${{ env.R_HOME }}"
           set R_ARCHplat=${{ env.R_ARCHplat }}
           # need "main" for the GUIs and command line utilites to work
+          # A comma at the end is O.K
+          # Component "none" is ignored
           "R-${{ env.rversionlong }}.exe" /VERYSILENT /COMPONENTS=main,%R_ARCHplat% /DIR=%R_HOME% /NOICONS /TASKS=
           dir "%R_HOME%"
 
