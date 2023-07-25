@@ -42,10 +42,6 @@ jobs:
 #             rversion: 2.11.1
 #             R_HOME: 'D:\RINSTALL'
 
-          - compiler: MINGW32
-            os: windows-latest
-            Platform: x86
-
     steps:
 
       - name: Prepare to Download Files from Github
