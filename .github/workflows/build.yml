@@ -77,20 +77,26 @@ jobs:
           if("${env:rversion}" -eq ""){${env:rversion} = "none"}
           Set-EnvVar "rversion=${env:rversion}"
 
-          # R-major.minor.patch
-          ${env:rversion} -match '(\d+)'
-          ${env:rmajor} = $matches[1]
+          ${env:rmajor} = "none"
+          ${env:rminor} = "none"
+          ${env:rpatch} = "none"
+          ${env:rversionnumeric} = "none"
+          if("${env:rversion}" -ne "none") {
+            # R-major.minor.patch
+            ${env:rversion} -match '(\d+)'
+            ${env:rmajor} = $matches[1]
+
+            ${env:rversion} -match '\d+[.](\d+)'
+            ${env:rminor} = $matches[1]
+
+            ${env:rversion} -match '\d+[.]\d+[.](\d+)'
+            ${env:rpatch} = $matches[1]
+
+            ${env:rversionnumeric} = ([int]"${env:rmajor}" * 10000) + ([int]"${env:rminor}" * 100) + ([int]"${env:rpatch}")
+          }
           Set-EnvVar "rmajor=${env:rmajor}"
-
-          ${env:rversion} -match '\d+[.](\d+)'
-          ${env:rminor} = $matches[1]
           Set-EnvVar "rminor=${env:rminor}"
-
-          ${env:rversion} -match '\d+[.]\d+[.](\d+)'
-          ${env:rpatch} = $matches[1]
           Set-EnvVar "rpatch=${env:rpatch}"
-
-          ${env:rversionnumeric} = ([int]"${env:rmajor}" * 10000) + ([int]"${env:rminor}" * 100) + ([int]"${env:rpatch}")
           Set-EnvVar "rversionnumeric=${env:rversionnumeric}"
 
           # derived
@@ -134,7 +140,7 @@ jobs:
         run: |
           function Set-EnvVar {param($X)     Add-Content -Path ${env:GITHUB_ENV} -Value "$X"}
           # enhances and overrides
-          ${env:rversionlong} = "${{ env.rversionlong }}-win"
+          ${env:rversionlong} = "${{ env.rversionlong} }-win"
           if("${{ env.rversion }}" -match "2.11.0|2.11.1") {
             ${env:rversionlong} = "${{ env.rversion }}-win${{ env.bit }}"
           }
@@ -144,11 +150,11 @@ jobs:
           ${env:CRAN_R_DOWNLOAD_URL} ="none"
           
           if([int]"${{ env.rversionnumeric }}" -ge 30600 ) {
-            ${env:CRAN_R_DOWNLOAD_URL} = "https://cran.r-project.org/bin/windows/base/old/${{ env.rversion }}/R-${{ env.rversionlong }}.exe"
+            ${env:CRAN_R_DOWNLOAD_URL} = "https://cran.r-project.org/bin/windows/base/old/${{ env.rversion }}/R-${env:rversionlong}.exe"
           }
 
           if([int]"${{ env.rversionnumeric }}" -lt 30600 ) {
-            ${env:CRAN_R_DOWNLOAD_URL} = "https://cran-archive.r-project.org/bin/windows/base/old/${{ env.rversion }}/R-${{ env.rversionlong }}.exe"
+            ${env:CRAN_R_DOWNLOAD_URL} = "https://cran-archive.r-project.org/bin/windows/base/old/${{ env.rversion }}/R-${env:rversionlong}.exe"
           }
           Set-EnvVar "CRAN_R_DOWNLOAD_URL=${env:CRAN_R_DOWNLOAD_URL}"
           echo "CRAN_R_DOWNLOAD_URL ${env:CRAN_R_DOWNLOAD_URL}"
