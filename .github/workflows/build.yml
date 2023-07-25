@@ -14,6 +14,8 @@ jobs:
           - compiler: UCRT64
             os: windows-latest
             Platform: x64
+            rversion: 4.2.3
+            R_ARCH: /x64
 
 #         - compiler: cygwin
 #           os: windows-latest
@@ -40,19 +42,39 @@ jobs:
           function Set-EnvVar {param($X)     Add-Content -Path ${env:GITHUB_ENV} -Value "$X"}
           #
           ${env:compiler} = "${{ matrix.compiler }}"
+          if("${env:compiler}" -eq ""){${env:compiler} = "none"}
           Set-EnvVar "compiler=${env:compiler}"
+
           ${env:os} = "${{ matrix.os }}"
+          if("${env:os}" -eq ""){${env:os} = "none"}
           Set-EnvVar "os=${env:os}"
           #
           ${env:Platform} = "${{ matrix.Platform }}"
+          if("${env:Platform}" -eq ""){${env:Platform} = "none"}
           Set-EnvVar "Platform=${env:Platform}"
-          Set-EnvVar "bit=64"
 
-      - name: Matrix Verification Result
-        if: matrix.os == 'windows-latest'
+      - name: Prepare Before - Meson Setup Compile and Non-Meson Manual Test
+        if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
         run: |
-          echo "compiler: ${{ env.compiler }}"
-          echo "PATH: ${env:PATH}"
+          function Set-EnvVar {param($X)     Add-Content -Path ${env:GITHUB_ENV} -Value "$X"}
+          #
+          # ${env:R_HOME}="C:\Program Files\R\R-4.2.3"
+          #
+          ${env:rversion}="${{ matrix.rversion }}"
+          if("${env:rversion}" -eq ""){${env:rversion} = "none"}
+          Set-EnvVar "rversion=${env:rversion}"
+          #
+          ${env:R_HOME}="D:\RINSTALL"
+          if("${env:R_HOME}" -eq ""){${env:R_HOME} = "none"}
+          Set-EnvVar "R_HOME=${env:R_HOME}"
+          #
+          ${env:R_ARCH}="${{ matrix.R_ARCH }}"
+          if("${env:R_ARCH}" -eq ""){${env:R_ARCH} = "none"}
+          Set-EnvVar "R_ARCH=${env:R_ARCH}"
+          #
+          ${env:PG_HOME}=""
+          if("${env:PG_HOME}" -eq ""){${env:PG_HOME} = "none"}
+          Set-EnvVar "PG_HOME=${env:PG_HOME}"
 
 #       # running Meson on GitHub Actions will end up using GCC rather than MSVC
 #       #
@@ -73,8 +95,8 @@ jobs:
         uses: actions/cache@v3.3.1
         id: cacheRWindowsInstallerExe
         with:
-          path: R-4.2.3-win.exe
-          key:  R-4.2.3-win.exe
+          path: R-${{ matrix.rversion }}-win.exe
+          key:  R-${{ matrix.rversion }}-win.exe
         env:
           SEGMENT_DOWNLOAD_TIMEOUT_MINS: 1
 
@@ -84,26 +106,8 @@ jobs:
         uses: suisei-cn/actions-download-file@v1.3.0
         id: downloadfileRforWindows 
         with:
-          url: https://cran.r-project.org/bin/windows/base/old/4.2.3/R-4.2.3-win.exe
+          url: https://cran.r-project.org/bin/windows/base/old/${{ matrix.rversion }}/R-${{ matrix.rversion }}-win.exe
 
-      - name: Prepare Before - Meson Setup Compile and Non-Meson Manual Test
-        if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
-        run: |
-          function Set-EnvVar {param($X)     Add-Content -Path ${env:GITHUB_ENV} -Value "$X"}
-          #
-          # ${env:R_HOME}="C:\Program Files\R\R-4.2.3"
-          #
-          ${env:rversion}="4.2.3"
-          Set-EnvVar "rversion=${env:rversion}"
-          #
-          ${env:R_HOME}="D:\RINSTALL"
-          Set-EnvVar "R_HOME=${env:R_HOME}"
-          #
-          ${env:R_ARCH}="/x64"
-          Set-EnvVar "R_ARCH=${env:R_ARCH}"
-          #
-          ${env:PG_HOME}=""
-          Set-EnvVar "PG_HOME="
 
       - name: Install R for Windows R-x.y.z R-rmajor.rminor.rpatch
         if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
@@ -169,7 +173,6 @@ jobs:
           echo "id: $(id)"
           echo "pwd: $(pwd)"
 
-      # C:\msys${{ env.bit }}
       - name: Meson Setup Compile and Non-Meson Manual Test
         if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' }}
         uses: msys2/setup-msys2@v2
@@ -179,8 +182,8 @@ jobs:
         env:
           R_HOME: ${{ env.R_HOME }}
           R_ARCH: ${{ env.R_ARCH }}
-          PG_HOME: ${{ env.PG_HOME }}
           rversion: ${{ env.rversion }}
+          PG_HOME: ${{ env.PG_HOME }}
         run: |
           echo "Meson Setup Compile and Non-Meson Manual Test"
           set -x -v -e
@@ -190,14 +193,21 @@ jobs:
 
           echo "R_ARCH: ${R_ARCH}"
           echo "R_HOME: ${R_HOME}"
-          echo "PG_HOME: ${PG_HOME}"
           echo "rversion: ${rversion}"
+          echo "PG_HOME: ${PG_HOME}"
 
-          if [    "${R_HOME}" == "" ]
+          if [ "${R_ARCH}" == "none" ]; then export R_ARCH=""; fi
+          if [ "${R_HOME}" == "none" ] || [ "${R_HOME}" == "" ]
           then
             echo "One must set R_HOME=value"
             exit 1
           fi
+          if [ "${rversion}" == "none" ] || [ "${rversion}" == "" ]
+          then
+            echo "One must set rversion=value"
+            exit 1
+          fi
+          if [ "${PG_HOME}" == "none" ]; then export PG_HOME=""; fi
 
           if [ ! "${R_HOME}"  == "" ]; then export  R_HOME=$(cygpath "${R_HOME}");  fi
           if [ ! "${PG_HOME}" == "" ]; then export PG_HOME=$(cygpath "${PG_HOME}"); fi
@@ -206,18 +216,17 @@ jobs:
           echo "R_HOME: ${R_HOME}"
           echo "PG_HOME: ${PG_HOME}"
 
-          # TEST - PATHs are only needed for the proper compile and runtime
-          #
-          # needed so the plr runtime can find "libraries"
+          # PATHs are needed for the proper compile and runtime
+          # find "libraries"
           # R Non-Sub-Architectures
           export PATH="${R_HOME}/bin:${PATH}"
           # R    Sub-Architectures
           export PATH="${R_HOME}/bin${R_ARCH}:${PATH}"
 
-          # needed so "meson" can find "libraries"
+          # can find "libraries"
           export PATH="${PG_HOME}/lib:${PATH}"
           #
-          # needed so "meson" can find "libraries"
+          # can find "libraries"
           export PATH="${PG_HOME}/bin:${PATH}"
 
           echo "PKG_CONFIG_PATH: ${PKG_CONFIG_PATH}"
@@ -234,9 +243,9 @@ jobs:
           if [ "${PKG_CONFIG_SYSTEM_INCLUDE_PATH}" == "" ]; then export PKG_CONFIG_SYSTEM_INCLUDE_PATH="/usr/include"; fi 
           if [ "${PKG_CONFIG_SYSTEM_LIBRARY_PATH}" == "" ]; then export PKG_CONFIG_SYSTEM_LIBRARY_PATH="/usr/lib"; fi
 
-          # For OperatingSystem Msys and R environment variable R_ARCH
+          # For OperatingSystem Msys and R environment variable R_ARCH and Rlib.dll.a
           # need ONE single leftmost headish important library path
-          export PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG=$( echo "${PKG_CONFIG_SYSTEM_LIBRARY_PATH}" |  grep -o '^[^:]*')
+          export PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG=$(echo "${PKG_CONFIG_SYSTEM_LIBRARY_PATH}" |  grep -o '^[^:]*')
           # MSYS2 UCRT
           # export PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG="/ucrt64/lib"
           echo "PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG: ${PKG_CONFIG_SYSTEM_LIBRARY_PATH}"
@@ -248,6 +257,7 @@ jobs:
           # Garantee to find the PostgreSQL libraries.
           # Some packages may also install an old "libpq" that is located in the default install location. 
           # We do not want to use that old "libpg" in compiling PL/R.
+          # Therefore, the PostgreSQL pkgconfig goes in front at the head
           #
           export PKG_CONFIG_PATH="${PG_HOME}/lib/pkgconfig:${PKG_CONFIG_PATH}"
           export PKG_CONFIG_SYSTEM_INCLUDE_PATH="${PG_HOME}/include:${PKG_CONFIG_SYSTEM_INCLUDE_PATH}"
@@ -263,8 +273,6 @@ jobs:
           then
             cat "${PG_HOME}/lib/pkgconfig/libpq.pc" | sed "s/libpq/libpostgres/g" | sed "s/-lpq/-lpostgres/" > "${PG_HOME}/lib/pkgconfig/libpostgres.pc"
           fi
-
-          # cat "${PG_HOME}/lib/pkgconfig/libpostgres.pc"
 
           # Part 2 of 2 of a hack to make "meson" think that "libpostgres" is a library
           # libpostgres.exe.a is not recognized as a static library
@@ -285,6 +293,7 @@ jobs:
           fi
           if [ ! -f "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}/pkgconfig/libR.pc" ]
           then
+            # provided template
             cat "libR.pc" | sed "s|R_HOME|${R_HOME}|" | sed "s|R_ARCH|${R_ARCH}|" | sed "s/rversion/${rversion}/" > "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}/pkgconfig/libR.pc"
           fi
           #
@@ -298,7 +307,7 @@ jobs:
           if [ ! -f "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}${R_ARCH}/libR.dll.a" ]
           then
             pushd "${R_HOME}/bin${R_ARCH}"
-            gendef - R.dll > R.def
+            gendef  -         R.dll >     R.def
             dlltool --dllname R.dll --def R.def --output-lib libR.dll.a
             #
             # Put libR.dll.a into the general library location {...ORIG}${R_ARCH}/libR.dll.a
@@ -306,11 +315,7 @@ jobs:
             popd # from "${R_HOME}/bin${R_ARCH}"
           fi
           #
-          if [ ! -f "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}${R_ARCH}/libR.dll.a" ]
-          then 
-            cp -f   "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}/libR.dll.a" "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}${R_ARCH}/libR.dll.a"
-            ls -alrt                                                    "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}${R_ARCH}/libR.dll.a"
-          fi
+
           mkdir     "${PG_HOME}/contrib"
           #
           mkdir     "${PG_HOME}/contribplr"
