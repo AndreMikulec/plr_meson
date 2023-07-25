@@ -3,7 +3,7 @@ run-name: Testing Creating PL/R using meson
 on: [push]
 jobs:
   build_test_install:
-    name: ${{ matrix.compiler }} ${{ matrix.os }} ${{ matrix.FAKE }}
+    name: ${{ matrix.compiler }} ${{ matrix.os }} ${{ matrix.rversion }}
     runs-on: ${{ matrix.os }}
     strategy:
       # Disable fail-fast as we want results from all even if one fails.
@@ -167,9 +167,11 @@ jobs:
         run: |
           set R_HOME="${{ env.R_HOME }}"
           set R_ARCHplat=${{ env.R_ARCHplat }}
-          # need "main" for the GUIs and command line utilites to work
-          # A comma at the end is O.K
-          # Component "none" is ignored
+          echo R_HOME: %R_HOME%
+          echo R_ARCHplat: %R_ARCHplat%
+          rem need "main" for the GUIs and command line utilites to work
+          rem A comma at the end is O.K
+          rem Component "none" is ignored
           "R-${{ env.rversionlong }}.exe" /VERYSILENT /COMPONENTS=main,%R_ARCHplat% /DIR=%R_HOME% /NOICONS /TASKS=
           dir "%R_HOME%"
 
