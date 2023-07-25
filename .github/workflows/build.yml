@@ -206,6 +206,14 @@ jobs:
           echo "R_HOME: ${R_HOME}"
           echo "PG_HOME: ${PG_HOME}"
 
+          # TEST - PATHs are only needed for the proper compile and runtime
+          #
+          # needed so the plr runtime can find "libraries"
+          # R Non-Sub-Architectures
+          export PATH="${R_HOME}/bin:${PATH}"
+          # R    Sub-Architectures
+          export PATH="${R_HOME}/bin${R_ARCH}:${PATH}"
+
           # needed so "meson" can find "libraries"
           export PATH="${PG_HOME}/lib:${PATH}"
           #
@@ -227,7 +235,8 @@ jobs:
           if [ "${PKG_CONFIG_SYSTEM_LIBRARY_PATH}" == "" ]; then export PKG_CONFIG_SYSTEM_LIBRARY_PATH="/usr/lib"; fi
 
           # For OperatingSystem Msys and R environment variable R_ARCH
-          export PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG=${PKG_CONFIG_SYSTEM_LIBRARY_PATH}
+          # need ONE single leftmost headish important library path
+          export PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG=$( echo "${PKG_CONFIG_SYSTEM_LIBRARY_PATH}" |  grep -o '^[^:]*')
           # MSYS2 UCRT
           # export PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG="/ucrt64/lib"
           echo "PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG: ${PKG_CONFIG_SYSTEM_LIBRARY_PATH}"
@@ -352,14 +361,6 @@ jobs:
           mkdir     PGDATA
           initdb -D PGDATA
           pg_ctl -D PGDATA -l logfile start
-
-          # TEST - PATHs are only needed for runtime resolution
-          #
-          # needed so the plr runtime can find "libraries"
-          # R Non-Sub-Architectures
-          export PATH="${R_HOME}/bin:${PATH}"
-          # R    Sub-Architectures
-          export PATH="${R_HOME}/bin${R_ARCH}:${PATH}"
 
           # Some environments require it
           export PGUSER=$(whoami)
