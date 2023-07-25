@@ -206,7 +206,11 @@ jobs:
           echo "R_HOME: ${R_HOME}"
           echo "PG_HOME: ${PG_HOME}"
 
-
+          # needed so "meson" can find "libraries"
+          export PATH="${PG_HOME}/lib:${PATH}"
+          #
+          # needed so "meson" can find "libraries"
+          export PATH="${PG_HOME}/bin:${PATH}"
 
           echo "PKG_CONFIG_PATH: ${PKG_CONFIG_PATH}"
           echo "PKG_CONFIG_SYSTEM_INCLUDE_PATH: ${PKG_CONFIG_SYSTEM_INCLUDE_PATH}"
@@ -356,12 +360,6 @@ jobs:
           export PATH="${R_HOME}/bin:${PATH}"
           # R    Sub-Architectures
           export PATH="${R_HOME}/bin${R_ARCH}:${PATH}"
-
-          # needed so "meson" can find "libraries"
-          export PATH="${PG_HOME}/lib:${PATH}"
-          #
-          # needed so "meson" can find "libraries"
-          export PATH="${PG_HOME}/bin:${PATH}"
 
           # Some environments require it
           export PGUSER=$(whoami)
