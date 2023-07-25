@@ -222,11 +222,17 @@ jobs:
         with:
           msystem: ${{ env.compiler }}
           update: true
+          #
           # if a 2nd run (not the proper way to install "postgres" separately)
           # if a 2nd run DO NOT DO "update: true"
           # if a 2nd run May not be able to find "postgres"
           # 100% sure THIS IS broken
           # location: D:\
+          #
+          # DO NOT KEEP "TRUE" - if using  multiple" MSYS2 environments" in this workflow
+          # By default (true), caches various things between runs to make repeated runs faster.
+          cache: false
+          #
           install: >-
             mingw-w64-${{ env.mingw_env }}-pkg-config
             mingw-w64-${{ env.mingw_env }}-curl
@@ -258,12 +264,11 @@ jobs:
 
       - name: Install Windows cygwin Software 
         if: ${{ env.os == 'windows-latest' && env.compiler == 'cygwin' }}
--       uses: cygwin/cygwin-install-action@v4
+        uses: cygwin/cygwin-install-action@v4
         with:
           platform: x86_64
           install-dir: 'D:\cygwin${{ env.bit }}'
-          packages:  >-
-            pkg-config
+          packages: pkg-config
 
       - name: Use Windows cygwin Software 
         if: ${{ env.os == 'windows-latest' && env.compiler == 'cygwin' }}
@@ -272,6 +277,8 @@ jobs:
           PATH:
           CHERE_INVOKING: 1
         # Advice of - https://github.com/marketplace/actions/install-cygwin
+        # also see
+        # https://github.com/cygwin/cygwin-install-action/blob/006ad0b0946ca6d0a3ea2d4437677fa767392401/.github/workflows/test.yml
         shell: D:\cygwin${{ env.bit }}\bin\bash.exe --login -o igncr '{0}'
         run: |
           echo Hello
@@ -352,7 +359,7 @@ jobs:
           echo "PKG_CONFIG_SYSTEM_LIBRARY_PATH: ${PKG_CONFIG_SYSTEM_LIBRARY_PATH}"
 
           # note "cygwin" has "no defaults"
-          #
+          #  
           # note mingw MSYS UCRT uses MSYSTEM_PREFIX="/ucrt64" in place of "/usr"
           # note mingw MSYS UCRT variable PKG_CONFIG_PATH at the tail also has "/ucrt64/share/pkgconfig"
           #
