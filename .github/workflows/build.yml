@@ -198,7 +198,7 @@ jobs:
         uses: suisei-cn/actions-download-file@v1.3.0
         id: downloadfileRforWindows 
         with:
-          url: ${env:CRAN_R_DOWNLOAD_URL}
+          url: ${{ env.CRAN_R_DOWNLOAD_URL }}
  
       - name: Install R for Windows R-x.y.z R-rmajor.rminor.rpatch
         if: ${{ env.os == 'windows-latest' && ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) }}
