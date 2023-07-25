@@ -256,25 +256,46 @@ jobs:
             mingw-w64-${{ env.mingw_env }}-lz4
             mingw-w64-${{ env.mingw_env }}-postgresql
 
-      - name: mingw Who and What Place
-        if: ${{ env.os == 'windows-latest' && ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) }}
-        uses: msys2/setup-msys2@v2
+      - name: Install Windows cygwin Software 
+        if: ${{ env.os == 'windows-latest' && env.compiler == 'cygwin' }}
+-       uses: cygwin/cygwin-install-action@v4
         with:
-          msystem: ${{ env.compiler }}
-      - shell: msys2 {0}
+          platform: x86_64
+          install-dir: 'D:\cygwin${{ env.bit }}'
+          packages:  >-
+            pkg-config
+
+      - name: Use Windows cygwin Software 
+        if: ${{ env.os == 'windows-latest' && env.compiler == 'cygwin' }}
+-       uses: cygwin/cygwin-install-action@v4
+        env:
+          PATH:
+          CHERE_INVOKING: 1
+        # Advice of - https://github.com/marketplace/actions/install-cygwin
+        shell: D:\cygwin${{ env.bit }}\bin\bash.exe --login -o igncr '{0}'
         run: |
-          echo "mingw Who and What Place"
-          set -x -v -e
-          echo "uname: $(uname -a)"
-          echo "whoami: $(whoami)"
-          echo "id: $(id)"
-          echo "pwd: $(pwd)"
+          echo Hello
+
+
+#       - name: mingw Who and What Place
+#         if: ${{ env.os == 'windows-latest' && ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) }}
+#         uses: msys2/setup-msys2@v2
+#         with:
+#           msystem: ${{ env.compiler }}
+#       - shell: msys2 {0}
+#         run: |
+#           echo "mingw Who and What Place"
+#           set -x -v -e
+#           echo "uname: $(uname -a)"
+#           echo "whoami: $(whoami)"
+#           echo "id: $(id)"
+#           echo "pwd: $(pwd)"
 
       - name: Meson Setup Compile and Non-Meson Manual Test
         if: ${{ env.os == 'windows-latest' && ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) }}
         uses: msys2/setup-msys2@v2
         with:
-          msystem: UCRT64
+          msystem: ${{ env.compiler }}
       - shell: msys2 {0}
         env:
           R_HOME: ${{ env.R_HOME }}
