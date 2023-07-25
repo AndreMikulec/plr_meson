@@ -482,6 +482,7 @@ jobs:
           fi
           #
           # Not sure if this directory already exists?
+          mkdir          "${PG_HOME_WIN}/share/postgresql"
           mkdir          "${PG_HOME_WIN}/share/postgresql/extension"
           #
           cp plr.control "${PG_HOME_WIN}/share/postgresql/extension"
