@@ -1,4 +1,4 @@
-name: plr_meson Windows experiments
+name: plr_meson Windows mingw - Out of Contrib build and test
 run-name: Testing Creating PL/R using meson
 on: [push]
 jobs:
@@ -11,7 +11,15 @@ jobs:
       matrix:
         include:
 
-          # last PL/R that can be compiled is Microsoft Visual Studio
+          # (Current) Can not be compiled using Microsoft Visual Studio
+          - compiler: UCRT64
+            os: windows-latest
+            Platform: x64
+            rversion: 4.3.1
+            R_HOME: 'D:\RINSTALL'
+            R_ARCH: /x64
+
+          # Last PL/R that can be compiled using Microsoft Visual Studio
           - compiler: UCRT64
             os: windows-latest
             Platform: x64
@@ -19,7 +27,7 @@ jobs:
             R_HOME: 'D:\RINSTALL'
             R_ARCH: /x64
 
-          # last "R for Windows" supports x86 and sub-architecture
+          # Last "R for Windows" supports x86 and sub-architecture
           - compiler: MINGW32
             os: windows-latest
             Platform: x86
@@ -27,20 +35,12 @@ jobs:
             R_HOME: 'D:\RINSTALL'
             R_ARCH: /i386
 
-          # last "R for Windows" supports x86 and single architecure
+          # Last "R for Windows" supports x86 and single architecure
           - compiler: MINGW32
             os: windows-latest
             Platform: x86
             rversion: 2.11.1
             R_HOME: 'D:\RINSTALL'
-
-          - compiler: cygwin
-            os: windows-latest
-            Platform: x64
-
-          - compiler: cygwin
-            os: windows-latest
-            Platform: x86
 
     steps:
 
@@ -221,7 +221,9 @@ jobs:
         uses: msys2/setup-msys2@v2
         with:
           msystem: ${{ env.compiler }}
-          update: true
+          # By default, the installation is not updated; hence package versions are those of the installation tarball.
+          # Faster without the "update"
+          # update: true
           #
           # if a 2nd run (not the proper way to install "postgres" separately)
           # if a 2nd run DO NOT DO "update: true"
@@ -261,42 +263,6 @@ jobs:
             mingw-w64-${{ env.mingw_env }}-libxslt
             mingw-w64-${{ env.mingw_env }}-lz4
             mingw-w64-${{ env.mingw_env }}-postgresql
-
-#       - name: Install Windows cygwin Software 
-#         if: ${{ env.os == 'windows-latest' && env.compiler == 'cygwin' }}
-#         uses: cygwin/cygwin-install-action@v4
-#         with:
-#           platform: x86_64
-#           install-dir: 'D:\cygwin${{ env.bit }}'
-#           packages: pkg-config
-# 
-#       - name: Use Windows cygwin Software 
-#         if: ${{ env.os == 'windows-latest' && env.compiler == 'cygwin' }}
-#         uses: cygwin/cygwin-install-action@v4
-#         env:
-#           PATH:
-#           CHERE_INVOKING: 1
-#         # Advice of - https://github.com/marketplace/actions/install-cygwin
-#         # also see
-#         # https://github.com/cygwin/cygwin-install-action/blob/006ad0b0946ca6d0a3ea2d4437677fa767392401/.github/workflows/test.yml
-#         shell: D:\cygwin${{ env.bit }}\bin\bash.exe --login -o igncr '{0}'
-#         run: |
-#           echo Hello
-
-
-#       - name: mingw Who and What Place
-#         if: ${{ env.os == 'windows-latest' && ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) }}
-#         uses: msys2/setup-msys2@v2
-#         with:
-#           msystem: ${{ env.compiler }}
-#       - shell: msys2 {0}
-#         run: |
-#           echo "mingw Who and What Place"
-#           set -x -v -e
-#           echo "uname: $(uname -a)"
-#           echo "whoami: $(whoami)"
-#           echo "id: $(id)"
-#           echo "pwd: $(pwd)"
 
       - name: Meson Setup Compile and Non-Meson Manual Test
         if: ${{ env.os == 'windows-latest' && ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) }}
@@ -496,5 +462,51 @@ jobs:
           export PGUSER=$(whoami)
           "${PG_HOME}/lib/postgresql/pgxs/src/test/regress/pg_regress" --bindir="${PG_HOME}/bin" --dbname=pl_regression plr bad_fun opt_window do out_args plr_transaction opt_window_frame || (cat regression.diffs && false)
           pg_ctl -D PGDATA -l logfile stop
+
+          export PG_HOME_WIN="/c/Program Files/PostgreSQL/14"
+          #
+          if [ -f "../contrib/plr/plr.dll" ]
+          then 
+            cp ../contrib/plr/plr.dll   "${PG_HOME_WIN}/lib/postgresql"
+            ls -alrt                    "${PG_HOME_WIN}/lib/postgresql/plr.dll"
+          fi
+          #
+          if [ -f "../contrib/plr/plr.dll.a" ]
+            then cp ../contrib/plr/plr.dll.a "${PG_HOME_WIN}/lib/postgresql/plr.dll.a"
+            ls -alrt                         "${PG_HOME_WIN}/lib/postgresql/plr.dll.a"
+          fi
+          #
+          cp plr.control "${PG_HOME_WIN}/share/postgresql/extension"
+          ls -alrt       "${PG_HOME_WIN}/share/postgresql/extension/plr.control"
+
+          cp plr--*.sql  "${PG_HOME_WIN}/share/postgresql/extension"
+          ls -alrt       "${PG_HOME_WIN}"/share/postgresql/extension/plr--*.sql
+
           popd # from "${PG_HOME}/contribplr"
+          
+      # Note, this May? work. The Windows database is PostgreSQL 14. 
+      # The PL/R extension was built using PostreSQL 15
+      # # JUL 2023
+      # ServiceName postgresql-x64-14
+      # Version 14.8
+      # ServiceStatus Stopped
+      # ServiceStartType Disabled
+      # EnvironmentVariables PGBIN=C:\Program Files\PostgreSQL\14\bin
+      # PGDATA=C:\Program Files\PostgreSQL\14\data
+      # PGROOT=C:\Program Files\PostgreSQL\14
+      # Path C:\Program Files\PostgreSQL\14
+      # UserName postgres
+      # Password root
+      # #
+      # https://github.com/actions/runner-images/blob/main/images/win/Windows2022-Readme.md
+      # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-software
+      #
+      - name: Test on Windows
+        if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64'  }}
+        shell: cmd
+        run: |
+          ${env:PG_HOME_WIN} = "C:\Program Files\PostgreSQL\14"
+          net start postgresql-x64-14
+          "%PG_HOME_WIN%\lib\postgresql\pgxs\src\test\regress\pg_regress" --bindir="${env:PG_HOME_WIN}/bin" --dbname=pl_regression plr bad_fun opt_window do out_args plr_transaction opt_window_frame || (type regression.diffs && ERROR)
+          net stop  postgresql-x64-14
 
