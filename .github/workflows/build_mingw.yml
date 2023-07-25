@@ -525,6 +525,8 @@ jobs:
         if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64'  }}
         shell: cmd
         run: |
+          rem - it is not start = auto or start=auto or start =auto
+          sc config "postgresql-x64-14" start= auto
           net start postgresql-x64-14
           "${{ env.PG_HOME_WIN }}\lib\postgresql\pgxs\src\test\regress\pg_regress" --bindir="${{ env.PG_HOME_WIN }}\bin" --dbname=pl_regression plr bad_fun opt_window do out_args plr_transaction opt_window_frame || (type regression.diffs && ERROR)
           net stop  postgresql-x64-14
