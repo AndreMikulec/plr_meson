@@ -262,26 +262,26 @@ jobs:
             mingw-w64-${{ env.mingw_env }}-lz4
             mingw-w64-${{ env.mingw_env }}-postgresql
 
-      - name: Install Windows cygwin Software 
-        if: ${{ env.os == 'windows-latest' && env.compiler == 'cygwin' }}
-        uses: cygwin/cygwin-install-action@v4
-        with:
-          platform: x86_64
-          install-dir: 'D:\cygwin${{ env.bit }}'
-          packages: pkg-config
-
-      - name: Use Windows cygwin Software 
-        if: ${{ env.os == 'windows-latest' && env.compiler == 'cygwin' }}
-        uses: cygwin/cygwin-install-action@v4
-        env:
-          PATH:
-          CHERE_INVOKING: 1
-        # Advice of - https://github.com/marketplace/actions/install-cygwin
-        # also see
-        # https://github.com/cygwin/cygwin-install-action/blob/006ad0b0946ca6d0a3ea2d4437677fa767392401/.github/workflows/test.yml
-        shell: D:\cygwin${{ env.bit }}\bin\bash.exe --login -o igncr '{0}'
-        run: |
-          echo Hello
+#       - name: Install Windows cygwin Software 
+#         if: ${{ env.os == 'windows-latest' && env.compiler == 'cygwin' }}
+#         uses: cygwin/cygwin-install-action@v4
+#         with:
+#           platform: x86_64
+#           install-dir: 'D:\cygwin${{ env.bit }}'
+#           packages: pkg-config
+# 
+#       - name: Use Windows cygwin Software 
+#         if: ${{ env.os == 'windows-latest' && env.compiler == 'cygwin' }}
+#         uses: cygwin/cygwin-install-action@v4
+#         env:
+#           PATH:
+#           CHERE_INVOKING: 1
+#         # Advice of - https://github.com/marketplace/actions/install-cygwin
+#         # also see
+#         # https://github.com/cygwin/cygwin-install-action/blob/006ad0b0946ca6d0a3ea2d4437677fa767392401/.github/workflows/test.yml
+#         shell: D:\cygwin${{ env.bit }}\bin\bash.exe --login -o igncr '{0}'
+#         run: |
+#           echo Hello
 
 
 #       - name: mingw Who and What Place
