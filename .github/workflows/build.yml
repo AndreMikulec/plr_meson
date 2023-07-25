@@ -76,7 +76,23 @@ jobs:
           ${env:rversion}="${{ matrix.rversion }}"
           if("${env:rversion}" -eq ""){${env:rversion} = "none"}
           Set-EnvVar "rversion=${env:rversion}"
-          #
+
+          # R-major.minor.patch
+          ${env:rversion} -match '(\d+)'
+          ${env:rmajor} = $matches[1]
+          Set-EnvVar "rmajor=${env:rmajor}"
+
+          ${env:rversion} -match '\d+[.](\d+)'
+          ${env:rminor} = $matches[1]
+          Set-EnvVar "rminor=${env:rminor}"
+
+          ${env:rversion} -match '\d+[.]\d+[.](\d+)'
+          ${env:rpatch} = $matches[1]
+          Set-EnvVar "rpatch=${env:rpatch}"
+
+          ${env:rversionnumeric} = ([int]"${env:rmajor}" * 10000) + ([int]"${env:rminor}" * 100) + ([int]"${env:rpatch}")
+          Set-EnvVar "rversionnumeric=${env:rversionnumeric}"
+
           # derived
           ${env:rversionlong} = ${env:rversion}
           Set-EnvVar "rversionlong=${env:rversionlong}"
@@ -124,23 +140,6 @@ jobs:
           }
           Set-EnvVar "rversionlong=${env:rversionlong}"
 
-          # R-major.minor.patch
-
-          ${env:rversion} -match '(\d+)'
-          ${env:rmajor} = $matches[1]
-          Set-EnvVar "rmajor=${env:rmajor}"
-
-          ${env:rversion} -match '\d+[.](\d+)'
-          ${env:rminor} = $matches[1]
-          Set-EnvVar "rminor=${env:rminor}"
-
-          ${env:rversion} -match '\d+[.]\d+[.](\d+)'
-          ${env:rpatch} = $matches[1]
-          Set-EnvVar "rpatch=${env:rpatch}"
-
-          ${env:rversionnumeric} = ([int]"${env:rmajor}" * 10000) + ([int]"${env:rminor}" * 100) + ([int]"${env:rpatch}")
-          Set-EnvVar "rversionnumeric=${env:rversionnumeric}"
-
           # CRAN download URL
           ${env:CRAN_R_DOWNLOAD_URL} ="none"
           
@@ -148,7 +147,7 @@ jobs:
             ${env:CRAN_R_DOWNLOAD_URL} = "https://cran.r-project.org/bin/windows/base/old/${{ matrix.rversion }}/R-${{ matrix.rversionlong }}.exe"
           }
 
-          if([int]"${{ env.rversionnumeric }}" -ls 30600 ) {
+          if([int]"${{ env.rversionnumeric }}" -lt 30600 ) {
             ${env:CRAN_R_DOWNLOAD_URL} = "https://cran-archive.r-project.org/bin/windows/base/old/${{ matrix.rversion }}/R-${{ matrix.rversionlong }}.exe"
           }
           Set-EnvVar "CRAN_R_DOWNLOAD_URL=${env:CRAN_R_DOWNLOAD_URL}"
