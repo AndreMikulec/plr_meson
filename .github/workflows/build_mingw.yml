@@ -34,13 +34,13 @@ jobs:
 #             rversion: 4.1.3
 #             R_HOME: 'D:\RINSTALL'
 #             R_ARCH: /i386
-
-          # Last "R for Windows" supports x86 and single architecure
-          - compiler: MINGW32
-            os: windows-latest
-            Platform: x86
-            rversion: 2.11.1
-            R_HOME: 'D:\RINSTALL'
+# 
+#           # Last "R for Windows" supports x86 and single architecure
+#           - compiler: MINGW32
+#             os: windows-latest
+#             Platform: x86
+#             rversion: 2.11.1
+#             R_HOME: 'D:\RINSTALL'
 
     steps:
 
@@ -463,6 +463,10 @@ jobs:
           "${PG_HOME}/lib/postgresql/pgxs/src/test/regress/pg_regress" --bindir="${PG_HOME}/bin" --dbname=pl_regression plr bad_fun opt_window do out_args plr_transaction opt_window_frame || (cat regression.diffs && false)
           pg_ctl -D PGDATA -l logfile stop
 
+          #
+          # Begin adding of files to Windows
+          #
+
           export PG_HOME_WIN="/c/Program Files/PostgreSQL/14"
           #
           mkdir                         "${PG_HOME_WIN}/lib/postgresql"
@@ -486,6 +490,10 @@ jobs:
           cp plr--*.sql  "${PG_HOME_WIN}/share/postgresql/extension"
           ls -alrt       "${PG_HOME_WIN}"/share/postgresql/extension/plr--*.sql
 
+          #
+          # End adding of files to Windows
+          #
+
           popd # from "${PG_HOME}/contribplr"
           
       # Note, this May? work. The Windows database is PostgreSQL 14. 
@@ -505,12 +513,18 @@ jobs:
       # https://github.com/actions/runner-images/blob/main/images/win/Windows2022-Readme.md
       # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-software
       #
+      - name: Prep Test on Windows
+        if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64'  }}
+        run: |
+          function Set-EnvVar {param($X)     Add-Content -Path ${env:GITHUB_ENV} -Value "$X"}
+          ${env:PG_HOME_WIN} = "C:\Program Files\PostgreSQL\14"
+          Set-EnvVar "PG_HOME_WIN=${env:PG_HOME_WIN}"
+
       - name: Test on Windows
         if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64'  }}
         shell: cmd
         run: |
-          ${env:PG_HOME_WIN} = "C:\Program Files\PostgreSQL\14"
           net start postgresql-x64-14
-          "%PG_HOME_WIN%\lib\postgresql\pgxs\src\test\regress\pg_regress" --bindir="${env:PG_HOME_WIN}/bin" --dbname=pl_regression plr bad_fun opt_window do out_args plr_transaction opt_window_frame || (type regression.diffs && ERROR)
+          "${{ env.PG_HOME_WIN }}\lib\postgresql\pgxs\src\test\regress\pg_regress" --bindir="${{ env.PG_HOME_WIN }}\bin" --dbname=pl_regression plr bad_fun opt_window do out_args plr_transaction opt_window_frame || (type regression.diffs && ERROR)
           net stop  postgresql-x64-14
 
