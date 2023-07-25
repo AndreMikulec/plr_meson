@@ -208,9 +208,9 @@ jobs:
 
           # needed so "meson" can find "libraries"
           # R Non-Sub-Architectures
-          export PATH="${PG_HOME}/bin:${PATH}"
+          export PATH="${R_HOME}/bin:${PATH}"
           # R    Sub-Architectures
-          export PATH="${PG_HOME}/bin${R_ARCH}:${PATH}"
+          export PATH="${R_HOME}/bin${R_ARCH}:${PATH}"
 
           # needed so "meson" can find "libraries"
           export PATH="${PG_HOME}/lib:${PATH}"
@@ -266,7 +266,7 @@ jobs:
           # libpostgres.exe.a is not recognized as a static library
           # libpostgres.a     is     recognized as a static library
           #                         # typical Repository default install
-          if [ ! -f "${PG_HOME}/lib/libpostgres.a" ] && [ ! -f "${PG_HOME}/lib/libpostgres.dll.a" ]
+          if [ ! -f "${PG_HOME}/lib/libpostgres.a" ] && [ ! -f "${PG_HOME}/lib/libpostgres.dll.a" ] && [ -f "${PG_HOME}/lib/libpostgres.exe.a" ]
           then 
             #                       # meson built postgres install
             cp -f   "${PG_HOME}/lib/libpostgres.exe.a" "${PG_HOME}/lib/libpostgres.a"
@@ -311,14 +311,29 @@ jobs:
           cp -R   * "${PG_HOME}/contribplr"
           #
           pushd     "${PG_HOME}/contribplr"
-          rm -Rf ../contrib/plr
+          #
+          rm -Rf ../contrib/plr; rm -f "${PG_HOME}/lib/postgresql/plr.dll.a" ;rm -f "${PG_HOME}/lib/postgresql/plr.dll"
+          #
           rm  -f "${PG_HOME}/share/postgresql/extension/plr.control"
           rm  -f  ${PG_HOME}/share/postgresql/extension/plr--*.sql
-          rm  -f "${PG_HOME}/lib/postgresql/plr.dll.a"
-          rm  -f "${PG_HOME}/lib/postgresql/plr.dll"
+          #
           meson setup --prefix="${PG_HOME}/contrib/plr" -DR_HOME="${R_HOME}" -DPG_HOME="${PG_HOME}" -Db_pie=true ../contrib/plr
           meson compile -C ../contrib/plr  -v
           #
+          # [6/6] "cc" -o plr.dll 
+          # plr.dll.p/plr.c.obj
+          # plr.dll.p/pg_conversion.c.obj
+          # plr.dll.p/pg_backend_support.c.obj
+          # plr.dll.p/pg_userfuncs.c.obj 
+          # plr.dll.p/pg_rsupport.c.obj
+          # "-Wl,--allow-shlib-undefined" "-shared" "-Wl,--start-group"
+          # "-Wl,--out-implib=plr.dll.a" "-fopenmp"
+          # "D:/a/_temp/msys64/ucrt64/lib/x64/libR.dll.a"
+          # "D:/a/_temp/msys64/ucrt64/lib/libpq.dll.a"
+          # "D:/a/_temp/msys64/ucrt64/lib/libpostgres.dll.a"
+          # "-lkernel32" "-luser32" "-lgdi32" "-lwinspool" "-lshell32"
+          # "-lole32" "-loleaut32" "-luuid" "-lcomdlg32" "-ladvapi32"
+          # "-Wl,--end-group"
           # 
           if [ -f "../contrib/plr/plr.dll" ]
           then 
@@ -335,7 +350,7 @@ jobs:
           ls -alrt       "${PG_HOME}/share/postgresql/extension/plr.control"
 
           cp plr--*.sql  "${PG_HOME}/share/postgresql/extension"
-          ls -alrt       "${PG_HOME}/share/postgresql/extension/plr--*.sql"
+          ls -alrt        ${PG_HOME}/share/postgresql/extension/plr--*.sql
 
           mkdir     PGDATA
           initdb -D PGDATA
