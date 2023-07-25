@@ -141,8 +141,8 @@ jobs:
         run: |
           function Set-EnvVar {param($X)     Add-Content -Path ${env:GITHUB_ENV} -Value "$X"}
           # enhances and overrides #
-          ${env:rversionlong} = "${{ env.rversionlong} }-win"
-          if("${{ env.rversion }}" -match "2.11.0|2.11.1") {
+          ${env:rversionlong} = "${{ env.rversionlong }}-win"
+          if( "${{ env.rversion }}" -match "2.11.0|2.11.1") {
             ${env:rversionlong} = "${{ env.rversion }}-win${{ env.bit }}"
           }
           Set-EnvVar "rversionlong=${env:rversionlong}"
