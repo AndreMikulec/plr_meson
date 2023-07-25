@@ -272,7 +272,7 @@ jobs:
 
       - name: Use Windows cygwin Software 
         if: ${{ env.os == 'windows-latest' && env.compiler == 'cygwin' }}
--       uses: cygwin/cygwin-install-action@v4
+        uses: cygwin/cygwin-install-action@v4
         env:
           PATH:
           CHERE_INVOKING: 1
