@@ -3,7 +3,7 @@ run-name: Testing Creating PL/R using meson
 on: [push]
 jobs:
   build_test_install:
-    name: ${{ matrix.compiler }} ${{ matrix.os }} ${{ matrix.rversion }}
+    name: ${{ matrix.compiler }} R ${{ matrix.rversion }} ${{ matrix.os }} 
     runs-on: ${{ matrix.os }}
     strategy:
       # Disable fail-fast as we want results from all even if one fails.
@@ -144,11 +144,11 @@ jobs:
           ${env:CRAN_R_DOWNLOAD_URL} ="none"
           
           if([int]"${{ env.rversionnumeric }}" -ge 30600 ) {
-            ${env:CRAN_R_DOWNLOAD_URL} = "https://cran.r-project.org/bin/windows/base/old/${{ matrix.rversion }}/R-${{ matrix.rversionlong }}.exe"
+            ${env:CRAN_R_DOWNLOAD_URL} = "https://cran.r-project.org/bin/windows/base/old/${{ env.rversion }}/R-${{ env.rversionlong }}.exe"
           }
 
           if([int]"${{ env.rversionnumeric }}" -lt 30600 ) {
-            ${env:CRAN_R_DOWNLOAD_URL} = "https://cran-archive.r-project.org/bin/windows/base/old/${{ matrix.rversion }}/R-${{ matrix.rversionlong }}.exe"
+            ${env:CRAN_R_DOWNLOAD_URL} = "https://cran-archive.r-project.org/bin/windows/base/old/${{ env.rversion }}/R-${{ env.rversionlong }}.exe"
           }
           Set-EnvVar "CRAN_R_DOWNLOAD_URL=${env:CRAN_R_DOWNLOAD_URL}"
           echo "CRAN_R_DOWNLOAD_URL ${env:CRAN_R_DOWNLOAD_URL}"
