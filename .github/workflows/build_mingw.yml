@@ -19,21 +19,21 @@ jobs:
             R_HOME: 'D:\RINSTALL'
             R_ARCH: /x64
 
-          # Last PL/R that can be compiled using Microsoft Visual Studio
-          - compiler: UCRT64
-            os: windows-latest
-            Platform: x64
-            rversion: 4.2.3
-            R_HOME: 'D:\RINSTALL'
-            R_ARCH: /x64
-
-          # Last "R for Windows" supports x86 and sub-architecture
-          - compiler: MINGW32
-            os: windows-latest
-            Platform: x86
-            rversion: 4.1.3
-            R_HOME: 'D:\RINSTALL'
-            R_ARCH: /i386
+#           # Last PL/R that can be compiled using Microsoft Visual Studio
+#           - compiler: UCRT64
+#             os: windows-latest
+#             Platform: x64
+#             rversion: 4.2.3
+#             R_HOME: 'D:\RINSTALL'
+#             R_ARCH: /x64
+# 
+#           # Last "R for Windows" supports x86 and sub-architecture
+#           - compiler: MINGW32
+#             os: windows-latest
+#             Platform: x86
+#             rversion: 4.1.3
+#             R_HOME: 'D:\RINSTALL'
+#             R_ARCH: /i386
 
           # Last "R for Windows" supports x86 and single architecure
           - compiler: MINGW32
@@ -465,6 +465,7 @@ jobs:
 
           export PG_HOME_WIN="/c/Program Files/PostgreSQL/14"
           #
+          mkdir                         "${PG_HOME_WIN}/lib/postgresql"
           if [ -f "../contrib/plr/plr.dll" ]
           then 
             cp ../contrib/plr/plr.dll   "${PG_HOME_WIN}/lib/postgresql"
@@ -475,6 +476,9 @@ jobs:
             then cp ../contrib/plr/plr.dll.a "${PG_HOME_WIN}/lib/postgresql/plr.dll.a"
             ls -alrt                         "${PG_HOME_WIN}/lib/postgresql/plr.dll.a"
           fi
+          #
+          # Not sure if this directory already exists?
+          mkdir          "${PG_HOME_WIN}/share/postgresql/extension"
           #
           cp plr.control "${PG_HOME_WIN}/share/postgresql/extension"
           ls -alrt       "${PG_HOME_WIN}/share/postgresql/extension/plr.control"
