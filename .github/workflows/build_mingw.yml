@@ -515,14 +515,14 @@ jobs:
 #       # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-software
 #       #
       - name: Prep Test on Windows
-        if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64'  }}
+#       if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64'  }}
         run: |
           function Set-EnvVar {param($X)     Add-Content -Path ${env:GITHUB_ENV} -Value "$X"}
           ${env:PG_HOME_WIN} = "C:\Program Files\PostgreSQL\14"
           Set-EnvVar "PG_HOME_WIN=${env:PG_HOME_WIN}"
 
       - name: Test on Windows
-        if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64'  }}
+#       if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64'  }}
         shell: cmd
         run: |
           rem - it is not start = auto or start=auto or start =auto
