@@ -38,7 +38,7 @@ jobs:
             os: windows-latest
             Platform: x64
 
-          - compiler: msvc
+          - compiler: cygwin
             os: windows-latest
             Platform: x86
 
@@ -260,7 +260,7 @@ jobs:
         if: ${{ env.os == 'windows-latest' && ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) }}
         uses: msys2/setup-msys2@v2
         with:
-          msystem: UCRT64
+          msystem: ${{ env.compiler }}
       - shell: msys2 {0}
         run: |
           echo "mingw Who and What Place"
