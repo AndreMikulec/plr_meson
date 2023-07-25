@@ -285,7 +285,14 @@ jobs:
             cat "libR.pc" | sed "s|R_HOME|${R_HOME}|" | sed "s|R_ARCH|${R_ARCH}|" | sed "s/rversion/${rversion}/" > "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}/pkgconfig/libR.pc"
           fi
           #
-          if [ ! -f "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}/libR.dll.a" ]
+          # Some environments that use R_ARCH
+          # E.g. OperatingSystem  "Msys" (and Microsoft Visual C++)
+          #
+          if [ ! -d "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}${R_ARCH}" ] 
+          then
+            mkdir   "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}${R_ARCH}"
+          fi
+          if [ ! -f "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}${R_ARCH}/libR.dll.a" ]
           then
             pushd "${R_HOME}/bin${R_ARCH}"
             gendef - R.dll > R.def
@@ -295,13 +302,6 @@ jobs:
             ### required to leave {ORIG}/libR.dll.a or ONLY {ORIG}x64/libR.dll.a
             mv libR.dll.a "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}${R_ARCH}/libR.dll.a"
             popd # from "${R_HOME}/bin${R_ARCH}"
-          fi
-          # Some environments that use R_ARCH
-          # E.g. OperatingSystem  "Msys" (and Microsoft Visual C++)
-          #
-          if [ ! -d "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}${R_ARCH}" ] 
-          then
-            mkdir   "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}${R_ARCH}"
           fi
           #
           if [ ! -f "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}${R_ARCH}/libR.dll.a" ]
