@@ -498,6 +498,7 @@ jobs:
       #
       - name: Choco Install GNU diffutils
         if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64'  }}
+        # Keep v2.  v2.2.0 may have connection to Sourceforge problems
         uses: crazy-max/ghaction-chocolatey@v2
         with:
           args: install diffutils
@@ -513,6 +514,7 @@ jobs:
           sc config "postgresql-x64-14" start= auto
           net start postgresql-x64-14
           "%PGBIN%\pg_regress" --bindir="%PGBIN%" --dbname=pl_regression plr bad_fun opt_window do out_args plr_transaction opt_window_frame || (type regression.diffs && call)
+          if "%ERRORLEVEL%"=="1" exit 1
           net stop  postgresql-x64-14
 
 
