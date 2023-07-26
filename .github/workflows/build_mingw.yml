@@ -576,6 +576,11 @@ jobs:
       - name: Test on PostgreSQL for Windows
 #       if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' && env.TestOnPGforWin == 'true' }}
         env:
+          R_HOME: ${{ env.R_HOME }}
+          R_ARCH: ${{ env.R_ARCH }}
+          #
+          PG_HOME: ${{ env.PG_HOME }}
+          #
           PGVER2: ${{ env.PGVER2 }}
           PGBIN2: ${{ env.PGBIN2 }}
           # not used
@@ -585,6 +590,17 @@ jobs:
         shell: cmd
         run: |
           echo on
+          rem
+          set PATH="%R_HOME%\bin:%PATH%"
+          rem R    Sub-Architectures
+          set PATH="%R_HOME%\bin%R_ARCH%:%PATH%"
+          rem
+          rem can find "libraries"
+          set PATH="%PG_HOME%\lib:%PATH%"
+          rem
+          rem can find "libraries"
+          set PATH="%PG_HOME%\bin:%PATH%"
+          rem
           rem - it is not start = auto or start=auto or start =auto
           set PGUSER=postgres
           set PGPASSWORD=root
