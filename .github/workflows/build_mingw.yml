@@ -238,25 +238,25 @@ jobs:
         run: |
           function Set-EnvVar {param($X)     Add-Content -Path ${env:GITHUB_ENV} -Value "$X"}
           Set-EnvVar "compiler=${env:compiler}"
-          ${env:PGVER}=15
-          Set-EnvVar "PGVER=${env:PGVER}"
-          ${env:PGBIN}="C:\Program Files\PostgreSQL\15\bin"
-          Set-EnvVar "PGBIN=${env:PGBIN}"
-          ${env:PGDATA}="C:\Program Files\PostgreSQL\15\data"
-          Set-EnvVar "PGDATA=${env:PGDATA}"
-          ${env:PGROOT}="C:\Program Files\PostgreSQL\15"
-          Set-EnvVar "PGROOT=${env:ROOT}"
+          ${env:PGVER2}=15
+          Set-EnvVar "PGVER2=${env:PGVER2}"
+          ${env:PGBIN2}="C:\Program Files\PostgreSQL\15\bin"
+          Set-EnvVar "PGBIN2=${env:PGBIN2}"
+          ${env:PGDATA2}="C:\Program Files\PostgreSQL\15\data"
+          Set-EnvVar "PGDATA2=${env:PGDATA2}"
+          ${env:PGROOT2}="C:\Program Files\PostgreSQL\15"
+          Set-EnvVar "PGROOT2=${env:ROOT2}"
 
       - name: Install PostgreSQL for Windows
 #       if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' && matrix.TestOnPGforWin == 'true' }}
         env:
-          PGVER: ${{ env.PGVER }}
-          PGROOT: '${{ env.PGROOT }}'
+          PGVER2: ${{ env.PGVER2 }}
+          PGROOT2: ${{ env.PGROOT2 }}
         shell: cmd
         run: |
           "postgresql-15.3-3-windows-x64.exe" --unattendedmodeui none --mode unattended --enable-components server,commandlinetools --disable-components pgAdmin,stackbuilder --superpassword "root" > nul
-          net stop postgresql-x64-%PGVER%
-          dir "%PGROOT%"
+          net stop postgresql-x64-%PGVER2%
+          dir "%PGROOT2%"
 
       # 34 seconds with zero packages
       # 2 minutes and seven(7) seconds with everything
@@ -519,7 +519,7 @@ jobs:
         env:
           PG_HOME: ${{ env.PG_HOME }}
           # PostgreSQL for Windows
-          PGROOT: ${{ env.PGROOT }}
+          PGROOT2: ${{ env.PGROOT2 }}
         run: |
           echo "Setup for Test on PostgreSQL for Windows"
           set -x -v -e
@@ -532,13 +532,13 @@ jobs:
 
           pushd     "${PG_HOME}/contribplr"
           #
-          export PGROOT=$(cygpath "${PGROOT}")
-          cp ../contrib/plr/plr.dll   "${PGROOT}/lib"
-          ls -alrt                    "${PGROOT}/lib/plr.dll"
-          cp plr.control "${PGROOT}/share/extension"
-          ls -alrt       "${PGROOT}/share/extension/plr.control"
-          cp plr--*.sql  "${PGROOT}/share/extension"
-          ls -alrt       "${PGROOT}"/share/extension/plr--*.sql
+          export PGROOT2=$(cygpath "${PGROOT2}")
+          cp ../contrib/plr/plr.dll   "${PGROOT2}/lib"
+          ls -alrt                    "${PGROOT2}/lib/plr.dll"
+          cp plr.control "${PGROOT2}/share/extension"
+          ls -alrt       "${PGROOT2}/share/extension/plr.control"
+          cp plr--*.sql  "${PGROOT2}/share/extension"
+          ls -alrt       "${PGROOT2}"/share/extension/plr--*.sql
 
           popd # from "${PG_HOME}/contribplr"
           #
@@ -571,20 +571,20 @@ jobs:
       - name: Test on PostgreSQL for Windows
         if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' && matrix.TestOnPGforWin == 'true' }}
         env:
-          PGVER: ${{ env.PGVER }}
-          PGBIN: ${{ env.PGBIN }}
+          PGVER2: ${{ env.PGVER2 }}
+          PGBIN2: ${{ env.PGBIN2 }}
           # not used
-          PGDATA: ${{ env.PGDATA }}
+          PGDATA2: ${{ env.PGDATA2 }}
           # not used
-          PGROOT: ${{ env.PGROOT }}
+          PGROOT2: ${{ env.PGROOT2 }}
         shell: cmd
         run: |
           echo on
           rem - it is not start = auto or start=auto or start =auto
           set PGUSER=postgres
           set PGPASSWORD=root
-          sc config "postgresql-x64-%PGVER%" start= auto
-          net start postgresql-x64-%PGVER%
-          "%PGBIN%\pg_regress" --bindir="%PGBIN%" --dbname=pl_regression plr bad_fun opt_window do out_args plr_transaction opt_window_frame || (type regression.diffs && call)
+          sc config "postgresql-x64-%PGVER2%" start= auto
+          net start postgresql-x64-%PGVER2%
+          "%PGBIN2%\pg_regress" --bindir="%PGBIN2%" --dbname=pl_regression plr bad_fun opt_window do out_args plr_transaction opt_window_frame || (type regression.diffs && call)
           if "%ERRORLEVEL%"=="1" exit 1
-          net stop postgresql-x64-%PGVER%
+          net stop postgresql-x64-%PGVER2%
