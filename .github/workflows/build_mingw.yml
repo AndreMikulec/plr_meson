@@ -242,8 +242,8 @@ jobs:
           Set-EnvVar "PGBIN2=${env:PGBIN2}"
           ${env:PGDATA2}="C:\Program Files\PostgreSQL\15\data"
           Set-EnvVar "PGDATA2=${env:PGDATA2}"
-          ${env:PGROOT2}="C:\Program Files\PostgreSQL\15"
-          Set-EnvVar "PGROOT2=${env:ROOT2}"
+          ${env:PGGROUND2}="C:\Program Files\PostgreSQL\15"
+          Set-EnvVar "PGGROUND2=${env:ROOT2}"
           # strang bug variables are dropped
           ${env:NOTHING}="nothing"
           Set-EnvVar "NOTHING=${env:NOTHING}"
@@ -252,7 +252,7 @@ jobs:
 #       if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' && matrix.TestOnPGforWin == 'true' }}
         env:
           PGVER2: ${{ env.PGVER2 }}
-          PGROOT2: ${{ env.PGROOT2 }}
+          PGGROUND2: ${{ env.PGGROUND2 }}
         shell: cmd
         run: |
           "postgresql-15.3-3-windows-x64.exe" --unattendedmodeui none --mode unattended --enable-components server,commandlinetools --disable-components pgAdmin,stackbuilder --superpassword "root" > nul
@@ -520,7 +520,7 @@ jobs:
         env:
           PG_HOME: ${{ env.PG_HOME }}
           # PostgreSQL for Windows
-          PGROOT2: ${{ env.PGROOT2 }}
+          PGGROUND2: ${{ env.PGGROUND2 }}
         run: |
           echo "Setup for Test on PostgreSQL for Windows"
           set -x -v -e
@@ -533,13 +533,13 @@ jobs:
 
           pushd     "${PG_HOME}/contribplr"
           #
-          export PGROOT2=$(cygpath "${PGROOT2}")
-          cp ../contrib/plr/plr.dll   "${PGROOT2}/lib"
-          ls -alrt                    "${PGROOT2}/lib/plr.dll"
-          cp plr.control "${PGROOT2}/share/extension"
-          ls -alrt       "${PGROOT2}/share/extension/plr.control"
-          cp plr--*.sql  "${PGROOT2}/share/extension"
-          ls -alrt       "${PGROOT2}"/share/extension/plr--*.sql
+          export PGGROUND2=$(cygpath "${PGGROUND2}")
+          cp ../contrib/plr/plr.dll   "${PGGROUND2}/lib"
+          ls -alrt                    "${PGGROUND2}/lib/plr.dll"
+          cp plr.control "${PGGROUND2}/share/extension"
+          ls -alrt       "${PGGROUND2}/share/extension/plr.control"
+          cp plr--*.sql  "${PGGROUND2}/share/extension"
+          ls -alrt       "${PGGROUND2}"/share/extension/plr--*.sql
 
           popd # from "${PG_HOME}/contribplr"
           #
@@ -577,7 +577,7 @@ jobs:
           # not used
           PGDATA2: ${{ env.PGDATA2 }}
           # not used
-          PGROOT2: ${{ env.PGROOT2 }}
+          PGGROUND2: ${{ env.PGGROUND2 }}
         shell: cmd
         run: |
           echo on
