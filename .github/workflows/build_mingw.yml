@@ -243,7 +243,7 @@ jobs:
           ${env:PGDATA2}="C:\Program Files\PostgreSQL\15\data"
           Set-EnvVar "PGDATA2=${env:PGDATA2}"
           ${env:PGGROUND2}="C:\Program Files\PostgreSQL\15"
-          Set-EnvVar "PGGROUND2=${env:ROOT2}"
+          Set-EnvVar "PGGROUND2=${env:PGGROUND2}"
           # strang bug variables are dropped
           ${env:NOTHING}="nothing"
           Set-EnvVar "NOTHING=${env:NOTHING}"
@@ -257,7 +257,7 @@ jobs:
         run: |
           "postgresql-15.3-3-windows-x64.exe" --unattendedmodeui none --mode unattended --enable-components server,commandlinetools --disable-components pgAdmin,stackbuilder --superpassword "root" > nul
           net stop postgresql-x64-%PGVER2%
-          dir "%PGBIN2%"
+          dir "%PGGROUND2%"
 
       # 34 seconds with zero packages
       # 2 minutes and seven(7) seconds with everything
