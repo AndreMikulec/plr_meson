@@ -251,7 +251,7 @@ jobs:
 #       if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' && matrix.TestOnPGforWin == 'true' }}
         env:
           PGVER: ${{ env.PGVER }}
-          PGROOT: ${{ env.PGROOT }}
+          PGROOT: '${{ env.PGROOT }}'
         shell: cmd
         run: |
           "postgresql-15.3-3-windows-x64.exe" --unattendedmodeui none --mode unattended --enable-components server,commandlinetools --disable-components pgAdmin,stackbuilder --superpassword "root" > nul
