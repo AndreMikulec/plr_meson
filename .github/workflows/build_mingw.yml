@@ -461,6 +461,7 @@ jobs:
           # Some environments require it
           export PGUSER=$(whoami)
           "${PG_HOME}/lib/postgresql/pgxs/src/test/regress/pg_regress" --bindir="${PG_HOME}/bin" --dbname=pl_regression plr bad_fun opt_window do out_args plr_transaction opt_window_frame || (cat regression.diffs && false)
+
           pg_ctl -D PGDATA -l logfile stop
 
           #
@@ -497,7 +498,7 @@ jobs:
       #
       - name: Choco Install GNU diffutils
         if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64'  }}
-        uses: crazy-max/ghaction-chocolatey@v2.2.0
+        uses: crazy-max/ghaction-chocolatey@v2
         with:
           args: install diffutils
 
@@ -511,6 +512,7 @@ jobs:
           set PGPASSWORD=root
           sc config "postgresql-x64-14" start= auto
           net start postgresql-x64-14
-          "%PGBIN%\pg_regress" --bindir="%PGBIN%" --dbname=pl_regression cube || (type regression.diffs && call)
+          "%PGBIN%\pg_regress" --bindir="%PGBIN%" --dbname=pl_regression plr bad_fun opt_window do out_args plr_transaction opt_window_frame || (type regression.diffs && call)
           net stop  postgresql-x64-14
+
 
