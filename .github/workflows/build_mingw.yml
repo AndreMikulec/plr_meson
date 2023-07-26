@@ -231,18 +231,29 @@ jobs:
           "R-${{ env.rversionlong }}.exe" /VERYSILENT /COMPONENTS=main,%R_ARCHplat% /DIR=%R_HOME% /NOICONS /TASKS=
           dir "%R_HOME%"
 
+
+
+      - name: Prep for Install PostgreSQL for Windows
+#       if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' && matrix.TestOnPGforWin == 'true' }}
+        run: |
+          function Set-EnvVar {param($X)     Add-Content -Path ${env:GITHUB_ENV} -Value "$X"}
+          Set-EnvVar "compiler=${env:compiler}"
+          ${env:PGVER}=15
+          Set-EnvVar "PGVER=${env:PGVER}"
+          ${env:PGBIN}="C:\Program Files\PostgreSQL\15\bin"
+          Set-EnvVar "PGBIN=${env:PGBIN}"
+          ${env:PGDATA}="C:\Program Files\PostgreSQL\15\data"
+          Set-EnvVar "PGDATA=${env:PGDATA}"
+          ${env:PGROOT}="C:\Program Files\PostgreSQL\15"
+          Set-EnvVar "PGROOT=${env:ROOT}"
+
       - name: Install PostgreSQL for Windows
 #       if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' && matrix.TestOnPGforWin == 'true' }}
+        env:
+          PGVER: ${{ env.PGVER }}
+          PGROOT: ${{ env.PGROOT }}
         shell: cmd
         run: |
-          set PGVER=15
-          printf "PGVER=%PGVER%" >> %GITHUB_ENV%
-          set PGBIN=C:\Program Files\PostgreSQL\15\bin
-          printf "PGBIN=%PGBIN%" >> %GITHUB_ENV%
-          set PGDATA=C:\Program Files\PostgreSQL\15\data
-          printf "PGDATA=%PGDATA%" >> %GITHUB_ENV%
-          set PGROOT=C:\Program Files\PostgreSQL\15
-          printf "PGROOT=%PGROOT%" >> %GITHUB_ENV%
           "postgresql-15.3-3-windows-x64.exe" --unattendedmodeui none --mode unattended --enable-components server,commandlinetools --disable-components pgAdmin,stackbuilder --superpassword "root" > nul
           net stop postgresql-x64-%PGVER%
           dir "%PGROOT%"
