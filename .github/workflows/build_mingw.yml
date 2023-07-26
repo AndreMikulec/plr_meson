@@ -136,6 +136,10 @@ jobs:
           if("${env:R_ARCH}" -eq "none")  {${env:R_ARCHplat} = "none"}
           Set-EnvVar "R_ARCHplat=${env:R_ARCHplat}"
 
+          ${env:TestOnPGforWin}="${{ matrix.TestOnPGforWin }}"
+          if("${env:TestOnPGforWin}" -eq ""){${env:TestOnPGforWin} = "none"}
+          Set-EnvVar "PG_HOME=${env:TestOnPGforWin}"
+
       - name: Matrix Windows Platform Specific Variables
         if: ${{ env.os == 'windows-latest' && ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) }}
         run: |
@@ -184,7 +188,7 @@ jobs:
           SEGMENT_DOWNLOAD_TIMEOUT_MINS: 1
 
       - name: Cache Download PostgreSQL for Windows
-        if: ${{ env.os == 'windows-latest' &&  env.compiler == 'UCRT64' && matrix.TestOnPGforWin == 'true' }}
+        if: ${{ env.os == 'windows-latest' &&  env.compiler == 'UCRT64' && env.TestOnPGforWin == 'true' }}
         uses: actions/cache@v3.3.1
         id: cachePGWindowsInstallerExe
         with:
@@ -210,7 +214,7 @@ jobs:
           url: ${{ env.CRAN_R_DOWNLOAD_URL }}
 
       - name: Download PostgreSQL for Windows
-#       if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' && matrix.TestOnPGforWin == 'true' && steps.cachePGWindowsInstallerExe.outputs.cache-hit != 'true' }}
+#       if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' && env.TestOnPGforWin == 'true' && steps.cachePGWindowsInstallerExe.outputs.cache-hit != 'true' }}
         uses: suisei-cn/actions-download-file@v1.3.0
         id: downloadfilePGforWindows
         with:
@@ -232,7 +236,7 @@ jobs:
           dir "%R_HOME%"
 
       - name: Prep for Install PostgreSQL for Windows
-#       if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' && matrix.TestOnPGforWin == 'true' }}
+#       if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' && env.TestOnPGforWin == 'true' }}
         run: |
           function Set-EnvVar {param($X)     Add-Content -Path ${env:GITHUB_ENV} -Value "$X"}
           Set-EnvVar "compiler=${env:compiler}"
@@ -249,7 +253,7 @@ jobs:
           Set-EnvVar "NOTHING=${env:NOTHING}"
 
       - name: Install PostgreSQL for Windows
-#       if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' && matrix.TestOnPGforWin == 'true' }}
+#       if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' && env.TestOnPGforWin == 'true' }}
         env:
           PGVER2: ${{ env.PGVER2 }}
           PGGROUND2: ${{ env.PGGROUND2 }}
@@ -512,7 +516,7 @@ jobs:
           popd # from "${PG_HOME}/contribplr"
 
       - name: Setup for Test on PostgreSQL for Windows
-#       if: ${{ env.os == 'windows-latest' &&  env.compiler == 'UCRT64' && matrix.TestOnPGforWin == 'true' }}
+#       if: ${{ env.os == 'windows-latest' &&  env.compiler == 'UCRT64' && env.TestOnPGforWin == 'true' }}
         uses: msys2/setup-msys2@v2
         with:
           msystem: ${{ env.compiler }}
@@ -563,14 +567,14 @@ jobs:
       # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-software
       #
       - name: Choco Install GNU diffutils for Test on PostgreSQL for Windows
-#       if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' && matrix.TestOnPGforWin == 'true' }}
+#       if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' && env.TestOnPGforWin == 'true' }}
         # Keep v2.  v2.2.0 may have connection to Sourceforge problems
         uses: crazy-max/ghaction-chocolatey@v2
         with:
           args: install diffutils
 
       - name: Test on PostgreSQL for Windows
-#       if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' && matrix.TestOnPGforWin == 'true' }}
+#       if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' && env.TestOnPGforWin == 'true' }}
         env:
           PGVER2: ${{ env.PGVER2 }}
           PGBIN2: ${{ env.PGBIN2 }}
