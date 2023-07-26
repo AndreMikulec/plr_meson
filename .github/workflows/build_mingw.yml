@@ -244,6 +244,7 @@ jobs:
           set PGROOT=C:\Program Files\PostgreSQL\15
           printf "PGROOT=%PGROOT%" >> %GITHUB_ENV%
           "postgresql-15.3-3-windows-x64.exe" --unattendedmodeui none --mode unattended --enable-components server,commandlinetools --disable-components pgAdmin,stackbuilder --superpassword "root" > nul
+          net stop postgresql-x64-%PGVER%
           dir "%PGROOT%"
 
       # 34 seconds with zero packages
@@ -575,4 +576,4 @@ jobs:
           net start postgresql-x64-%PGVER%
           "%PGBIN%\pg_regress" --bindir="%PGBIN%" --dbname=pl_regression plr bad_fun opt_window do out_args plr_transaction opt_window_frame || (type regression.diffs && call)
           if "%ERRORLEVEL%"=="1" exit 1
-          net stop  postgresql-x64-%PGVER%
+          net stop postgresql-x64-%PGVER%
