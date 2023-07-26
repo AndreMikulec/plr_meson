@@ -232,7 +232,7 @@ jobs:
           dir "%R_HOME%"
 
       - name: Install PostgreSQL for Windows
-        if: ${{ env.os == 'windows-latest' &&  env.compiler == 'UCRT64' && matrix.TestOnPGforWin == 'true'  }}
+#       if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' && matrix.TestOnPGforWin == 'true' }}
         shell: cmd
         run: |
           set PGVER=15
@@ -498,7 +498,7 @@ jobs:
 
           popd # from "${PG_HOME}/contribplr"
 
-      - name: Setup for Test o PostgreSQL for Windows
+      - name: Setup for Test on PostgreSQL for Windows
         if: ${{ env.os == 'windows-latest' &&  env.compiler == 'UCRT64' && matrix.TestOnPGforWin == 'true' }}
         uses: msys2/setup-msys2@v2
         with:
