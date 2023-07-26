@@ -3,7 +3,7 @@ run-name: Testing Creating PL/R using meson
 on: [push]
 jobs:
   build_test_install:
-    name: ${{ matrix.compiler }} R ${{ matrix.rversion }} ${{ matrix.os }} 
+    name: ${{ matrix.compiler }} R ${{ matrix.rversion }} ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       # Disable fail-fast as we want results from all even if one fails.
@@ -59,7 +59,7 @@ jobs:
           # systeminfo
           echo "${{ matrix.compiler }} on ${{ matrix.os }}"
           # JUL 2023 - only THIS exists in Github Actions
-          if( Test-Path "C:\Program Files\PostgreSQL\14" ) { "pg x64-14 exists."  } else {  "pg x64-14 not exists." } 
+          if( Test-Path "C:\Program Files\PostgreSQL\14" ) { "pg x64-14 exists."  } else {  "pg x64-14 not exists." }
           function Set-EnvVar {param($X)     Add-Content -Path ${env:GITHUB_ENV} -Value "$X"}
           #
           ${env:compiler} = "${{ matrix.compiler }}"
@@ -149,7 +149,7 @@ jobs:
 
           # CRAN download URL
           ${env:CRAN_R_DOWNLOAD_URL} ="none"
-          
+
           if([int]"${{ env.rversionnumeric }}" -ge 30600 ) {
             ${env:CRAN_R_DOWNLOAD_URL} = "https://cran.r-project.org/bin/windows/base/old/${{ env.rversion }}/R-${env:rversionlong}.exe"
           }
@@ -162,7 +162,7 @@ jobs:
 
 #       # running Meson on GitHub Actions will end up using GCC rather than MSVC
 #       #
-#       # His fix . 
+#       # His fix .
 #       # https://dvdhrm.github.io/2021/04/21/meson-msvc-github-actions/
 #       #
 #       # `x64` for 64-bit x86 machines, `x86` for 32-bit x86 machines.
@@ -205,14 +205,14 @@ jobs:
       - name: Download R for Windows R-x.y.z R-rmajor.rminor.rpatch
         if: ${{ env.os == 'windows-latest' && ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) && steps.cacheRWindowsInstallerExe.outputs.cache-hit != 'true' }}
         uses: suisei-cn/actions-download-file@v1.3.0
-        id: downloadfileRforWindows 
+        id: downloadfileRforWindows
         with:
           url: ${{ env.CRAN_R_DOWNLOAD_URL }}
- 
+
       - name: Download PostgreSQL for Windows
 #       if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' && matrix.TestOnPGforWin == 'true' && steps.cachePGWindowsInstallerExe.outputs.cache-hit != 'true' }}
         uses: suisei-cn/actions-download-file@v1.3.0
-        id: downloadfilePGforWindows 
+        id: downloadfilePGforWindows
         with:
           url: http://get.enterprisedb.com/postgresql/postgresql-15.3-3-windows-x64.exe
 
@@ -261,7 +261,7 @@ jobs:
 
       # 34 seconds with zero packages
       # 2 minutes and seven(7) seconds with everything
-      - name: Install Windows mingw Software 
+      - name: Install Windows mingw Software
         if: ${{ env.os == 'windows-latest' && ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) }}
         uses: msys2/setup-msys2@v2
         with:
@@ -288,18 +288,18 @@ jobs:
             mingw-w64-${{ env.mingw_env }}-make
             mingw-w64-${{ env.mingw_env }}-${{ env.compiler_exe }}
             tar
-            gzip 
+            gzip
             mingw-w64-${{ env.mingw_env }}-readline
             mingw-w64-${{ env.mingw_env }}-zlib
             mingw-w64-${{ env.mingw_env }}-icu
-            icu-devel  
+            icu-devel
             git
-            flex       
-            bison      
+            flex
+            bison
             mingw-w64-${{ env.mingw_env }}-perl
             mingw-w64-${{ env.mingw_env }}-winpty
-            p7zip   
-            tar       
+            p7zip
+            tar
             zstd
             mingw-w64-${{ env.mingw_env }}-tools-git
             mingw-w64-${{ env.mingw_env }}-binutils
@@ -370,13 +370,13 @@ jobs:
           echo "PKG_CONFIG_SYSTEM_LIBRARY_PATH: ${PKG_CONFIG_SYSTEM_LIBRARY_PATH}"
 
           # note "cygwin" has "no defaults"
-          #  
+          #
           # note mingw MSYS UCRT uses MSYSTEM_PREFIX="/ucrt64" in place of "/usr"
           # note mingw MSYS UCRT variable PKG_CONFIG_PATH at the tail also has "/ucrt64/share/pkgconfig"
           #
           # OperatingSystem Cygwin
-          if [ "${PKG_CONFIG_PATH}" == "" ];                then export PKG_CONFIG_PATH="/usr/lib/pkgconfig"; fi 
-          if [ "${PKG_CONFIG_SYSTEM_INCLUDE_PATH}" == "" ]; then export PKG_CONFIG_SYSTEM_INCLUDE_PATH="/usr/include"; fi 
+          if [ "${PKG_CONFIG_PATH}" == "" ];                then export PKG_CONFIG_PATH="/usr/lib/pkgconfig"; fi
+          if [ "${PKG_CONFIG_SYSTEM_INCLUDE_PATH}" == "" ]; then export PKG_CONFIG_SYSTEM_INCLUDE_PATH="/usr/include"; fi
           if [ "${PKG_CONFIG_SYSTEM_LIBRARY_PATH}" == "" ]; then export PKG_CONFIG_SYSTEM_LIBRARY_PATH="/usr/lib"; fi
 
           # For OperatingSystem Msys and R environment variable R_ARCH and Rlib.dll.a
@@ -391,7 +391,7 @@ jobs:
           echo "PKG_CONFIG_SYSTEM_LIBRARY_PATH: ${PKG_CONFIG_SYSTEM_LIBRARY_PATH}"
 
           # Garantee to find the PostgreSQL libraries.
-          # Some packages may also install an old "libpq" that is located in the default install location. 
+          # Some packages may also install an old "libpq" that is located in the default install location.
           # We do not want to use that old "libpg" in compiling PL/R.
           # Therefore, the PostgreSQL pkgconfig goes in front at the head
           #
@@ -415,7 +415,7 @@ jobs:
           # libpostgres.a     is     recognized as a static library
           #                         # typical Repository default install
           if [ ! -f "${PG_HOME}/lib/libpostgres.a" ] && [ ! -f "${PG_HOME}/lib/libpostgres.dll.a" ] && [ -f "${PG_HOME}/lib/libpostgres.exe.a" ]
-          then 
+          then
             #                       # meson built postgres install
             cp -f   "${PG_HOME}/lib/libpostgres.exe.a" "${PG_HOME}/lib/libpostgres.a"
           fi
@@ -436,7 +436,7 @@ jobs:
           # Some environments that use R_ARCH
           # E.g. OperatingSystem  "Msys" (and Microsoft Visual C++)
           #
-          if [ ! -d "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}${R_ARCH}" ] 
+          if [ ! -d "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}${R_ARCH}" ]
           then
             mkdir   "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}${R_ARCH}"
           fi
@@ -467,11 +467,11 @@ jobs:
           meson setup --prefix="${PG_HOME}/contrib/plr" -DR_HOME="${R_HOME}" -DPG_HOME="${PG_HOME}" -Db_pie=true ../contrib/plr
           meson compile -C ../contrib/plr  -v
           #
-          # [6/6] "cc" -o plr.dll 
+          # [6/6] "cc" -o plr.dll
           # plr.dll.p/plr.c.obj
           # plr.dll.p/pg_conversion.c.obj
           # plr.dll.p/pg_backend_support.c.obj
-          # plr.dll.p/pg_userfuncs.c.obj 
+          # plr.dll.p/pg_userfuncs.c.obj
           # plr.dll.p/pg_rsupport.c.obj
           # "-Wl,--allow-shlib-undefined" "-shared" "-Wl,--start-group"
           # "-Wl,--out-implib=plr.dll.a" "-fopenmp"
@@ -481,9 +481,9 @@ jobs:
           # "-lkernel32" "-luser32" "-lgdi32" "-lwinspool" "-lshell32"
           # "-lole32" "-loleaut32" "-luuid" "-lcomdlg32" "-ladvapi32"
           # "-Wl,--end-group"
-          # 
+          #
           if [ -f "../contrib/plr/plr.dll" ]
-          then 
+          then
             cp ../contrib/plr/plr.dll   "${PG_HOME}/lib/postgresql"
             ls -alrt                    "${PG_HOME}/lib/postgresql/plr.dll"
           fi
