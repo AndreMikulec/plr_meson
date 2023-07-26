@@ -591,15 +591,15 @@ jobs:
         run: |
           echo on
           rem
-          set PATH="%R_HOME%\bin:%PATH%"
+          set PATH="%R_HOME%\bin;%PATH%"
           rem R    Sub-Architectures
-          set PATH="%R_HOME%\bin%R_ARCH%:%PATH%"
+          set PATH="%R_HOME%\bin%R_ARCH%;%PATH%"
           rem
           rem can find "libraries"
-          set PATH="%PG_HOME%\lib:%PATH%"
+          set PATH="%PG_HOME%\lib;%PATH%"
           rem
           rem can find "libraries"
-          set PATH="%PG_HOME%\bin:%PATH%"
+          set PATH="%PG_HOME%\bin;%PATH%"
           rem
           rem - it is not start = auto or start=auto or start =auto
           set PGUSER=postgres
