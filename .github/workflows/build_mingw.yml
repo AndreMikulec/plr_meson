@@ -18,6 +18,7 @@ jobs:
             rversion: 4.3.1
             R_HOME: 'D:\RINSTALL'
             R_ARCH: /x64
+            TestOnPGforWin: true
 
           # Last PL/R that can be compiled using Microsoft Visual Studio
           - compiler: UCRT64
@@ -135,7 +136,6 @@ jobs:
           if("${env:R_ARCH}" -eq "none")  {${env:R_ARCHplat} = "none"}
           Set-EnvVar "R_ARCHplat=${env:R_ARCHplat}"
 
-
       - name: Matrix Windows Platform Specific Variables
         if: ${{ env.os == 'windows-latest' && ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) }}
         run: |
@@ -173,7 +173,6 @@ jobs:
 #         with:
 #           architecture: ${{ env.msvc_architecture }}
 
-
       - name: Cache R-x.y.z Windows Installer Exe
         if: ${{ env.os == 'windows-latest' && ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) }}
         uses: actions/cache@v3.3.1
@@ -183,6 +182,16 @@ jobs:
           key:  R-${{ env.rversionlong }}.exe
         env:
           SEGMENT_DOWNLOAD_TIMEOUT_MINS: 1
+
+      - name: Cache Download PostgreSQL for Windows
+        if: ${{ env.os == 'windows-latest' &&  env.compiler == 'UCRT64' && matrix.TestOnPGforWin == 'true' }}
+        uses: actions/cache@v3.3.1
+        id: cachePGWindowsInstallerExe
+        with:
+          path: postgresql-15.3-3-windows-x64.exe
+          key:  postgresql-15.3-3-windows-x64.exe
+        env:
+          SEGMENT_DOWNLOAD_TIMEOUT_MINS: 10
 
       # Notice
       # Path R-2.11.1-x64
@@ -200,6 +209,14 @@ jobs:
         with:
           url: ${{ env.CRAN_R_DOWNLOAD_URL }}
  
+      - name: Download PostgreSQL for Windows
+        if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' && matrix.TestOnPGforWin == 'true' && steps.cachePGWindowsInstallerExe.outputs.cache-hit != 'true' }}
+        uses: suisei-cn/actions-download-file@v1.3.0
+        id: downloadfilePGforWindows 
+        with:
+          url: http://get.enterprisedb.com/postgresql/postgresql-15.3-3-windows-x64.exe
+
+
       - name: Install R for Windows R-x.y.z R-rmajor.rminor.rpatch
         if: ${{ env.os == 'windows-latest' && ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) }}
         shell: cmd
@@ -213,6 +230,21 @@ jobs:
           rem Component "none" is ignored
           "R-${{ env.rversionlong }}.exe" /VERYSILENT /COMPONENTS=main,%R_ARCHplat% /DIR=%R_HOME% /NOICONS /TASKS=
           dir "%R_HOME%"
+
+      - name: Install PostgreSQL for Windows
+        if: ${{ env.os == 'windows-latest' &&  env.compiler == 'UCRT64' && matrix.TestOnPGforWin == 'true'  }}
+        shell: cmd
+        run: |
+          set PGVER=15
+          printf "PGVER=%PGVER%" >> %GITHUB_ENV%
+          set PGBIN=C:\Program Files\PostgreSQL\15\bin
+          printf "PGBIN=%PGBIN%" >> %GITHUB_ENV%
+          set PGDATA=C:\Program Files\PostgreSQL\15\data
+          printf "PGDATA=%PGDATA%" >> %GITHUB_ENV%
+          set PGROOT=C:\Program Files\PostgreSQL\15
+          printf "PGROOT=%PGROOT%" >> %GITHUB_ENV%
+          "postgresql-15.3-3-windows-x64.exe" --unattendedmodeui none --mode unattended --enable-components server,commandlinetools --disable-components pgAdmin,stackbuilder --superpassword "root" > nul
+          dir "%PGROOT%"
 
       # 34 seconds with zero packages
       # 2 minutes and seven(7) seconds with everything
@@ -464,21 +496,42 @@ jobs:
 
           pg_ctl -D PGDATA -l logfile stop
 
+          popd # from "${PG_HOME}/contribplr"
+
+      - name: Setup for Test o PostgreSQL for Windows
+        if: ${{ env.os == 'windows-latest' &&  env.compiler == 'UCRT64' && matrix.TestOnPGforWin == 'true' }}
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: ${{ env.compiler }}
+      - shell: msys2 {0}
+        env:
+          PG_HOME: ${{ env.PG_HOME }}
+          # PostgreSQL for Windows
+          PGROOT: ${{ env.PGROOT }}
+        run: |
+          echo "Setup for Test on PostgreSQL for Windows"
+          set -x -v -e
           #
           # Begin adding of files to Windows (see below)
           #
+          if [ "${PG_HOME}" == "none" ]; then export PG_HOME=""; fi
+          if [ ! "${PG_HOME}" == "" ]; then export PG_HOME=$(cygpath "${PG_HOME}"); fi
+          if [   "${PG_HOME}" == "" ]; then export PG_HOME="$(dirname $(dirname $(which postgres)))"; fi
+
+          pushd     "${PG_HOME}/contribplr"
+          #
+          export PGROOT=$(cygpath "${PGROOT}")
           cp ../contrib/plr/plr.dll   "${PGROOT}/lib"
           ls -alrt                    "${PGROOT}/lib/plr.dll"
           cp plr.control "${PGROOT}/share/extension"
           ls -alrt       "${PGROOT}/share/extension/plr.control"
           cp plr--*.sql  "${PGROOT}/share/extension"
           ls -alrt       "${PGROOT}"/share/extension/plr--*.sql
+
+          popd # from "${PG_HOME}/contribplr"
           #
           # End adding of files to Windows (see below)
           #
-
-          popd # from "${PG_HOME}/contribplr"
-          
 
       # # JUL 2023
       # # The PL/R extension was built using PostreSQL 15
@@ -496,25 +549,30 @@ jobs:
       # https://github.com/actions/runner-images/blob/main/images/win/Windows2022-Readme.md
       # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-software
       #
-      - name: Choco Install GNU diffutils
-        if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64'  }}
+      - name: Choco Install GNU diffutils for Test on PostgreSQL for Windows
+        if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' && matrix.TestOnPGforWin == 'true' }}
         # Keep v2.  v2.2.0 may have connection to Sourceforge problems
         uses: crazy-max/ghaction-chocolatey@v2
         with:
           args: install diffutils
 
-      - name: Test on Windows
-        if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64'  }}
+      - name: Test on PostgreSQL for Windows
+        if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' && matrix.TestOnPGforWin == 'true' }}
+        env:
+          PGVER: ${{ env.PGVER }}
+          PGBIN: ${{ env.PGBIN }}
+          # not used
+          PGDATA: ${{ env.PGDATA }}
+          # not used
+          PGROOT: ${{ env.PGROOT }}
         shell: cmd
         run: |
           echo on
           rem - it is not start = auto or start=auto or start =auto
           set PGUSER=postgres
           set PGPASSWORD=root
-          sc config "postgresql-x64-14" start= auto
-          net start postgresql-x64-14
+          sc config "postgresql-x64-%PGVER%" start= auto
+          net start postgresql-x64-%PGVER%
           "%PGBIN%\pg_regress" --bindir="%PGBIN%" --dbname=pl_regression plr bad_fun opt_window do out_args plr_transaction opt_window_frame || (type regression.diffs && call)
           if "%ERRORLEVEL%"=="1" exit 1
-          net stop  postgresql-x64-14
-
-
+          net stop  postgresql-x64-%PGVER%
