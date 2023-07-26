@@ -210,7 +210,7 @@ jobs:
           url: ${{ env.CRAN_R_DOWNLOAD_URL }}
  
       - name: Download PostgreSQL for Windows
-        if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' && matrix.TestOnPGforWin == 'true' && steps.cachePGWindowsInstallerExe.outputs.cache-hit != 'true' }}
+#       if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' && matrix.TestOnPGforWin == 'true' && steps.cachePGWindowsInstallerExe.outputs.cache-hit != 'true' }}
         uses: suisei-cn/actions-download-file@v1.3.0
         id: downloadfilePGforWindows 
         with:
