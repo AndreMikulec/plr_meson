@@ -66,22 +66,31 @@ jobs:
           if("${env:compiler}" -eq ""){${env:compiler} = "notset"}
           Set-EnvVar "compiler=${env:compiler}"
 
+          echo "compiler: ${env:compiler}"
+
           ${env:os} = "${{ matrix.os }}"
           if("${env:os}" -eq ""){${env:os} = "notset"}
           Set-EnvVar "os=${env:os}"
-          #
+
+          echo "os: ${env:os}"
+
           ${env:Platform} = "${{ matrix.Platform }}"
           if("${env:Platform}" -eq ""){${env:Platform} = "notset"}
           Set-EnvVar "Platform=${env:Platform}"
+
+          echo "Platform: ${env:Platform}"
 
           ${env:rversion}="${{ matrix.rversion }}"
           if("${env:rversion}" -eq ""){${env:rversion} = "notset"}
           Set-EnvVar "rversion=${env:rversion}"
 
+          echo "rversion: ${env:rversion}"
+
           ${env:rmajor} = "notset"
           ${env:rminor} = "notset"
           ${env:rpatch} = "notset"
           ${env:rversionnumeric} = "notset"
+
           if("${env:rversion}" -ne "notset") {
             # R-major.minor.patch
             ${env:rversion} -match '(\d+)'
@@ -100,45 +109,67 @@ jobs:
           Set-EnvVar "rpatch=${env:rpatch}"
           Set-EnvVar "rversionnumeric=${env:rversionnumeric}"
 
-          # derived
+          echo "         rmajor: ${env:rmajor}"
+          echo "         rminor: ${env:rminor}"
+          echo "       rpatched: ${env:rpatched}"
+          echo "rversionnumeric: ${env:rversionnumeric}"
+
+          # derived (this will be changed below)
           ${env:rversionlong} = ${env:rversion}
           Set-EnvVar "rversionlong=${env:rversionlong}"
+
                                            # derived
           if("${env:Platform}" -eq "x64")  { ${env:bit} = "64" }
           if("${env:Platform}" -eq "x86")  { ${env:bit} = "32" }
           if("${env:Platform}" -eq "notset") { ${env:bit} = "notset" }
           Set-EnvVar "bit=${env:bit}"
 
+          echo "bit: ${env:bit}"
+
           ${env:R_HOME}="${{ matrix.R_HOME }}"
           if("${env:R_HOME}" -eq ""){${env:R_HOME} = "notset"}
           Set-EnvVar "R_HOME=${env:R_HOME}"
-          #
+
+          echo "R_HOME: ${env:R_HOME}"
+
           ${env:R_ARCH}="${{ matrix.R_ARCH }}"
           if("${env:R_ARCH}" -eq ""){${env:R_ARCH} = "notset"}
           Set-EnvVar "R_ARCH=${env:R_ARCH}"
-          #
+
+          echo "R_ARCH: ${env:R_ARCH}"
+
           ${env:PG_HOME}="${{ matrix.PG_HOME }}"
           if("${env:PG_HOME}" -eq ""){${env:PG_HOME} = "notset"}
           Set-EnvVar "PG_HOME=${env:PG_HOME}"
+
+          echo "PG_HOME: ${env:PG_HOME}"
 
           if (  "${{ matrix.compiler }}" -eq "UCRT64"     ) { ${env:mingw_env} = "ucrt-x86_64" }
           if (  "${{ matrix.compiler }}" -eq "MINGW32"    ) { ${env:mingw_env} = "i686" }
           if (  "${{ matrix.compiler }}" -eq "notset"       ) { ${env:mingw_env} = "notset" }
           Set-EnvVar "mingw_env=${env:mingw_env}"
 
+          echo "mingw_env: ${env:mingw_env}"
+
           if (  "${{ matrix.compiler }}" -eq "UCRT64"     ) { ${env:compiler_exe} = "gcc" }
           if (  "${{ matrix.compiler }}" -eq "MINGW32"    ) { ${env:compiler_exe} = "gcc" }
           if (  "${{ matrix.compiler }}" -eq "notset"     )   { ${env:compiler_exe} = "notset" }
           Set-EnvVar "compiler_exe=${env:compiler_exe}"
 
-          if("${env:R_ARCH}" -eq "/x64")  {${env:R_ARCHplat} = "x64"}
-          if("${env:R_ARCH}" -eq "/i386") {${env:R_ARCHplat} = "i386"}
+          echo "compiler_exe: ${env:compiler_exe}"
+
+          if("${env:R_ARCH}" -eq "/x64")    {${env:R_ARCHplat} =    "x64"}
+          if("${env:R_ARCH}" -eq "/i386")   {${env:R_ARCHplat} =   "i386"}
           if("${env:R_ARCH}" -eq "notset")  {${env:R_ARCHplat} = "notset"}
           Set-EnvVar "R_ARCHplat=${env:R_ARCHplat}"
+
+          echo "R_ARCHplat: ${env:R_ARCHplat}"
 
           ${env:TestOnPGforWin}="${{ matrix.TestOnPGforWin }}"
           if("${env:TestOnPGforWin}" -eq ""){${env:TestOnPGforWin} = "notset"}
           Set-EnvVar "TestOnPGforWin=${env:TestOnPGforWin}"
+
+          echo "TestOnPGforWin: ${env:TestOnPGforWin}"
 
       - name: Matrix Windows Platform Specific Variables
         if: ${{ env.os == 'windows-latest' && ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) }}
@@ -151,6 +182,8 @@ jobs:
           }
           Set-EnvVar "rversionlong=${env:rversionlong}"
 
+          echo "rversionlong: ${env:rversionlong}"
+
           # CRAN download URL
           ${env:CRAN_R_DOWNLOAD_URL} ="notset"
 
@@ -162,7 +195,8 @@ jobs:
             ${env:CRAN_R_DOWNLOAD_URL} = "https://cran-archive.r-project.org/bin/windows/base/old/${{ env.rversion }}/R-${env:rversionlong}.exe"
           }
           Set-EnvVar "CRAN_R_DOWNLOAD_URL=${env:CRAN_R_DOWNLOAD_URL}"
-          echo "CRAN_R_DOWNLOAD_URL ${env:CRAN_R_DOWNLOAD_URL}"
+
+          echo "CRAN_R_DOWNLOAD_URL: ${env:CRAN_R_DOWNLOAD_URL}"
 
 #       # running Meson on GitHub Actions will end up using GCC rather than MSVC
 #       #
