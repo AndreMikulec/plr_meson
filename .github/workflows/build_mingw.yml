@@ -63,26 +63,26 @@ jobs:
           function Set-EnvVar {param($X)     Add-Content -Path ${env:GITHUB_ENV} -Value "$X"}
           #
           ${env:compiler} = "${{ matrix.compiler }}"
-          if("${env:compiler}" -eq ""){${env:compiler} = "none"}
+          if("${env:compiler}" -eq ""){${env:compiler} = "notset"}
           Set-EnvVar "compiler=${env:compiler}"
 
           ${env:os} = "${{ matrix.os }}"
-          if("${env:os}" -eq ""){${env:os} = "none"}
+          if("${env:os}" -eq ""){${env:os} = "notset"}
           Set-EnvVar "os=${env:os}"
           #
           ${env:Platform} = "${{ matrix.Platform }}"
-          if("${env:Platform}" -eq ""){${env:Platform} = "none"}
+          if("${env:Platform}" -eq ""){${env:Platform} = "notset"}
           Set-EnvVar "Platform=${env:Platform}"
 
           ${env:rversion}="${{ matrix.rversion }}"
-          if("${env:rversion}" -eq ""){${env:rversion} = "none"}
+          if("${env:rversion}" -eq ""){${env:rversion} = "notset"}
           Set-EnvVar "rversion=${env:rversion}"
 
-          ${env:rmajor} = "none"
-          ${env:rminor} = "none"
-          ${env:rpatch} = "none"
-          ${env:rversionnumeric} = "none"
-          if("${env:rversion}" -ne "none") {
+          ${env:rmajor} = "notset"
+          ${env:rminor} = "notset"
+          ${env:rpatch} = "notset"
+          ${env:rversionnumeric} = "notset"
+          if("${env:rversion}" -ne "notset") {
             # R-major.minor.patch
             ${env:rversion} -match '(\d+)'
             ${env:rmajor} = $matches[1]
@@ -106,38 +106,38 @@ jobs:
                                            # derived
           if("${env:Platform}" -eq "x64")  { ${env:bit} = "64" }
           if("${env:Platform}" -eq "x86")  { ${env:bit} = "32" }
-          if("${env:Platform}" -eq "none") { ${env:bit} = "none" }
+          if("${env:Platform}" -eq "notset") { ${env:bit} = "notset" }
           Set-EnvVar "bit=${env:bit}"
 
           ${env:R_HOME}="${{ matrix.R_HOME }}"
-          if("${env:R_HOME}" -eq ""){${env:R_HOME} = "none"}
+          if("${env:R_HOME}" -eq ""){${env:R_HOME} = "notset"}
           Set-EnvVar "R_HOME=${env:R_HOME}"
           #
           ${env:R_ARCH}="${{ matrix.R_ARCH }}"
-          if("${env:R_ARCH}" -eq ""){${env:R_ARCH} = "none"}
+          if("${env:R_ARCH}" -eq ""){${env:R_ARCH} = "notset"}
           Set-EnvVar "R_ARCH=${env:R_ARCH}"
           #
           ${env:PG_HOME}="${{ matrix.PG_HOME }}"
-          if("${env:PG_HOME}" -eq ""){${env:PG_HOME} = "none"}
+          if("${env:PG_HOME}" -eq ""){${env:PG_HOME} = "notset"}
           Set-EnvVar "PG_HOME=${env:PG_HOME}"
 
           if (  "${{ matrix.compiler }}" -eq "UCRT64"     ) { ${env:mingw_env} = "ucrt-x86_64" }
           if (  "${{ matrix.compiler }}" -eq "MINGW32"    ) { ${env:mingw_env} = "i686" }
-          if (  "${{ matrix.compiler }}" -eq "none"       ) { ${env:mingw_env} = "none" }
+          if (  "${{ matrix.compiler }}" -eq "notset"       ) { ${env:mingw_env} = "notset" }
           Set-EnvVar "mingw_env=${env:mingw_env}"
 
           if (  "${{ matrix.compiler }}" -eq "UCRT64"     ) { ${env:compiler_exe} = "gcc" }
           if (  "${{ matrix.compiler }}" -eq "MINGW32"    ) { ${env:compiler_exe} = "gcc" }
-          if (  "${{ matrix.compiler }}" -eq "none"     )   { ${env:compiler_exe} = "none" }
+          if (  "${{ matrix.compiler }}" -eq "notset"     )   { ${env:compiler_exe} = "notset" }
           Set-EnvVar "compiler_exe=${env:compiler_exe}"
 
           if("${env:R_ARCH}" -eq "/x64")  {${env:R_ARCHplat} = "x64"}
           if("${env:R_ARCH}" -eq "/i386") {${env:R_ARCHplat} = "i386"}
-          if("${env:R_ARCH}" -eq "none")  {${env:R_ARCHplat} = "none"}
+          if("${env:R_ARCH}" -eq "notset")  {${env:R_ARCHplat} = "notset"}
           Set-EnvVar "R_ARCHplat=${env:R_ARCHplat}"
 
           ${env:TestOnPGforWin}="${{ matrix.TestOnPGforWin }}"
-          if("${env:TestOnPGforWin}" -eq ""){${env:TestOnPGforWin} = "none"}
+          if("${env:TestOnPGforWin}" -eq ""){${env:TestOnPGforWin} = "notset"}
           Set-EnvVar "TestOnPGforWin=${env:TestOnPGforWin}"
 
       - name: Matrix Windows Platform Specific Variables
@@ -152,7 +152,7 @@ jobs:
           Set-EnvVar "rversionlong=${env:rversionlong}"
 
           # CRAN download URL
-          ${env:CRAN_R_DOWNLOAD_URL} ="none"
+          ${env:CRAN_R_DOWNLOAD_URL} ="notset"
 
           if([int]"${{ env.rversionnumeric }}" -ge 30600 ) {
             ${env:CRAN_R_DOWNLOAD_URL} = "https://cran.r-project.org/bin/windows/base/old/${{ env.rversion }}/R-${env:rversionlong}.exe"
@@ -231,7 +231,7 @@ jobs:
           echo R_ARCHplat: %R_ARCHplat%
           rem need "main" for the GUIs and command line utilites to work
           rem A comma at the end is O.K
-          rem Component "none" is ignored
+          rem Component "notset" is ignored
           "R-${{ env.rversionlong }}.exe" /VERYSILENT /COMPONENTS=main,%R_ARCHplat% /DIR=%R_HOME% /NOICONS /TASKS=
           dir "%R_HOME%"
 
@@ -248,9 +248,7 @@ jobs:
           Set-EnvVar "PGDATA2=${env:PGDATA2}"
           ${env:PGROOT2}="C:\Program Files\PostgreSQL\15"
           Set-EnvVar "PGROOT2=${env:PGROOT2}"
-          # strang bug variables are dropped
-          ${env:NOTHING}="nothing"
-          Set-EnvVar "NOTHING=${env:NOTHING}"
+
 
       - name: Install PostgreSQL for Windows
         if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' && env.TestOnPGforWin == 'true' }}
@@ -336,18 +334,18 @@ jobs:
           echo "rversion: ${rversion}"
           echo "PG_HOME: ${PG_HOME}"
 
-          if [ "${R_ARCH}" == "none" ]; then export R_ARCH=""; fi
-          if [ "${R_HOME}" == "none" ] || [ "${R_HOME}" == "" ]
+          if [ "${R_ARCH}" == "notset" ]; then export R_ARCH=""; fi
+          if [ "${R_HOME}" == "notset" ] || [ "${R_HOME}" == "" ]
           then
             echo "One must set R_HOME=value"
             exit 1
           fi
-          if [ "${rversion}" == "none" ] || [ "${rversion}" == "" ]
+          if [ "${rversion}" == "notset" ] || [ "${rversion}" == "" ]
           then
             echo "One must set rversion=value"
             exit 1
           fi
-          if [ "${PG_HOME}" == "none" ]; then export PG_HOME=""; fi
+          if [ "${PG_HOME}" == "notset" ]; then export PG_HOME=""; fi
 
           if [ ! "${R_HOME}"  == "" ]; then export  R_HOME=$(cygpath "${R_HOME}");  fi
           if [ ! "${PG_HOME}" == "" ]; then export PG_HOME=$(cygpath "${PG_HOME}"); fi
@@ -531,7 +529,7 @@ jobs:
           #
           # Begin adding of files to Windows (see below)
           #
-          if [ "${PG_HOME}" == "none" ]; then export PG_HOME=""; fi
+          if [ "${PG_HOME}" == "notset" ]; then export PG_HOME=""; fi
           if [ ! "${PG_HOME}" == "" ]; then export PG_HOME=$(cygpath "${PG_HOME}"); fi
           if [   "${PG_HOME}" == "" ]; then export PG_HOME="$(dirname $(dirname $(which postgres)))"; fi
 
