@@ -742,6 +742,21 @@ jobs:
         with:
           args: install diffutils
 
+      - name: Start PostgreSQL for Windows
+        if: ${{ env.os == 'windows-latest' && ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) && env.TestOnPGonWin == 'true' }}
+        env:
+          PGVER2: ${{ env.PGVER2 }}
+          Platform: ${{ env.Platform }}
+        shell: cmd
+        run: |
+          echo on
+          echo PGVER2   - %PGVER2%
+          echo Platform - %Platform%
+          rem Need to manually start PostgreSQL
+          if "%Platform%"=="x64" (net start postgresql-x64-%PGVER2%)
+          if "%Platform%"=="x86" (net start postgresql-%PGVER2%)
+          if "%Platform%"=="notset" (echo Platform is not set, therefore no net start happens.)
+
       - name: Test on PostgreSQL for Windows
         if: ${{ env.os == 'windows-latest' && ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) && env.TestOnPGonWin == 'true' }}
         env:
@@ -749,21 +764,10 @@ jobs:
           R_ARCH: ${{ env.R_ARCH }}
           #
           PG_HOME: ${{ env.PGROOT2 }} # different
-          #
-          PGVER2: ${{ env.PGVER2 }}
           PGBIN2: ${{ env.PGBIN2 }}
-          Platform: ${{ env.Platform }}
         shell: cmd
         run: |
-          rem NOT using Github Actions provided PostgreSQL x64-14
-          rem rem - it is not start = auto or start=auto or start =auto
-          rem set PGUSER=postgres
-          rem set PGPASSWORD=root
-          rem sc config "postgresql-x64-14" start= auto
-          rem net start postgresql-x64-14
-
           echo on
-
           echo R_HOME   - %R_HOME%
           echo R_ARCH   - %R_ARCH%
           echo PG_HOME  - %PG_HOME%
@@ -772,7 +776,6 @@ jobs:
           echo Platform - %Platform%
 
           echo off
-
           rem R     Sub-Architectures
           if "%R_ARCH%"=="/x64"   set PATH="%R_HOME%\bin\x64;%PATH%"
           if "%R_ARCH%"=="/i386"  set PATH="%R_HOME%\bin\i386;%PATH%"
@@ -786,18 +789,24 @@ jobs:
           set PATH="%PG_HOME%\bin;%PATH%"
 
           echo on
-
-          rem Need to manually start PostgreSQL
-          if "%Platform%"=="x64" (net start postgresql-x64-%PGVER2%)
-          if "%Platform%"=="x86" (net start postgresql-%PGVER2%)
-          if "%Platform%"=="notset" (echo Platform is not set, therefore no net start happens.)
-
           set PGUSER=postgres
           set PGPASSWORD=root
           "%PGBIN2%\pg_regress" --bindir="%PGBIN2%" --dbname=pl_regression plr bad_fun opt_window do out_args plr_transaction opt_window_frame || (type regression.diffs && call)
           if "%ERRORLEVEL%"=="1" exit 1
-          rem
-          rem Need to manually stop PostgreSQL
+
+
+
+      - name: Stop PostgreSQL for Windows
+        if: ${{ env.os == 'windows-latest' && ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) && env.TestOnPGonWin == 'true' }}
+        env:
+          PGVER2: ${{ env.PGVER2 }}
+          Platform: ${{ env.Platform }}
+        shell: cmd
+        run: |
+          echo on
+          echo PGVER2   - %PGVER2%
+          echo Platform - %Platform%
+          rem Need to manually start PostgreSQL
           if "%Platform%"=="x64" (net stop postgresql-x64-%PGVER2%)
           if "%Platform%"=="x86" (net stop postgresql-%PGVER2%)
           if "%Platform%"=="notset" (echo Platform is not set, therefore no net stop happens.)
