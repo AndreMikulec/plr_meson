@@ -198,10 +198,10 @@ jobs:
           echo "pgwinmajor: ${env:pgwinmajor}"
 
           if("${env:Platform}" -eq "x86"  -and "${env:pgwinversion}" -ne "notset") {
-            ${env:pgwinversionlong} = "postgresql-${{ env.pgwinversion }}-windows"
+            ${env:pgwinversionlong} = "postgresql-${env:pgwinversion}-windows"
           }
           if("${env:Platform}" -eq "x64" -and "${env:pgwinversion}" -ne "notset") {
-            ${env:pgwinversionlong} = "postgresql-${{ env.pgwinversion }}-windows-x64"
+            ${env:pgwinversionlong} = "postgresql-${env:pgwinversion}-windows-x64"
           }
           if("${env:Platform}" -eq "none" -or "${env:pgwinversion}" -eq "notset") {
             ${env:pgwinversionlong} = "none"
