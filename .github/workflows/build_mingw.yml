@@ -87,7 +87,7 @@ jobs:
 
           echo "Platform: ${env:Platform}"
 
-          ${env:rversion}="${{ matrix.rversion }}"
+          ${env:rversion} = "${{ matrix.rversion }}"
           if("${env:rversion}" -eq ""){${env:rversion} = "notset"}
           Set-EnvVar "rversion=${env:rversion}"
 
@@ -133,19 +133,19 @@ jobs:
 
           echo "bit: ${env:bit}"
 
-          ${env:R_HOME}="${{ matrix.R_HOME }}"
+          ${env:R_HOME} = "${{ matrix.R_HOME }}"
           if("${env:R_HOME}" -eq ""){${env:R_HOME} = "notset"}
           Set-EnvVar "R_HOME=${env:R_HOME}"
 
           echo "R_HOME: ${env:R_HOME}"
 
-          ${env:R_ARCH}="${{ matrix.R_ARCH }}"
+          ${env:R_ARCH} = "${{ matrix.R_ARCH }}"
           if("${env:R_ARCH}" -eq ""){${env:R_ARCH} = "notset"}
           Set-EnvVar "R_ARCH=${env:R_ARCH}"
 
           echo "R_ARCH: ${env:R_ARCH}"
 
-          ${env:PG_HOME}="${{ matrix.PG_HOME }}"
+          ${env:PG_HOME} = "${{ matrix.PG_HOME }}"
           if("${env:PG_HOME}" -eq ""){${env:PG_HOME} = "notset"}
           Set-EnvVar "PG_HOME=${env:PG_HOME}"
 
@@ -172,13 +172,40 @@ jobs:
 
           echo "R_ARCHplat: ${env:R_ARCHplat}"
 
-          ${env:TestOnPGonWin}="${{ matrix.TestOnPGonWin }}"
+          ${env:TestOnPGonWin} = "${{ matrix.TestOnPGonWin }}"
           if("${env:TestOnPGonWin}" -eq ""){${env:TestOnPGonWin} = "notset"}
           Set-EnvVar "TestOnPGonWin=${env:TestOnPGonWin}"
 
           echo "TestOnPGonWin: ${env:TestOnPGonWin}"
 
+          ${env:pgwinversion} = "${{ matrix.pgwinversion }}"
+          if("${env:pgwinversion}" -eq ""){${env:pgwinversion} = "notset"}
+          Set-EnvVar "pgwinversion=${env:pgwinversion}"
 
+          echo "pgwinversion: ${env:pgwinversion}"
+
+          if("${env:Platform}" -eq "x86"  -and "${env:pgwinversion}" -ne "notset") {
+            ${{ env.pgwinversionlong }} = "postgresql-${{ env.pgwinversion }}-windows"
+          }
+          if("${env:Platform}" -eq "x64" -and "${env:pgwinversion}" -ne "notset") {
+            ${{ env.pgwinversionlong }} = "postgresql-${{ env.pgwinversion }}-windows-x64"
+          }
+          if("${env:Platform}" -eq "none" -or "${env:pgwinversion}" -eq "notset") {
+            ${{ env.pgwinversionlong }} = "none"
+          }
+          Set-EnvVar "pgwinversionlong=${env:pgwinversionlong}"
+
+          echo "pgwinversionlong: ${env:pgwinversionlong}"
+
+          if("${env:pgwinversionlong}" -ne "notset") {
+            ${env:ENTDB_PG_DOWNLOAD_URL} = "http://get.enterprisedb.com/postgresql/{{ env.pgwinversionlong }}.exe"
+          }
+          if("${env:pgwinversionlong}" -eq "notset") {
+            ${env:ENTDB_PG_DOWNLOAD_URL} = "notset"
+          }
+          Set-EnvVar "ENTDB_PG_DOWNLOAD_URL=${env:ENTDB_PG_DOWNLOAD_URL}"
+
+          echo "ENTDB_PG_DOWNLOAD_URL: ${env:ENTDB_PG_DOWNLOAD_URL}"
 
 
       - name: Matrix Windows Platform Specific Variables
