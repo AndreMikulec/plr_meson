@@ -158,6 +158,12 @@ jobs:
 
           echo "mingw_env: ${env:mingw_env}"
 
+          if ("${{ env.mingw_env }}" -ne "notset") { ${env:MINGW_PACKAGE_PREFIX} = "mingw-w64-${{ env.mingw_env }}" }
+          if ("${{ env.mingw_env }}" -eq "notset") { ${env:MINGW_PACKAGE_PREFIX} = "notset" }
+          Set-EnvVar "MINGW_PACKAGE_PREFIX=${env:MINGW_PACKAGE_PREFIX}"
+
+          echo "MINGW_PACKAGE_PREFIX: ${env:MINGW_PACKAGE_PREFIX}"
+
           if (  "${{ matrix.compiler }}" -eq "UCRT64"     ) { ${env:compiler_exe} = "gcc" }
           if (  "${{ matrix.compiler }}" -eq "MINGW32"    ) { ${env:compiler_exe} = "gcc" }
           if (  "${{ matrix.compiler }}" -eq "notset"     )   { ${env:compiler_exe} = "notset" }
@@ -388,33 +394,33 @@ jobs:
           cache: false
           #
           install: >-
-            mingw-w64-${{ env.mingw_env }}-pkg-config
-            mingw-w64-${{ env.mingw_env }}-curl
+            ${{ env.MINGW_PACKAGE_PREFIX }}-pkg-config
+            ${{ env.MINGW_PACKAGE_PREFIX }}-curl
             git
-            mingw-w64-${{ env.mingw_env }}-meson
-            mingw-w64-${{ env.mingw_env }}-make
-            mingw-w64-${{ env.mingw_env }}-${{ env.compiler_exe }}
+            ${{ env.MINGW_PACKAGE_PREFIX }}-meson
+            ${{ env.MINGW_PACKAGE_PREFIX }}-make
+            ${{ env.MINGW_PACKAGE_PREFIX }}-${{ env.compiler_exe }}
             tar
             gzip
-            mingw-w64-${{ env.mingw_env }}-readline
-            mingw-w64-${{ env.mingw_env }}-zlib
-            mingw-w64-${{ env.mingw_env }}-icu
+            ${{ env.MINGW_PACKAGE_PREFIX }}-readline
+            ${{ env.MINGW_PACKAGE_PREFIX }}-zlib
+            ${{ env.MINGW_PACKAGE_PREFIX }}-icu
             icu-devel
             git
             flex
             bison
-            mingw-w64-${{ env.mingw_env }}-perl
-            mingw-w64-${{ env.mingw_env }}-winpty
+            ${{ env.MINGW_PACKAGE_PREFIX }}-perl
+            ${{ env.MINGW_PACKAGE_PREFIX }}-winpty
             p7zip
             tar
             zstd
-            mingw-w64-${{ env.mingw_env }}-tools-git
-            mingw-w64-${{ env.mingw_env }}-binutils
-            mingw-w64-${{ env.mingw_env }}-diffutils
-            mingw-w64-${{ env.mingw_env }}-libxml2
-            mingw-w64-${{ env.mingw_env }}-libxslt
-            mingw-w64-${{ env.mingw_env }}-lz4
-            mingw-w64-${{ env.mingw_env }}-postgresql
+            ${{ env.MINGW_PACKAGE_PREFIX }}-tools-git
+            ${{ env.MINGW_PACKAGE_PREFIX }}-binutils
+            ${{ env.MINGW_PACKAGE_PREFIX }}-diffutils
+            ${{ env.MINGW_PACKAGE_PREFIX }}-libxml2
+            ${{ env.MINGW_PACKAGE_PREFIX }}-libxslt
+            ${{ env.MINGW_PACKAGE_PREFIX }}-lz4
+            ${{ env.MINGW_PACKAGE_PREFIX }}-postgresql
 
       - name: Meson Setup Compile and Non-Meson Manual Test
         if: ${{ env.os == 'windows-latest' && ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) }}
