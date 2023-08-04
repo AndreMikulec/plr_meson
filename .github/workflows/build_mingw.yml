@@ -384,9 +384,9 @@ jobs:
           rem "Starting the database server"
           rem
           rem Installation will also start PostgreSQL
-          if "%Platform%"=="x64" net stop postgresql-x64-%PGVER2%
-          if "%Platform%"=="x86" net stop postgresql-%PGVER2%
-          if "%Platform%"=="notset" echo Platform is not set, therefore no net stop happens.
+          if "%Platform%"=="x64" (net stop postgresql-x64-%PGVER2%)
+          if "%Platform%"=="x86" (net stop postgresql-%PGVER2%)
+          if "%Platform%"=="notset" (echo Platform is not set, therefore no net stop happens.)
           dir "%PGROOT2%"
 
       # 34 seconds with zero packages
@@ -788,15 +788,16 @@ jobs:
           echo on
 
           rem Need to manually start PostgreSQL
-          if "%Platform%"=="x64" net stop postgresql-x64-%PGVER2%
-          if "%Platform%"=="x86" net stop postgresql-%PGVER2%
-          if "%Platform%"=="notset" echo Platform is not set, therefore no net stop happens.
+          if "%Platform%"=="x64" (net start postgresql-x64-%PGVER2%)
+          if "%Platform%"=="x86" (net start postgresql-%PGVER2%)
+          if "%Platform%"=="notset" (echo Platform is not set, therefore no net start happens.)
 
           set PGUSER=postgres
           set PGPASSWORD=root
           "%PGBIN2%\pg_regress" --bindir="%PGBIN2%" --dbname=pl_regression plr bad_fun opt_window do out_args plr_transaction opt_window_frame || (type regression.diffs && call)
           if "%ERRORLEVEL%"=="1" exit 1
+          rem
           rem Need to manually stop PostgreSQL
-          if "%Platform%"=="x64" net stop postgresql-x64-%PGVER2%
-          if "%Platform%"=="x86" net stop postgresql-%PGVER2%
-          if "%Platform%"=="notset" echo Platform is not set, therefore no net stop happens.
+          if "%Platform%"=="x64" (net stop postgresql-x64-%PGVER2%)
+          if "%Platform%"=="x86" (net stop postgresql-%PGVER2%)
+          if "%Platform%"=="notset" (echo Platform is not set, therefore no net stop happens.)
