@@ -190,6 +190,7 @@ jobs:
 
           echo "pgwinversion: ${env:pgwinversion}"
 
+          # if any, strip off the: right-most part dot, then numbers, then one hyphen, then numbers.
           if("${env:pgwinversion}" -ne "notset") { ${env:pgwinmajor} = ${env:pgwinversion} -replace "[.]\d+-\d+$" }
           if("${env:pgwinversion}" -eq "notset") { ${env:pgwinmajor} = "none" }
           Set-EnvVar "pgwinmajor=${env:pgwinmajor}"
@@ -442,6 +443,9 @@ jobs:
 
           # Msys
           # export OperatingSystem=$(uname -o)
+          echo "compiler: ${{ env.compiler }}"
+          export | grep MINGW
+          export | grep MSYSTEM
 
           echo "R_ARCH: ${R_ARCH}"
           echo "R_HOME: ${R_HOME}"
@@ -650,35 +654,45 @@ jobs:
           popd # from "${PG_HOME}/contribplr"
 
       - name: Setup for Test on PostgreSQL for Windows
-        if: ${{ env.os == 'windows-latest' &&  env.compiler == 'UCRT64' && env.TestOnPGonWin == 'true' }}
+        if: ${{ env.os == 'windows-latest' &&  ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) && env.TestOnPGonWin == 'true' }}
         uses: msys2/setup-msys2@v2
         with:
           msystem: ${{ env.compiler }}
-      - shell: msys2 {0}
         env:
           PG_HOME: ${{ env.PG_HOME }}
           # PostgreSQL for Windows
           PGROOT2: ${{ env.PGROOT2 }}
+      - shell: msys2 {0}
         run: |
           echo "Setup for Test on PostgreSQL for Windows"
           set -x -v -e
           #
           # Begin adding of files to Windows (see below)
           #
+          echo "compiler: ${{ env.compiler }}"
+          export | grep MINGW
+          export | grep MSYSTEM
+
           echo  "PG_HOME: ${PG_HOME}"
           echo  "PGROOT2: ${PGROOT2}"
 
           if [ "${PG_HOME}" == "notset" ]; then export PG_HOME=""; fi
           if [ ! "${PG_HOME}" == "" ]; then export PG_HOME=$(cygpath "${PG_HOME}"); fi
-          if [   "${PG_HOME}" == "" ]; then export PG_HOME="$(dirname $(dirname $(which postgres)))"; fi
 
-          echo  "new PG_HOME: ${PG_HOME}"
+          export BINDIR=$(pg_config | grep "^BINDIR" | sed "s/ = /=/" | sed "s/^.*=//")
+          export BINDIR=$(cygpath $(cygpath -wl "${BINDIR}"))
+
+          echo "BINDIR: ${BINDIR}"
+
+          if [   "${PG_HOME}" == "" ]; then export PG_HOME=$(dirname "${BINDIR}"); fi
+
+          echo "PG_HOME: ${PG_HOME}"
 
           pushd     "${PG_HOME}/contribplr"
           #
           export PGROOT2=$(cygpath "${PGROOT2}")
           
-          echo  "new PGROOT2: ${PGROOT2}"
+          echo  "cygpath PGROOT2: ${PGROOT2}"
 
           cp ../contrib/plr/plr.dll   "${PGROOT2}/lib"
           ls -alrt                    "${PGROOT2}/lib/plr.dll"
@@ -716,7 +730,7 @@ jobs:
           args: install diffutils
 
       - name: Test on PostgreSQL for Windows
-        if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' && env.TestOnPGonWin == 'true' }}
+        if: ${{ env.os == 'windows-latest' && ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) && env.TestOnPGonWin == 'true' }}
         env:
           R_HOME: ${{ env.R_HOME }}
           R_ARCH: ${{ env.R_ARCH }}
