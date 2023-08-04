@@ -232,9 +232,9 @@ jobs:
             ${env:PGROOT2} = "C:\Program Files\PostgreSQL\${env:pgwinmajor}"
           }
           if("${env:Platform}" -eq "x86") {
-            ${env:PGBIN2}  = "Program Files (x86)\PostgreSQL\${env:pgwinmajor}\bin"
-            ${env:PGDATA2} = "Program Files (x86)\PostgreSQL\${env:pgwinmajor}\data"
-            ${env:PGROOT2} = "Program Files (x86)\PostgreSQL\${env:pgwinmajor}"
+            ${env:PGBIN2}  = "C:\Program Files (x86)\PostgreSQL\${env:pgwinmajor}\bin"
+            ${env:PGDATA2} = "C:\Program Files (x86)\PostgreSQL\${env:pgwinmajor}\data"
+            ${env:PGROOT2} = "C:\Program Files (x86)\PostgreSQL\${env:pgwinmajor}"
           }
           if("${env:Platform}" -eq "notset") {
             ${env:PGBIN2}  = "notset"
@@ -356,7 +356,7 @@ jobs:
           "${{ env.rversionlong }}.exe" /VERYSILENT /COMPONENTS=main,%R_ARCHplat% /DIR=%R_HOME% /NOICONS /TASKS=
           dir "%R_HOME%"
 
-      - name: Install PostgreSQL for Windows
+      - name: Install PostgreSQL for Windows and Stop PostgreSQL
         if: ${{ env.os == 'windows-latest' && ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) && env.TestOnPGonWin == 'true' }}
         env:
           PGVER2: ${{ env.PGVER2 }}
@@ -738,26 +738,6 @@ jobs:
           Platform: ${{ env.Platform }}
         shell: cmd
         run: |
-          echo on
-          rem
-          echo R_HOME   - %R_HOME%
-          echo R_ARCH   - %R_ARCH%
-          echo PG_HOME  - %PG_HOME%
-          echo PGVER2   - %PGVER2%
-          echo PGBIN2   - %PGBIN2%
-          echo Platform - %Platform%
-
-          rem R     Sub-Architectures
-          if "%R_ARCH%"=="/x64"   set PATH="%R_HOME%\bin%R_ARCH%;%PATH%"
-          if "%R_ARCH%"=="/i386"  set PATH="%R_HOME%\bin%R_ARCH%;%PATH%"
-          rem not R Sub-Architectures
-          if "%R_ARCH%"=="notset" set PATH="%R_HOME%\bin;%PATH%"
-          rem
-          rem can find PG "libraries"
-          set PATH="%PG_HOME%\lib;%PATH%"
-
-          rem can find PG "libraries"
-          set PATH="%PG_HOME%\bin;%PATH%"
 
           rem NOT using Github Actions provided PostgreSQL x64-14
           rem rem - it is not start = auto or start=auto or start =auto
@@ -765,6 +745,31 @@ jobs:
           rem set PGPASSWORD=root
           rem sc config "postgresql-x64-14" start= auto
           rem net start postgresql-x64-14
+
+          echo on
+
+          echo R_HOME   - %R_HOME%
+          echo R_ARCH   - %R_ARCH%
+          echo PG_HOME  - %PG_HOME%
+          echo PGVER2   - %PGVER2%
+          echo PGBIN2   - %PGBIN2%
+          echo Platform - %Platform%
+
+          echo off
+
+          rem R     Sub-Architectures
+          if "%R_ARCH%"=="/x64"   set PATH="%R_HOME%\bin\x64;%PATH%"
+          if "%R_ARCH%"=="/i386"  set PATH="%R_HOME%\bin\i386;%PATH%"
+          rem not R Sub-Architectures
+          if "%R_ARCH%"=="notset" set PATH="%R_HOME%\bin;%PATH%"
+
+          rem can find PG "libraries"
+          set PATH="%PG_HOME%\lib;%PATH%"
+
+          rem can find PG "libraries"
+          set PATH="%PG_HOME%\bin;%PATH%"
+
+          echo on
 
           if "%Platform%"=="x64" net start postgresql-x64-%PGVER2%
           if "%Platform%"=="x86" net start postgresql-%PGVER2%
