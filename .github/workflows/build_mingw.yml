@@ -220,6 +220,35 @@ jobs:
 
           echo "ENTDB_PG_DOWNLOAD_URL: ${env:ENTDB_PG_DOWNLOAD_URL}"
 
+          # Prep for Install PostgreSQL for Windows (if applicable)
+          ${env:PGVER2} = ${env:pgwinmajor}
+          Set-EnvVar "PGVER2=${env:PGVER2}"
+
+          echo "PGVER2: ${env:PGVER2}"
+
+          if("${env:Platform}" -eq "x64") {
+            ${env:PGBIN2}  = "C:\Program Files\PostgreSQL\${env:pgwinmajor}\bin"
+            ${env:PGDATA2} = "C:\Program Files\PostgreSQL\${env:pgwinmajor}\data"
+            ${env:PGROOT2} = "C:\Program Files\PostgreSQL\${env:pgwinmajor}"
+          }
+          if("${env:Platform}" -eq "x86") {
+            ${env:PGBIN2}  = "Program Files (x86)\PostgreSQL\${env:pgwinmajor}\bin"
+            ${env:PGDATA2} = "Program Files (x86)\PostgreSQL\${env:pgwinmajor}\data"
+            ${env:PGROOT2} = "Program Files (x86)\PostgreSQL\${env:pgwinmajor}"
+          }
+          if("${env:Platform}" -eq "notset") {
+            ${env:PGBIN2}  = "notset"
+            ${env:PGDATA2} = "notset"
+            ${env:PGROOT2} = "notset"
+          }
+          Set-EnvVar "PGBIN2=${env:PGBIN2}"
+          Set-EnvVar "PGDATA2=${env:PGDATA2}"
+          Set-EnvVar "PGROOT2=${env:PGROOT2}"
+
+          echo " PGBIN2: ${env:PGBIN2}"
+          echo "PGDATA2: ${env:PGDATA2}"
+          echo "PGROOT2: ${env:PGROOT2}"
+
 
       - name: Matrix Windows Platform Specific Variables
         if: ${{ env.os == 'windows-latest' && ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) }}
@@ -278,7 +307,7 @@ jobs:
           SEGMENT_DOWNLOAD_TIMEOUT_MINS: 1
 
       - name: Cache Download PostgreSQL for Windows
-        if: ${{ env.os == 'windows-latest' &&  env.compiler == 'UCRT64' && env.TestOnPGonWin == 'true' }}
+        if: ${{ env.os == 'windows-latest' &&  ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) && env.TestOnPGonWin == 'true' }}
         uses: actions/cache@v3.3.1
         id: cachePGWindowsInstallerExe
         with:
@@ -304,7 +333,7 @@ jobs:
           url: ${{ env.CRAN_R_DOWNLOAD_URL }}
 
       - name: Download PostgreSQL for Windows
-        if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' && env.TestOnPGonWin == 'true' && steps.cachePGWindowsInstallerExe.outputs.cache-hit != 'true' }}
+        if: ${{ env.os == 'windows-latest' && ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) && env.TestOnPGonWin == 'true' && steps.cachePGWindowsInstallerExe.outputs.cache-hit != 'true' }}
         uses: suisei-cn/actions-download-file@v1.3.0
         id: downloadfilePGforWindows
         with:
@@ -327,41 +356,8 @@ jobs:
           "${{ env.rversionlong }}.exe" /VERYSILENT /COMPONENTS=main,%R_ARCHplat% /DIR=%R_HOME% /NOICONS /TASKS=
           dir "%R_HOME%"
 
-      - name: Prep for Install PostgreSQL for Windows
-        if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' && env.TestOnPGonWin == 'true' }}
-        run: |
-          function Set-EnvVar {param($X)     Add-Content -Path ${env:GITHUB_ENV} -Value "$X"}
-
-          ${env:PGVER2} = ${{ env.pgwinmajor }}
-          Set-EnvVar "PGVER2=${env:PGVER2}"
-
-          echo "PGVER2: ${env:PGVER2}"
-
-          if("${{ env.Platform }}" -eq "x64") {
-            ${env:PGBIN2}  = "C:\Program Files\PostgreSQL\${{ env.pgwinmajor }}\bin"
-            ${env:PGDATA2} = "C:\Program Files\PostgreSQL\${{ env.pgwinmajor }}\data"
-            ${env:PGROOT2} = "C:\Program Files\PostgreSQL\${{ env.pgwinmajor }}"
-          }
-          if("${{ env.Platform }}" -eq "x86") {
-            ${env:PGBIN2}  = "Program Files (x86)\PostgreSQL\${{ env.pgwinmajor }}\bin"
-            ${env:PGDATA2} = "Program Files (x86)\PostgreSQL\${{ env.pgwinmajor }}\data"
-            ${env:PGROOT2} = "Program Files (x86)\PostgreSQL\${{ env.pgwinmajor }}"
-          }
-          if("${{ env.Platform }}" -eq "notset") {
-            ${env:PGBIN2}  = "notset"
-            ${env:PGDATA2} = "notset"
-            ${env:PGROOT2} = "notset"
-          }
-          Set-EnvVar "PGBIN2=${env:PGBIN2}"
-          Set-EnvVar "PGDATA2=${env:PGDATA2}"
-          Set-EnvVar "PGROOT2=${env:PGROOT2}"
-
-          echo " PGBIN2: ${env:PGBIN2}"
-          echo "PGDATA2: ${env:PGDATA2}"
-          echo "PGROOT2: ${env:PGROOT2}"
-
       - name: Install PostgreSQL for Windows
-        if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' && env.TestOnPGonWin == 'true' }}
+        if: ${{ env.os == 'windows-latest' && ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) && env.TestOnPGonWin == 'true' }}
         env:
           PGVER2: ${{ env.PGVER2 }}
           PGROOT2: ${{ env.PGROOT2 }}
@@ -723,7 +719,7 @@ jobs:
       # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-software
       #
       - name: Choco Install GNU diffutils for Test on PostgreSQL for Windows
-        if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' && env.TestOnPGonWin == 'true' }}
+        if: ${{ env.os == 'windows-latest' && ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) && env.TestOnPGonWin == 'true' }}
         # Keep v2.  v2.2.0 may have connection to Sourceforge problems
         uses: crazy-max/ghaction-chocolatey@v2
         with:
