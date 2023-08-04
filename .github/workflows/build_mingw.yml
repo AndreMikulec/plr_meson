@@ -366,6 +366,23 @@ jobs:
         run: |
           echo on
           "${{ env.pgwinversionlong }}.exe" --unattendedmodeui none --mode unattended --enable-components server,commandlinetools --disable-components pgAdmin,stackbuilder --superpassword "root" > nul
+          rem postgresql-15.3-4-windows-x64.exe
+          rem "C:\Program Files\PostgreSQL\15"
+          rem "C:\Program Files\PostgreSQL\15\data"
+          rem root
+          rem 5432
+          rem "Installation Directory: C:\Program Files\PostgreSQL\15"
+          rem "Server Installation Directory: C:\Program Files\PostgreSQL\15"
+          rem "Data Directory: C:\Program Files\PostgreSQL\15\data"
+          rem "Database Port: 5432"
+          rem "Database Superuser: postgres"
+          rem "Operating System Account: NT AUTHORITY\NetworkService"
+          rem "Database Service: postgresql-x64-15"
+          rem "Command Line Tools Installation Directory: C:\Program Files\PostgreSQL\15"
+          rem "Installation Log: C:\Users\AnonymousUser\AppData\Local\Temp\install-postgresql.log"
+          rem
+          rem "Starting the database server"
+          rem
           rem Installation will also start PostgreSQL
           if "%Platform%"=="x64" net stop postgresql-x64-%PGVER2%
           if "%Platform%"=="x86" net stop postgresql-%PGVER2%
@@ -738,7 +755,6 @@ jobs:
           Platform: ${{ env.Platform }}
         shell: cmd
         run: |
-
           rem NOT using Github Actions provided PostgreSQL x64-14
           rem rem - it is not start = auto or start=auto or start =auto
           rem set PGUSER=postgres
@@ -771,14 +787,16 @@ jobs:
 
           echo on
 
-          if "%Platform%"=="x64" net start postgresql-x64-%PGVER2%
-          if "%Platform%"=="x86" net start postgresql-%PGVER2%
-          if "%Platform%"=="notset" echo Platform is not set, therefore no net start happens.
+          rem Need to manually start PostgreSQL
+          if "%Platform%"=="x64" net stop postgresql-x64-%PGVER2%
+          if "%Platform%"=="x86" net stop postgresql-%PGVER2%
+          if "%Platform%"=="notset" echo Platform is not set, therefore no net stop happens.
 
           set PGUSER=postgres
           set PGPASSWORD=root
           "%PGBIN2%\pg_regress" --bindir="%PGBIN2%" --dbname=pl_regression plr bad_fun opt_window do out_args plr_transaction opt_window_frame || (type regression.diffs && call)
           if "%ERRORLEVEL%"=="1" exit 1
+          rem Need to manually stop PostgreSQL
           if "%Platform%"=="x64" net stop postgresql-x64-%PGVER2%
           if "%Platform%"=="x86" net stop postgresql-%PGVER2%
           if "%Platform%"=="notset" echo Platform is not set, therefore no net stop happens.
