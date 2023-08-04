@@ -312,16 +312,18 @@ jobs:
 
       - name: Install R for Windows R-x.y.z R-rmajor.rminor.rpatch
         if: ${{ env.os == 'windows-latest' && ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) }}
+        env:
+          R_HOME: ${{ env.R_HOME }}
+          R_ARCHplat: ${{ env.R_ARCHplat }}
         shell: cmd
         run: |
-          set R_HOME="${{ env.R_HOME }}"
-          set R_ARCHplat=${{ env.R_ARCHplat }}
+          echo on
           echo R_HOME: %R_HOME%
           echo R_ARCHplat: %R_ARCHplat%
           rem need "main" for the GUIs and command line utilites to work
           rem A comma at the end is O.K
           rem Component "notset" is ignored
-          "R-${{ env.rversionlong }}.exe" /VERYSILENT /COMPONENTS=main,%R_ARCHplat% /DIR=%R_HOME% /NOICONS /TASKS=
+          "${{ env.rversionlong }}.exe" /VERYSILENT /COMPONENTS=main,%R_ARCHplat% /DIR=%R_HOME% /NOICONS /TASKS=
           dir "%R_HOME%"
 
       - name: Prep for Install PostgreSQL for Windows
@@ -365,6 +367,7 @@ jobs:
           Platform: ${{ env.Platform }}
         shell: cmd
         run: |
+          echo on
           "${{ env.pgwinversionlong }}.exe" --unattendedmodeui none --mode unattended --enable-components server,commandlinetools --disable-components pgAdmin,stackbuilder --superpassword "root" > nul
           rem Installation will also start PostgreSQL
           if "%Platform%"=="x64" net stop postgresql-x64-%PGVER2%
@@ -740,13 +743,13 @@ jobs:
           rem not R Sub-Architectures
           if "%R_ARCH%"=="notset" set PATH="%R_HOME%\bin;%PATH%"
           rem
-          rem can find "libraries"
+          rem can find PG "libraries"
           set PATH="%PG_HOME%\lib;%PATH%"
-          rem
-          rem can find "libraries"
+
+          rem can find PG "libraries"
           set PATH="%PG_HOME%\bin;%PATH%"
-          rem
-          rem NOT using Github Actions provided PostgreSQL
+
+          rem NOT using Github Actions provided PostgreSQL x64-14
           rem rem - it is not start = auto or start=auto or start =auto
           rem set PGUSER=postgres
           rem set PGPASSWORD=root
