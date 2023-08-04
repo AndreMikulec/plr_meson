@@ -1,4 +1,4 @@
-name: {{ matrix.compiler }} R ${{ matrix.rversion }} ${{ matrix.os }}
+name: plr_meson
 run-name: Testing Creating PL/R using meson
 on: [push]
 jobs:
