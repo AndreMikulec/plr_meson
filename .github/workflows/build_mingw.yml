@@ -153,7 +153,7 @@ jobs:
 
           if (  "${{ matrix.compiler }}" -eq "UCRT64"     ) { ${env:mingw_env} = "ucrt-x86_64" }
           if (  "${{ matrix.compiler }}" -eq "MINGW32"    ) { ${env:mingw_env} = "i686" }
-          if (  "${{ matrix.compiler }}" -eq "notset"       ) { ${env:mingw_env} = "notset" }
+          if (  "${{ matrix.compiler }}" -eq "notset"     ) { ${env:mingw_env} = "notset" }
           Set-EnvVar "mingw_env=${env:mingw_env}"
 
           echo "mingw_env: ${env:mingw_env}"
@@ -184,6 +184,12 @@ jobs:
 
           echo "pgwinversion: ${env:pgwinversion}"
 
+          if("${env:pgwinversion}" -ne "notset") { ${env:pgwinmajor} = ${env:pgwinversion} -replace "[.]\d+-\d+$" }
+          if("${env:pgwinversion}" -eq "notset") { ${env:pgwinmajor} = "none" }
+          Set-EnvVar "pgwinmajor=${env:pgwinmajor}"
+
+          echo "pgwinmajor: ${env:pgwinmajor}"
+
           if("${env:Platform}" -eq "x86"  -and "${env:pgwinversion}" -ne "notset") {
             ${{ env.pgwinversionlong }} = "postgresql-${{ env.pgwinversion }}-windows"
           }
@@ -212,11 +218,17 @@ jobs:
         if: ${{ env.os == 'windows-latest' && ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) }}
         run: |
           function Set-EnvVar {param($X)     Add-Content -Path ${env:GITHUB_ENV} -Value "$X"}
+          #
+          #
+          # TODO - FUTURE - enhance to do R patched and R development versions
+          #
           # enhances and overrides #
           ${env:rversionlong} = "${{ env.rversionlong }}-win"
           if( "${{ env.rversion }}" -match "2.11.0|2.11.1") {
             ${env:rversionlong} = "${{ env.rversion }}-win${{ env.bit }}"
           }
+          ${env:rversionlong} = "R-${env:rversionlong}"
+
           Set-EnvVar "rversionlong=${env:rversionlong}"
 
           echo "rversionlong: ${env:rversionlong}"
@@ -225,11 +237,11 @@ jobs:
           ${env:CRAN_R_DOWNLOAD_URL} ="notset"
 
           if([int]"${{ env.rversionnumeric }}" -ge 30600 ) {
-            ${env:CRAN_R_DOWNLOAD_URL} = "https://cran.r-project.org/bin/windows/base/old/${{ env.rversion }}/R-${env:rversionlong}.exe"
+            ${env:CRAN_R_DOWNLOAD_URL} = "https://cran.r-project.org/bin/windows/base/old/${{ env.rversion }}/${env:rversionlong}.exe"
           }
 
           if([int]"${{ env.rversionnumeric }}" -lt 30600 ) {
-            ${env:CRAN_R_DOWNLOAD_URL} = "https://cran-archive.r-project.org/bin/windows/base/old/${{ env.rversion }}/R-${env:rversionlong}.exe"
+            ${env:CRAN_R_DOWNLOAD_URL} = "https://cran-archive.r-project.org/bin/windows/base/old/${{ env.rversion }}/${env:rversionlong}.exe"
           }
           Set-EnvVar "CRAN_R_DOWNLOAD_URL=${env:CRAN_R_DOWNLOAD_URL}"
 
@@ -253,8 +265,8 @@ jobs:
         uses: actions/cache@v3.3.1
         id: cacheRWindowsInstallerExe
         with:
-          path: R-${{ env.rversionlong }}.exe
-          key:  R-${{ env.rversionlong }}.exe
+          path: ${{ env.rversionlong }}.exe
+          key:  ${{ env.rversionlong }}.exe
         env:
           SEGMENT_DOWNLOAD_TIMEOUT_MINS: 1
 
@@ -310,26 +322,47 @@ jobs:
         if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' && env.TestOnPGonWin == 'true' }}
         run: |
           function Set-EnvVar {param($X)     Add-Content -Path ${env:GITHUB_ENV} -Value "$X"}
-          Set-EnvVar "compiler=${env:compiler}"
-          ${env:PGVER2}=15
+
+          ${env:PGVER2} = ${{ env.pgwinmajor }}
           Set-EnvVar "PGVER2=${env:PGVER2}"
-          ${env:PGBIN2}="C:\Program Files\PostgreSQL\15\bin"
+
+          echo "PGVER2: ${env:PGVER2}"
+
+          if("${{ env.Platform }}" -eq "x64") {
+            ${env:PGBIN2}  = "C:\Program Files\PostgreSQL\${{ env.pgwinmajor }}\bin"
+            ${env:PGDATA2} = "C:\Program Files\PostgreSQL\${{ env.pgwinmajor }}\data"
+            ${env:PGROOT2} = "C:\Program Files\PostgreSQL\${{ env.pgwinmajor }}"
+          }
+          if("${{ env.Platform }}" -eq "x86") {
+            ${env:PGBIN2}  = "Program Files (x86)\PostgreSQL\${{ env.pgwinmajor }}\bin"
+            ${env:PGDATA2} = "Program Files (x86)\PostgreSQL\${{ env.pgwinmajor }}\data"
+            ${env:PGROOT2} = "Program Files (x86)\PostgreSQL\${{ env.pgwinmajor }}"
+          }
+          if("${{ env.Platform }}" -eq "notset") {
+            ${env:PGBIN2}  = "notset"
+            ${env:PGDATA2} = "notset"
+            ${env:PGROOT2} = "notset"
+          }
           Set-EnvVar "PGBIN2=${env:PGBIN2}"
-          ${env:PGDATA2}="C:\Program Files\PostgreSQL\15\data"
           Set-EnvVar "PGDATA2=${env:PGDATA2}"
-          ${env:PGROOT2}="C:\Program Files\PostgreSQL\15"
           Set-EnvVar "PGROOT2=${env:PGROOT2}"
 
+          echo " PGBIN2: ${env:PGBIN2}"
+          echo "PGDATA2: ${env:PGDATA2}"
+          echo "PGROOT2: ${env:PGROOT2}"
 
       - name: Install PostgreSQL for Windows
         if: ${{ env.os == 'windows-latest' && env.compiler == 'UCRT64' && env.TestOnPGonWin == 'true' }}
         env:
           PGVER2: ${{ env.PGVER2 }}
           PGROOT2: ${{ env.PGROOT2 }}
+          Platform: ${{ env.Platform }}
         shell: cmd
         run: |
-          "postgresql-15.3-3-windows-x64.exe" --unattendedmodeui none --mode unattended --enable-components server,commandlinetools --disable-components pgAdmin,stackbuilder --superpassword "root" > nul
-          net stop postgresql-x64-%PGVER2%
+          "${{ env.pgwinversionlong }}.exe" --unattendedmodeui none --mode unattended --enable-components server,commandlinetools --disable-components pgAdmin,stackbuilder --superpassword "root" > nul
+          if "%Platform%"=="x64" net stop postgresql-x64-%PGVER2%
+          if "%Platform%"=="x86" net stop postgresql-%PGVER2%
+          if "%Platform%"=="notset" echo Platform is not set, therefore no net stop happens.
           dir "%PGROOT2%"
 
       # 34 seconds with zero packages
