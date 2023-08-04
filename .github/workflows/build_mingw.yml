@@ -458,7 +458,7 @@ jobs:
             echo "One must set R_HOME=value"
             exit 1
           fi
-          export  R_HOME=$(cygpath "${R_HOME}");  fi
+          export  R_HOME=$(cygpath "${R_HOME}")
 
           echo "R_HOME: ${R_HOME}"
 
@@ -484,9 +484,9 @@ jobs:
 
           export PKGLIBDIR=$(pg_config | grep "^PKGLIBDIR" | sed "s/ = /=/" | sed "s/^.*=//")
           export PKGLIBDIR=$(cygpath $(cygpath -wl "${PKGLIBDIR}"))
-      
+
           echo "PKGLIBDIR: ${PKGLIBDIR}"
-     
+
           export SHAREDIR=$(pg_config | grep "^SHAREDIR" | sed "s/ = /=/" | sed "s/^.*=//")
           export SHAREDIR=$(cygpath $(cygpath -wl "${SHAREDIR}"))
 
@@ -691,7 +691,7 @@ jobs:
           pushd     "${PG_HOME}/contribplr"
           #
           export PGROOT2=$(cygpath "${PGROOT2}")
-          
+
           echo  "cygpath PGROOT2: ${PGROOT2}"
 
           cp ../contrib/plr/plr.dll   "${PGROOT2}/lib"
