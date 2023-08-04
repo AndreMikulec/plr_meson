@@ -1,4 +1,4 @@
-name: plr_meson Windows mingw - Out of Contrib build and test
+name: {{ matrix.compiler }} R ${{ matrix.rversion }} ${{ matrix.os }}
 run-name: Testing Creating PL/R using meson
 on: [push]
 jobs:
@@ -118,7 +118,7 @@ jobs:
 
           echo "         rmajor: ${env:rmajor}"
           echo "         rminor: ${env:rminor}"
-          echo "       rpatched: ${env:rpatched}"
+          echo "         rpatch: ${env:rpatch}"
           echo "rversionnumeric: ${env:rversionnumeric}"
 
           # derived (this will be changed below)
@@ -158,7 +158,7 @@ jobs:
 
           echo "mingw_env: ${env:mingw_env}"
 
-          if ("${{ env.mingw_env }}" -ne "notset") { ${env:MINGW_PACKAGE_PREFIX} = "mingw-w64-${{ env.mingw_env }}" }
+          if ("${{ env.mingw_env }}" -ne "notset") { ${env:MINGW_PACKAGE_PREFIX} = "mingw-w64-${env:mingw_env}" }
           if ("${{ env.mingw_env }}" -eq "notset") { ${env:MINGW_PACKAGE_PREFIX} = "notset" }
           Set-EnvVar "MINGW_PACKAGE_PREFIX=${env:MINGW_PACKAGE_PREFIX}"
 
@@ -198,13 +198,13 @@ jobs:
           echo "pgwinmajor: ${env:pgwinmajor}"
 
           if("${env:Platform}" -eq "x86"  -and "${env:pgwinversion}" -ne "notset") {
-            ${{ env.pgwinversionlong }} = "postgresql-${{ env.pgwinversion }}-windows"
+            ${env:pgwinversionlong} = "postgresql-${{ env.pgwinversion }}-windows"
           }
           if("${env:Platform}" -eq "x64" -and "${env:pgwinversion}" -ne "notset") {
-            ${{ env.pgwinversionlong }} = "postgresql-${{ env.pgwinversion }}-windows-x64"
+            ${env:pgwinversionlong} = "postgresql-${{ env.pgwinversion }}-windows-x64"
           }
           if("${env:Platform}" -eq "none" -or "${env:pgwinversion}" -eq "notset") {
-            ${{ env.pgwinversionlong }} = "none"
+            ${env:pgwinversionlong} = "none"
           }
           Set-EnvVar "pgwinversionlong=${env:pgwinversionlong}"
 
