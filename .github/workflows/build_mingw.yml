@@ -360,6 +360,7 @@ jobs:
         shell: cmd
         run: |
           "${{ env.pgwinversionlong }}.exe" --unattendedmodeui none --mode unattended --enable-components server,commandlinetools --disable-components pgAdmin,stackbuilder --superpassword "root" > nul
+          rem Installation will also start PostgreSQL
           if "%Platform%"=="x64" net stop postgresql-x64-%PGVER2%
           if "%Platform%"=="x86" net stop postgresql-%PGVER2%
           if "%Platform%"=="notset" echo Platform is not set, therefore no net stop happens.
@@ -633,13 +634,21 @@ jobs:
           #
           # Begin adding of files to Windows (see below)
           #
+          echo  "PG_HOME: ${PG_HOME}"
+          echo  "PGROOT2: ${PGROOT2}"
+
           if [ "${PG_HOME}" == "notset" ]; then export PG_HOME=""; fi
           if [ ! "${PG_HOME}" == "" ]; then export PG_HOME=$(cygpath "${PG_HOME}"); fi
           if [   "${PG_HOME}" == "" ]; then export PG_HOME="$(dirname $(dirname $(which postgres)))"; fi
 
+          echo  "new PG_HOME: ${PG_HOME}"
+
           pushd     "${PG_HOME}/contribplr"
           #
           export PGROOT2=$(cygpath "${PGROOT2}")
+          
+          echo  "new PGROOT2: ${PGROOT2}"
+
           cp ../contrib/plr/plr.dll   "${PGROOT2}/lib"
           ls -alrt                    "${PGROOT2}/lib/plr.dll"
           cp plr.control "${PGROOT2}/share/extension"
@@ -685,17 +694,23 @@ jobs:
           #
           PGVER2: ${{ env.PGVER2 }}
           PGBIN2: ${{ env.PGBIN2 }}
-          # not used
-          PGDATA2: ${{ env.PGDATA2 }}
-          # not used
-          PGROOT2: ${{ env.PGROOT2 }}
+          Platform: ${{ env.Platform }}
         shell: cmd
         run: |
           echo on
           rem
-          set PATH="%R_HOME%\bin;%PATH%"
-          rem R    Sub-Architectures
-          set PATH="%R_HOME%\bin%R_ARCH%;%PATH%"
+          echo R_HOME   - %R_HOME%
+          echo R_ARCH   - %R_ARCH%
+          echo PG_HOME  - %PG_HOME%
+          echo PGVER2   - %PGVER2%
+          echo PGBIN2   - %PGBIN2%
+          echo Platform - %Platform%
+
+          rem R     Sub-Architectures
+          if "%R_ARCH%"=="/x64"   set PATH="%R_HOME%\bin%R_ARCH%;%PATH%"
+          if "%R_ARCH%"=="/i386"  set PATH="%R_HOME%\bin%R_ARCH%;%PATH%"
+          rem not R Sub-Architectures
+          if "%R_ARCH%"=="notset" set PATH="%R_HOME%\bin;%PATH%"
           rem
           rem can find "libraries"
           set PATH="%PG_HOME%\lib;%PATH%"
@@ -703,11 +718,19 @@ jobs:
           rem can find "libraries"
           set PATH="%PG_HOME%\bin;%PATH%"
           rem
-          rem - it is not start = auto or start=auto or start =auto
-          set PGUSER=postgres
-          set PGPASSWORD=root
-          sc config "postgresql-x64-%PGVER2%" start= auto
-          net start postgresql-x64-%PGVER2%
+          rem NOT using Github Actions provided PostgreSQL
+          rem rem - it is not start = auto or start=auto or start =auto
+          rem set PGUSER=postgres
+          rem set PGPASSWORD=root
+          rem sc config "postgresql-x64-14" start= auto
+          rem net start postgresql-x64-14
+
+          if "%Platform%"=="x64" net start postgresql-x64-%PGVER2%
+          if "%Platform%"=="x86" net start postgresql-%PGVER2%
+          if "%Platform%"=="notset" echo Platform is not set, therefore no net start happens.
+
           "%PGBIN2%\pg_regress" --bindir="%PGBIN2%" --dbname=pl_regression plr bad_fun opt_window do out_args plr_transaction opt_window_frame || (type regression.diffs && call)
           if "%ERRORLEVEL%"=="1" exit 1
-          net stop postgresql-x64-%PGVER2%
+          if "%Platform%"=="x64" net stop postgresql-x64-%PGVER2%
+          if "%Platform%"=="x86" net stop postgresql-%PGVER2%
+          if "%Platform%"=="notset" echo Platform is not set, therefore no net stop happens.
