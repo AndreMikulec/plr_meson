@@ -788,6 +788,8 @@ jobs:
           rem can find PG "libraries"
           set PATH="%PG_HOME%\bin;%PATH%"
 
+          set PATH=C:\ProgramData\chocolatey\bin;%PATH%
+
           echo on
           set PGUSER=postgres
           set PGPASSWORD=root
