@@ -451,19 +451,39 @@ jobs:
             echo "One must set R_HOME=value"
             exit 1
           fi
+          export  R_HOME=$(cygpath "${R_HOME}");  fi
+
+          echo "R_HOME: ${R_HOME}"
+
           if [ "${rversion}" == "notset" ] || [ "${rversion}" == "" ]
           then
             echo "One must set rversion=value"
             exit 1
           fi
+
+          echo "rversion: ${rversion}"
+
           if [ "${PG_HOME}" == "notset" ]; then export PG_HOME=""; fi
-
-          if [ ! "${R_HOME}"  == "" ]; then export  R_HOME=$(cygpath "${R_HOME}");  fi
           if [ ! "${PG_HOME}" == "" ]; then export PG_HOME=$(cygpath "${PG_HOME}"); fi
-          if [   "${PG_HOME}" == "" ]; then export PG_HOME="$(dirname $(dirname $(which postgres)))"; fi
 
-          echo "R_HOME: ${R_HOME}"
+          export BINDIR=$(pg_config | grep "^BINDIR" | sed "s/ = /=/" | sed "s/^.*=//")
+          export BINDIR=$(cygpath $(cygpath -wl "${BINDIR}"))
+
+          echo "BINDIR: ${BINDIR}"
+
+          if [   "${PG_HOME}" == "" ]; then export PG_HOME=$(dirname "${BINDIR}"); fi
+
           echo "PG_HOME: ${PG_HOME}"
+
+          export PKGLIBDIR=$(pg_config | grep "^PKGLIBDIR" | sed "s/ = /=/" | sed "s/^.*=//")
+          export PKGLIBDIR=$(cygpath $(cygpath -wl "${PKGLIBDIR}"))
+      
+          echo "PKGLIBDIR: ${PKGLIBDIR}"
+     
+          export SHAREDIR=$(pg_config | grep "^SHAREDIR" | sed "s/ = /=/" | sed "s/^.*=//")
+          export SHAREDIR=$(cygpath $(cygpath -wl "${SHAREDIR}"))
+
+          echo "SHAREDIR: ${SHAREDIR}"
 
           # PATHs are needed for the proper compile and runtime
           # find "libraries"
@@ -472,10 +492,10 @@ jobs:
           # R    Sub-Architectures
           export PATH="${R_HOME}/bin${R_ARCH}:${PATH}"
 
-          # can find "libraries"
+          # can find PG "libraries"
           export PATH="${PG_HOME}/lib:${PATH}"
           #
-          # can find "libraries"
+          # can find PG "libraries"
           export PATH="${PG_HOME}/bin:${PATH}"
 
           echo "PKG_CONFIG_PATH: ${PKG_CONFIG_PATH}"
@@ -564,7 +584,6 @@ jobs:
             popd # from "${R_HOME}/bin${R_ARCH}"
           fi
           #
-
           mkdir     "${PG_HOME}/contrib"
           #
           mkdir     "${PG_HOME}/contribplr"
@@ -572,10 +591,10 @@ jobs:
           #
           pushd     "${PG_HOME}/contribplr"
           #
-          rm -Rf ../contrib/plr; rm -f "${PG_HOME}/lib/postgresql/plr.dll.a" ;rm -f "${PG_HOME}/lib/postgresql/plr.dll"
+          rm -Rf ../contrib/plr; rm -f "${PKGLIBDIR}/plr.dll.a" ;rm -f "${PKGLIBDIR}/plr.dll"
           #
-          rm  -f "${PG_HOME}/share/postgresql/extension/plr.control"
-          rm  -f  ${PG_HOME}/share/postgresql/extension/plr--*.sql
+          rm  -f "${SHAREDIR}/extension/plr.control"
+          rm  -f  ${SHAREDIR}/extension/plr--*.sql
           #
           meson setup --prefix="${PG_HOME}/contrib/plr" -DR_HOME="${R_HOME}" -DPG_HOME="${PG_HOME}" -Db_pie=true ../contrib/plr
           meson compile -C ../contrib/plr  -v
@@ -595,22 +614,25 @@ jobs:
           # "-lole32" "-loleaut32" "-luuid" "-lcomdlg32" "-ladvapi32"
           # "-Wl,--end-group"
           #
+
           if [ -f "../contrib/plr/plr.dll" ]
           then
-            cp ../contrib/plr/plr.dll   "${PG_HOME}/lib/postgresql"
-            ls -alrt                    "${PG_HOME}/lib/postgresql/plr.dll"
+            echo "plr.dll is found"
+            cp ../contrib/plr/plr.dll   "${PKGLIBDIR}"
+            ls -alrt                    "${PKGLIBDIR}/plr.dll"
           fi
           #
           if [ -f "../contrib/plr/plr.dll.a" ]
-            then cp ../contrib/plr/plr.dll.a "${PG_HOME}/lib/postgresql/plr.dll.a"
-            ls -alrt                         "${PG_HOME}/lib/postgresql/plr.dll.a"
+            echo "plr.dll.a is found"
+            then cp ../contrib/plr/plr.dll.a "${PKGLIBDIR}/plr.dll.a"
+            ls -alrt                         "${PKGLIBDIR}/plr.dll.a"
           fi
           #
-          cp plr.control "${PG_HOME}/share/postgresql/extension"
-          ls -alrt       "${PG_HOME}/share/postgresql/extension/plr.control"
+          cp plr.control "${SHAREDIR}/extension"
+          ls -alrt       "${SHAREDIR}/extension/plr.control"
 
-          cp plr--*.sql  "${PG_HOME}/share/postgresql/extension"
-          ls -alrt        ${PG_HOME}/share/postgresql/extension/plr--*.sql
+          cp plr--*.sql  "${SHAREDIR}/extension"
+          ls -alrt        ${SHAREDIR}/extension/plr--*.sql
 
           mkdir     PGDATA
           initdb -D PGDATA
@@ -618,7 +640,7 @@ jobs:
 
           # Some environments require it
           export PGUSER=$(whoami)
-          "${PG_HOME}/lib/postgresql/pgxs/src/test/regress/pg_regress" --bindir="${PG_HOME}/bin" --dbname=pl_regression plr bad_fun opt_window do out_args plr_transaction opt_window_frame || (cat regression.diffs && false)
+          "${PKGLIBDIR}/pgxs/src/test/regress/pg_regress" --bindir="${PG_HOME}/bin" --dbname=pl_regression plr bad_fun opt_window do out_args plr_transaction opt_window_frame || (cat regression.diffs && false)
 
           pg_ctl -D PGDATA -l logfile stop
 
@@ -735,6 +757,8 @@ jobs:
           if "%Platform%"=="x86" net start postgresql-%PGVER2%
           if "%Platform%"=="notset" echo Platform is not set, therefore no net start happens.
 
+          set PGUSER=postgres
+          set PGPASSWORD=root
           "%PGBIN2%\pg_regress" --bindir="%PGBIN2%" --dbname=pl_regression plr bad_fun opt_window do out_args plr_transaction opt_window_frame || (type regression.diffs && call)
           if "%ERRORLEVEL%"=="1" exit 1
           if "%Platform%"=="x64" net stop postgresql-x64-%PGVER2%
