@@ -373,6 +373,23 @@ jobs:
           dir "%R_HOME%"
 
       # Github Actions provided PostgreSQL x64-14 (as of AUGUST 2023)
+      #
+      # # AUGUST 2023
+      # # The PL/R extension was built using PostreSQL 15
+      # ServiceName postgresql-x64-14
+      # Version 14.8
+      # ServiceStatus Stopped
+      # ServiceStartType Disabled
+      # EnvironmentVariables PGBIN=C:\Program Files\PostgreSQL\14\bin
+      # PGDATA=C:\Program Files\PostgreSQL\14\data
+      # PGROOT=C:\Program Files\PostgreSQL\14
+      # Path C:\Program Files\PostgreSQL\14
+      # UserName postgres
+      # Password root
+      # #
+      # https://github.com/actions/runner-images/blob/main/images/win/Windows2022-Readme.md
+      # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-software
+      #
       - name: Enable PostgreSQL x64-14 for Windows and Start and Stop
         if: ${{ env.os == 'windows-latest' && ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) && env.TestOnPGonWin == 'true' } && env.VER2 = '14' && env.Platform = 'x64' }
         shell: cmd
