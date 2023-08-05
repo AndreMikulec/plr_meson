@@ -769,11 +769,11 @@ jobs:
           #
           # for artifact naming, determine pgversionmajor
           #
-          if [ "$(unname -o)" == "Msys" ]
+          if [ "$(uname -o)" == "Msys" ]
           then
             export winpty="winpty -Xallow-non-tty"
           fi
-          if [ ! "$(unname -o)" == "Msys" ]
+          if [ ! "$(uname -o)" == "Msys" ]
           then
             export winpty=""
           fi  
