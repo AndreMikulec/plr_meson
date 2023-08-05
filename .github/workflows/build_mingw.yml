@@ -356,6 +356,16 @@ jobs:
           "${{ env.rversionlong }}.exe" /VERYSILENT /COMPONENTS=main,%R_ARCHplat% /DIR=%R_HOME% /NOICONS /TASKS=
           dir "%R_HOME%"
 
+      # Github Actions provided PostgreSQL x64-14 (as of AUGUST 2023)
+      - name: Enable PostgreSQL x64-14 for Windows and Start and Stop
+        if: ${{ env.os == 'windows-latest' && ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) && env.TestOnPGonWin == 'true' } && env.VER2 = '14' && env.Platform = 'x64' }
+        shell: cmd
+        run: |
+          echo on
+          sc config "postgresql-x64-14" start= auto
+          net start  postgresql-x64-14
+          net stop   postgresql-x64-14
+
       - name: Install PostgreSQL for Windows and Stop PostgreSQL
         if: ${{ env.os == 'windows-latest' && ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) && env.TestOnPGonWin == 'true' }}
         env:
