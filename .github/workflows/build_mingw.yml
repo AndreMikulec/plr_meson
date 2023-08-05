@@ -419,7 +419,7 @@ jobs:
       # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-software
       #
       - name: Enable PostgreSQL x64-14 for Windows and Start and Stop
-        if: ${{ env.os == 'windows-latest' && ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) && env.testOnpgwin == 'true' } && env.VER2 = '14' && env.Platform = 'x64' }
+        if: ${{ env.os == 'windows-latest' && ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) && env.testOnpgwin == 'true' && env.VER2 = '14' && env.Platform = 'x64' }
         shell: cmd
         run: |
           echo on
