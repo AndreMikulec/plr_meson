@@ -11,11 +11,30 @@ jobs:
       matrix:
         include:
 
-          # (Current) Can not be compiled using Microsoft Visual Studio
+          # R-devel build for Windows ("bleeding edge")
+          https://cran.r-project.org/bin/windows/base/R-devel-win.exe
+          #
+          # Patched build for Windows
+          https://cran.r-project.org/bin/windows/base/R-x.y.zpatched-win.exe
+          #
+          # for Windows
+          https://cran.r-project.org/bin/windows/base/R-x.y.z-win.exe
+
+          # (bleeding edge R) PL/R can not be compiled using Microsoft Visual Studio
           - compiler: UCRT64
             os: windows-latest
             Platform: x64
-            rversion: 4.3.1
+            rversion: devel
+            R_HOME: 'D:\RINSTALL'
+            R_ARCH: /x64
+            testOnpgwin: true
+            pgwinversion: 15.3-3
+
+          # (Current R) PL/R can not be compiled using Microsoft Visual Studio
+          - compiler: UCRT64
+            os: windows-latest
+            Platform: x64
+            rversion: 4.3.1patched
             R_HOME: 'D:\RINSTALL'
             R_ARCH: /x64
             testOnpgwin: true
@@ -100,17 +119,21 @@ jobs:
 
           if("${env:rversion}" -ne "notset") {
             # R-major.minor.patch
-            ${env:rversion} -match '(\d+)'
-            ${env:rmajor} = $matches[1]
-
-            ${env:rversion} -match '\d+[.](\d+)'
-            ${env:rminor} = $matches[1]
-
-            ${env:rversion} -match '\d+[.]\d+[.](\d+)'
-            ${env:rpatch} = $matches[1]
-
-            ${env:rversionnumeric} = ([int]"${env:rmajor}" * 10000) + ([int]"${env:rminor}" * 100) + ([int]"${env:rpatch}")
+            # R-major.minor.patchpatched
+            if(${env:rversion} -match '(\d+)')             { ${env:rmajor} = $matches[1] }
+            if(${env:rversion} -match '\d+[.](\d+)')       { ${env:rminor} = $matches[1] }
+            if(${env:rversion} -match '\d+[.]\d+[.](\d+)') { ${env:rpatch} = $matches[1] }
+            if(${env:rversion} -match '\d+[.]\d+[.](\d+)') {
+              ${env:rversionnumeric} = ([int]"${env:rmajor}" * 10000) + ([int]"${env:rminor}" * 100) + ([int]"${env:rpatch}")
+            }
           }
+          if("${env:rversion}" -match 'devel') {
+            ${env:rmajor} = "devel"
+            ${env:rminor} = "devel"
+            ${env:rpatch} = "devel"
+            ${env:rversionnumeric} = "999999"
+          }
+
           Set-EnvVar "rmajor=${env:rmajor}"
           Set-EnvVar "rminor=${env:rminor}"
           Set-EnvVar "rpatch=${env:rpatch}"
@@ -121,7 +144,7 @@ jobs:
           echo "         rpatch: ${env:rpatch}"
           echo "rversionnumeric: ${env:rversionnumeric}"
 
-          # derived (this will be changed below)
+          # derived (this will be changed FAR FAR below)
           ${env:rversionlong} = ${env:rversion}
           Set-EnvVar "rversionlong=${env:rversionlong}"
 
@@ -272,12 +295,17 @@ jobs:
           # CRAN download URL
           ${env:CRAN_R_DOWNLOAD_URL} ="notset"
 
-          if([int]"${{ env.rversionnumeric }}" -ge 30600 ) {
-            ${env:CRAN_R_DOWNLOAD_URL} = "https://cran.r-project.org/bin/windows/base/old/${{ env.rversion }}/${env:rversionlong}.exe"
-          }
+          if(-not "${env:rversionlong}" -match 'patched|devel') {
+            if([int]"${{ env.rversionnumeric }}" -ge 30600 ) {
+              ${env:CRAN_R_DOWNLOAD_URL} = "https://cran.r-project.org/bin/windows/base/old/${{ env.rversion }}/${env:rversionlong}.exe"
+            }
 
-          if([int]"${{ env.rversionnumeric }}" -lt 30600 ) {
-            ${env:CRAN_R_DOWNLOAD_URL} = "https://cran-archive.r-project.org/bin/windows/base/old/${{ env.rversion }}/${env:rversionlong}.exe"
+            if([int]"${{ env.rversionnumeric }}" -lt 30600 ) {
+              ${env:CRAN_R_DOWNLOAD_URL} = "https://cran-archive.r-project.org/bin/windows/base/old/${{ env.rversion }}/${env:rversionlong}.exe"
+            }
+          }
+          if("${env:rversionlong}" -match 'patched|devel') {
+            ${env:CRAN_R_DOWNLOAD_URL} = "https://cran.r-project.org/bin/windows/base/${env:rversionlong}.exe"
           }
           Set-EnvVar "CRAN_R_DOWNLOAD_URL=${env:CRAN_R_DOWNLOAD_URL}"
 
