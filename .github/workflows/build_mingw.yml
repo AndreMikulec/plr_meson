@@ -306,7 +306,7 @@ jobs:
         env:
           SEGMENT_DOWNLOAD_TIMEOUT_MINS: 1
 
-      - name: Cache Download PostgreSQL for Windows
+      - name: Cache PostgreSQL for Windows
         if: ${{ env.os == 'windows-latest' &&  ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) && env.TestOnPGonWin == 'true' }}
         uses: actions/cache@v3.3.1
         id: cachePGWindowsInstallerExe
@@ -315,6 +315,16 @@ jobs:
           key:  ${{ env.pgwinversionlong }}.exe
         env:
           SEGMENT_DOWNLOAD_TIMEOUT_MINS: 10
+
+      - name: Cache GNU diffutils for Test on PostgreSQL for Windows
+        if: ${{ env.os == 'windows-latest' &&  ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) && env.TestOnPGonWin == 'true' }}
+        uses: actions/cache@v3.3.1
+        id: cacheDiffutilsZip
+        with:
+          path: diffutils-2.8.7-1-bin.zip
+          key:  diffutils-2.8.7-1-bin.zip
+        env:
+          SEGMENT_DOWNLOAD_TIMEOUT_MINS: 1
 
       # Notice
       # Path R-2.11.1-x64
@@ -339,6 +349,12 @@ jobs:
         with:
           url: ${{ env.ENTDB_PG_DOWNLOAD_URL }}
 
+      - name: Download GNU diffutils for Test on PostgreSQL for Windows
+        if: ${{ env.os == 'windows-latest' && ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) && env.TestOnPGonWin == 'true' && steps.cacheDiffutilsZip.outputs.cache-hit != 'true' }}
+        uses: suisei-cn/actions-download-file@v1.3.0
+        id: downloadDiffutilsZip
+        with:
+          url: https://github.com/AndreMikulec/plr_meson/releases/download/0.0.0.0.0.GITHUBCACHE/diffutils-2.8.7-1-bin.zip
 
       - name: Install R for Windows R-x.y.z R-rmajor.rminor.rpatch
         if: ${{ env.os == 'windows-latest' && ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) }}
@@ -398,6 +414,19 @@ jobs:
           if "%Platform%"=="x86" (net stop postgresql-%PGVER2%)
           if "%Platform%"=="notset" (echo Platform is not set, therefore no net stop happens.)
           dir "%PGROOT2%"
+
+      # Choco Install GNU diffutils 
+      # BUT the "crazy-max/ghaction-chocolatey@v2" "install diffutils" file download often times-out
+      - name: Extract Diffuntils and add Diffuntils bin directory to the PATH for Test on PostgreSQL for Windows
+        if: ${{ env.os == 'windows-latest' &&  ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) && env.TestOnPGonWin == 'true' }}
+        shell: cmd
+        run: |
+          mkdir                                "C:\OTHERBIN"
+          mkdir                                "C:\OTHERBIN\diffutils"
+          rem 7z is provided by Github Actions
+          7z x  diffutils-2.8.7-1-bin.zip    -o"C:\OTHERBIN\diffutils"
+          move  diffutils-2.8.7-1-bin.zip      "C:\OTHERBIN\diffutils"
+          printf                               "C:\OTHERBIN\diffutils\bin" >> %GITHUB_PATH%
 
       # 34 seconds with zero packages
       # 2 minutes and seven(7) seconds with everything
@@ -784,28 +813,13 @@ jobs:
           # End adding of files to Windows (see below)
           #
 
-      # # JUL 2023
-      # # The PL/R extension was built using PostreSQL 15
-      # ServiceName postgresql-x64-14
-      # Version 14.8
-      # ServiceStatus Stopped
-      # ServiceStartType Disabled
-      # EnvironmentVariables PGBIN=C:\Program Files\PostgreSQL\14\bin
-      # PGDATA=C:\Program Files\PostgreSQL\14\data
-      # PGROOT=C:\Program Files\PostgreSQL\14
-      # Path C:\Program Files\PostgreSQL\14
-      # UserName postgres
-      # Password root
-      # #
-      # https://github.com/actions/runner-images/blob/main/images/win/Windows2022-Readme.md
-      # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-software
-      #
-      - name: Choco Install GNU diffutils for Test on PostgreSQL for Windows
-        if: ${{ env.os == 'windows-latest' && ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) && env.TestOnPGonWin == 'true' }}
-        # Keep v2.  v2.2.0 may have connection to Sourceforge problems
-        uses: crazy-max/ghaction-chocolatey@v2
-        with:
-          args: install diffutils
+#     # BUT the "crazy-max/ghaction-chocolatey@v2" "install diffutils" file download often times-out
+#     - name: Choco Install GNU diffutils for Test on PostgreSQL for Windows
+#       if: ${{ env.os == 'windows-latest' && ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) && env.TestOnPGonWin == 'true' }}
+#       # Keep v2.  v2.2.0 may have connection to Sourceforge problems
+#       uses: crazy-max/ghaction-chocolatey@v2
+#       with:
+#         args: install diffutils
 
       - name: Start PostgreSQL for Windows
         if: ${{ env.os == 'windows-latest' && ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) && env.TestOnPGonWin == 'true' }}
