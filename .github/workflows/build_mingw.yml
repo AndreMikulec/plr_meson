@@ -277,10 +277,7 @@ jobs:
         if: ${{ env.os == 'windows-latest' && ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) }}
         run: |
           function Set-EnvVar {param($X)     Add-Content -Path ${env:GITHUB_ENV} -Value "$X"}
-          #
-          #
-          # TODO - FUTURE - enhance to do R patched and R development versions
-          #
+
           # enhances and overrides #
           ${env:rversionlong} = "${{ env.rversionlong }}-win"
           if( "${{ env.rversion }}" -match "2.11.0|2.11.1") {
@@ -295,7 +292,7 @@ jobs:
           # CRAN download URL
           ${env:CRAN_R_DOWNLOAD_URL} ="notset"
 
-          if(-not "${env:rversionlong}" -match 'patched|devel') {
+          if(-not ("${env:rversionlong}" -match 'patched|devel')) {
             if([int]"${{ env.rversionnumeric }}" -ge 30600 ) {
               ${env:CRAN_R_DOWNLOAD_URL} = "https://cran.r-project.org/bin/windows/base/old/${{ env.rversion }}/${env:rversionlong}.exe"
             }
@@ -779,7 +776,7 @@ jobs:
           fi  
           # Some environments require it
           export PGUSER=$(whoami)
-          #         # from ABOVE (should have created that PGDATA directory in GITHUB_WORKSPACE)
+          #         # from ABOVE - should have created that PGDATA directory in $(cygpath "${GITHUB_WORKSPACE}")
           pg_ctl -D "${PG_HOME}/contribplr/PGDATA" -l logfile start
           export pgversionnumeric=$(${winpty} psql -d postgres --quiet --tuples-only -c "\pset footer off" -c "\timing off" -c "select current_setting('server_version_num')::integer;"  | grep -oP '\d+$')
           pg_ctl -D "${PG_HOME}/contribplr/PGDATA" -l logfile stop
