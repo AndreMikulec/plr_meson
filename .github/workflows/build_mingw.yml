@@ -12,13 +12,13 @@ jobs:
         include:
 
           # R-devel build for Windows ("bleeding edge")
-          https://cran.r-project.org/bin/windows/base/R-devel-win.exe
+          # https://cran.r-project.org/bin/windows/base/R-devel-win.exe
           #
           # Patched build for Windows
-          https://cran.r-project.org/bin/windows/base/R-x.y.zpatched-win.exe
+          # https://cran.r-project.org/bin/windows/base/R-x.y.zpatched-win.exe
           #
           # for Windows
-          https://cran.r-project.org/bin/windows/base/R-x.y.z-win.exe
+          # https://cran.r-project.org/bin/windows/base/R-x.y.z-win.exe
 
           # (bleeding edge R) PL/R can not be compiled using Microsoft Visual Studio
           - os: windows-latest
