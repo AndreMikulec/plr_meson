@@ -468,6 +468,7 @@ jobs:
           rem 7z is provided by Github Actions
           7z x  diffutils-2.8.7-1-bin.zip    -o"C:\OTHERBIN\diffutils"
           move  diffutils-2.8.7-1-bin.zip      "C:\OTHERBIN\diffutils"
+          dir                                  "C:\OTHERBIN\diffutils"
           printf                               "C:\OTHERBIN\diffutils\bin" >> %GITHUB_PATH%
 
       # 34 seconds with zero packages
@@ -898,6 +899,9 @@ jobs:
           echo Platform - %Platform%
 
           echo off
+          rem This SOULD HAVE BEEN PICKED UP
+          set PATH=C:\OTHERBIN\diffutils;%PATH%
+          echo on
           rem R     Sub-Architectures
           if "%R_ARCH%"=="/x64"   set PATH="%R_HOME%\bin\x64;%PATH%"
           if "%R_ARCH%"=="/i386"  set PATH="%R_HOME%\bin\i386;%PATH%"
