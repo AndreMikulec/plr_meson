@@ -21,8 +21,8 @@ jobs:
           https://cran.r-project.org/bin/windows/base/R-x.y.z-win.exe
 
           # (bleeding edge R) PL/R can not be compiled using Microsoft Visual Studio
-          - compiler: UCRT64
-            os: windows-latest
+          - os: windows-latest
+            compiler: UCRT64
             Platform: x64
             rversion: devel
             R_HOME: 'D:\RINSTALL'
@@ -31,8 +31,8 @@ jobs:
             pgwinversion: 15.3-3
 
           # (Current R) PL/R can not be compiled using Microsoft Visual Studio
-          - compiler: UCRT64
-            os: windows-latest
+          - os: windows-latest
+            compiler: UCRT64
             Platform: x64
             rversion: 4.3.1patched
             R_HOME: 'D:\RINSTALL'
@@ -41,8 +41,8 @@ jobs:
             pgwinversion: 15.3-3
 
           # Last PL/R that can be compiled using Microsoft Visual Studio
-          - compiler: UCRT64
-            os: windows-latest
+          - os: windows-latest
+            compiler: UCRT64
             Platform: x64
             rversion: 4.2.3
             R_HOME: 'D:\RINSTALL'
@@ -51,8 +51,8 @@ jobs:
             pgwinversion: 15.3-3
 
           # Last "R for Windows" supports x86 and sub-architecture
-          - compiler: MINGW32
-            os: windows-latest
+          - os: windows-latest
+            compiler: MINGW32
             Platform: x86
             rversion: 4.1.3
             R_HOME: 'D:\RINSTALL'
@@ -61,8 +61,8 @@ jobs:
             pgwinversion: 10.23-1
 
           # Last "R for Windows" supports x86 and single architecure
-          - compiler: MINGW32
-            os: windows-latest
+          - os: windows-latest
+            compiler: MINGW32
             Platform: x86
             rversion: 2.11.1
             R_HOME: 'D:\RINSTALL'
