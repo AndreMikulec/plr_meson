@@ -693,8 +693,8 @@ jobs:
           then
             export winpty=""
           fi  
-          export PGUSER=postgres
-          export PGPASSWORD=root
+          # Some environments require it
+          export PGUSER=$(whoami)
           pg_ctl -D PGDATA -l logfile start
           export pgversionnumeric=$(${winpty} psql -d postgres --quiet --tuples-only -c "\pset footer off" -c "\timing off" -c "select current_setting('server_version_num')::integer;"  | grep -oP '\d+$')
           pg_ctl -D PGDATA -l logfile stop
@@ -710,9 +710,16 @@ jobs:
           echo "pgversionmajor: ${pgversionmajor}"
 
 
-
-
-
+      - name: Upload artifacts plr.dll and plr.dll.a for export for LOCAL testing
+        if: ${{ env.os == 'windows-latest' &&  ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) && env.TestOnPGonWin == 'true' }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ github.event.repository.name }}_${{ env.os }}_${{ env.compiler }}_${{ env.Platform }}_R${{ env.rversion }}_PG${{ env.pgversionmajor }}
+          path: |
+            plr.dll
+            plr.dll.a
+            plr.control
+            LICENSE
 
       - name: Setup for Test on PostgreSQL for Windows
         if: ${{ env.os == 'windows-latest' &&  ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) && env.TestOnPGonWin == 'true' }}
