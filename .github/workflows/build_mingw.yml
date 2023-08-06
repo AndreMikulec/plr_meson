@@ -1031,7 +1031,7 @@ jobs:
           if "%Platform%"=="notset" (echo Platform is not set, therefore no net stop happens.)
 
       - name: Download Artifact needed before Release
-        if: github.ref_type == 'tag'
+      # if: github.ref_type == 'tag'
         uses: actions/download-artifact@v3.0.2
         with:
           name: plr-${{ env.HEAD8_GITHUB_SHA }}-${{ env.os }}-${{ env.compilerEnv }}-${{ env.Platform }}-R${{ env.rversion }}-PG${{ env.pgversion }}
