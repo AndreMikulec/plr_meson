@@ -368,6 +368,14 @@ jobs:
 #         with:
 #           architecture: ${{ env.msvc_architecture }}
 
+      # Currently will cache *patched* and *devel* and I do not want to cache these.
+      #
+      # Manage my caches
+      # https://github.com/AndreMikulec/plr_meson/actions/caches
+      #
+      # TODO - possiblity of a FUTURE workaround
+      # https://github.com/actions/cache/blob/main/tips-and-workarounds.md#update-a-cache
+      #
       - name: Cache R-x.y.z Windows Installer Exe
         if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' }}
         uses: actions/cache@v3.3.1
@@ -872,8 +880,13 @@ jobs:
             cp    "${PG_HOME}/contrib/plr/plr.dll.a"  tmp/lib
             ls -alrt                                  tmp/lib/plr.dll.a
           fi
+
           # PL/R Artifact for Release
-          7z a -r plr-artifact.zip tmp/*
+          if [ -f "tmp/PLR_LICENSE" ]
+          then
+            echo "Create PL/R Artifact .zip for future Release"
+            7z a -r plr-artifact.zip ./tmp/*
+          fi
 
           #
           # if "PostgreSQL for Windows" exists, then copy artifacts into it for future testing.
@@ -1032,7 +1045,7 @@ jobs:
           if "%Platform%"=="x86" (net stop postgresql-%PGVER2%)
           if "%Platform%"=="notset" (echo Platform is not set, therefore no net stop happens.)
 
-      - name: Prep Windows PL/R Artifact for Release
+      - name: Windows Prep PL/R Artifact for Release
         if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testOnpgwin == 'true' }}
         env:
           PGVER2: ${{ env.PGVER2 }}
@@ -1049,7 +1062,8 @@ jobs:
         with:
           allowUpdates: true
           replacesArtifacts: true
-          # means "files"
+          # "artifacts" means "paths" and "files"
+          # set of paths representing artifacts to upload to the release
           artifacts: |
             plr-${{ env.HEAD8_GITHUB_SHA }}-${{ env.os }}-${{ env.compilerEnv }}-${{ env.Platform }}-R${{ env.rversion }}-PG${{ env.pgversion }}.zip
           token: ${{ secrets.ACTIONS_CREATE_RELEASE_REPO_SECRET }}
