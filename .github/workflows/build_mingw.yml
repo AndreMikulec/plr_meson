@@ -401,21 +401,30 @@ jobs:
       #
       # five seconds
       - name: Download R for Windows R-x.y.z R-rmajor.rminor.rpatch
-        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && steps.cacheRWindowsInstallerExe.outputs.cache-hit != 'true' }}
+        if: >-
+          ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' &&
+          steps.cacheRWindowsInstallerExe.outputs.cache-hit != 'true'
+          }}
         uses: suisei-cn/actions-download-file@v1.3.0
         id: downloadfileRforWindows
         with:
           url: ${{ env.CRAN_R_DOWNLOAD_URL }}
 
       - name: Download PostgreSQL for Windows
-        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testOnpgwin == 'true' && steps.cachePGWindowsInstallerExe.outputs.cache-hit != 'true' }}
+        if: >-
+          ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testOnpgwin == 'true' &&
+          steps.cachePGWindowsInstallerExe.outputs.cache-hit != 'true'
+          }}
         uses: suisei-cn/actions-download-file@v1.3.0
         id: downloadfilePGforWindows
         with:
           url: ${{ env.ENTDB_PG_DOWNLOAD_URL }}
 
       - name: Download GNU diffutils for Test on PostgreSQL for Windows
-        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testOnpgwin == 'true' && steps.cacheDiffutilsZip.outputs.cache-hit != 'true' }}
+        if: >-
+          ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testOnpgwin == 'true' &&
+          steps.cacheDiffutilsZip.outputs.cache-hit != 'true'
+          }}
         uses: suisei-cn/actions-download-file@v1.3.0
         id: downloadDiffutilsZip
         with:
@@ -456,7 +465,10 @@ jobs:
       # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-software
       #
       - name: Enable PostgreSQL x64-14 for Windows and Start and Stop
-        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testOnpgwin == 'true' && env.VER2 == '14' && env.Platform == 'x64' }}
+        if: >- 
+          ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testOnpgwin == 'true' && 
+          env.VER2 == '14' && env.Platform == 'x64' 
+          }}
         shell: cmd
         run: |
           echo on
@@ -465,7 +477,10 @@ jobs:
           net stop   postgresql-x64-14
 
       - name: Install PostgreSQL for Windows and Stop PostgreSQL
-        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testOnpgwin == 'true' &&  (( env.VER2 == '14' && env.Platform == 'x86' ) || ( env.VER2 != '14' )) }}
+        if: >-
+          ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testOnpgwin == 'true' && 
+          (( env.VER2 == '14' && env.Platform == 'x86' ) || ( env.VER2 != '14' )) 
+          }}
         env:
           PGVER2: ${{ env.PGVER2 }}
           PGROOT2: ${{ env.PGROOT2 }}
@@ -716,12 +731,12 @@ jobs:
           fi
           #
           # Cygwin already has the file /usr/lib/R/lib/libR.dll.a
-          # MSYS2 (mingw) compilers require libR.dll.a.  
+          # MSYS2 (mingw) compilers require libR.dll.a.
           # That file is created by ddltool program parameter "--output-lib".
           #
-          # Note, Windows compilers (e.g. msvc) require R.lib.  
+          # Note, Windows compilers (e.g. msvc) require R.lib.
           # To create this file, instead of using the "dlltool" program, instead use the msvc "lib" program.
-          # Alternately, in the Windows compilers case, just rename an archive dll.a to be a .lib, 
+          # Alternately, in the Windows compilers case, just rename an archive dll.a to be a .lib,
           # and that also works.
           #
           if [ ! -d "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}${R_ARCH}" ]
@@ -747,9 +762,6 @@ jobs:
           mkdir     PGDATA
           initdb -D PGDATA
           pg_ctl -D PGDATA -l logfile start
-          # Some environments require it
-          export PGUSER=$(whoami)
-
 
           mkdir     "${PG_HOME}/contrib"
           #
@@ -759,17 +771,16 @@ jobs:
           pushd     "${PG_HOME}/contribplr"
           #
           rm -Rf ../contrib/plr; rm -f "${PKGLIBDIR}/plr.dll.a" ;rm -f "${PKGLIBDIR}/plr.dll"
-          #
           rm  -f "${SHAREDIR}/extension/plr.control"
           rm  -f  ${SHAREDIR}/extension/plr--*.sql
 
           #
           # build(create) artifacts (A "started" database is not required.)
           #
-          # Note, from my "bad" memory, 
-          # a non-script interactive MSYS2 session, may require either or both 
+          # Note, from my "bad" memory,
+          # a non-script interactive MSYS2 session, may require either or both
           # PG_HOME and/or R_HOME in the form producted by $(cygpath -w "${X_HOME}")
-          # TODO - Re-verify this. 
+          # TODO - Re-verify this.
           #
           meson setup --prefix="${PG_HOME}/contrib/plr" -DR_HOME="${R_HOME}" -DPG_HOME="${PG_HOME}" -Db_pie=true ../contrib/plr
           meson compile -C ../contrib/plr  -v
@@ -819,8 +830,10 @@ jobs:
 
           #
           # non-setup regression test
-          # Directories of testing "sql" and testing "expected" results exist here 
+          # Directories of testing "sql" and testing "expected" results exist here
           #
+          # Some environments require it
+          export PGUSER=$(whoami)
           "${PKGLIBDIR}/pgxs/src/test/regress/pg_regress" --bindir="${PG_HOME}/bin" --dbname=pl_regression plr bad_fun opt_window do out_args plr_transaction opt_window_frame || (cat regression.diffs && false)
 
           popd # from "${PG_HOME}/contribplr"
