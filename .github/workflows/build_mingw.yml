@@ -92,9 +92,6 @@ jobs:
           git config --global core.autocrlf input
           git config --global advice.detachedHead false
 
-      - name: Checkout Code of This Repository
-        uses: actions/checkout@v3
-
       - name: Matrix Variables
         if: matrix.os == 'windows-latest'
         run: |
@@ -354,6 +351,9 @@ jobs:
           Set-EnvVar "CRAN_R_DOWNLOAD_URL=${env:CRAN_R_DOWNLOAD_URL}"
 
           echo "CRAN_R_DOWNLOAD_URL: ${env:CRAN_R_DOWNLOAD_URL}"
+
+      - name: Checkout Code of This Repository
+        uses: actions/checkout@v3
 
 #       # running Meson on GitHub Actions will end up using GCC rather than MSVC
 #       #
