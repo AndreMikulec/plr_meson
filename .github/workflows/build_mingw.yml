@@ -568,7 +568,8 @@ jobs:
           fi
           export  R_HOME=$(cygpath "${R_HOME}")
 
-          echo "R_HOME: ${R_HOME}"
+          # user supplied variable
+          echo "cygpath R_HOME: ${R_HOME}"
 
           if [ "${rversion}" == "notset" ] || [ "${rversion}" == "" ]
           then
@@ -581,24 +582,27 @@ jobs:
           if [ "${PG_HOME}" == "notset" ]; then export PG_HOME=""; fi
           if [ ! "${PG_HOME}" == "" ]; then export PG_HOME=$(cygpath "${PG_HOME}"); fi
 
+          # user supplied variable
+          echo "cygpath PG_HOME: ${PG_HOME}"
+
           export BINDIR=$(pg_config | grep "^BINDIR" | sed "s/ = /=/" | sed "s/^.*=//")
           export BINDIR=$(cygpath $(cygpath -wl "${BINDIR}"))
 
-          echo "BINDIR: ${BINDIR}"
+          echo "pg_config BINDIR: ${BINDIR}"
 
           if [   "${PG_HOME}" == "" ]; then export PG_HOME=$(dirname "${BINDIR}"); fi
 
-          echo "PG_HOME: ${PG_HOME}"
+          echo "pg_config PG_HOME: ${PG_HOME}"
 
           export PKGLIBDIR=$(pg_config | grep "^PKGLIBDIR" | sed "s/ = /=/" | sed "s/^.*=//")
           export PKGLIBDIR=$(cygpath $(cygpath -wl "${PKGLIBDIR}"))
 
-          echo "PKGLIBDIR: ${PKGLIBDIR}"
+          echo "pg_config PKGLIBDIR: ${PKGLIBDIR}"
 
           export SHAREDIR=$(pg_config | grep "^SHAREDIR" | sed "s/ = /=/" | sed "s/^.*=//")
           export SHAREDIR=$(cygpath $(cygpath -wl "${SHAREDIR}"))
 
-          echo "SHAREDIR: ${SHAREDIR}"
+          echo "pg_config SHAREDIR: ${SHAREDIR}"
 
           # PATHs are needed for the proper compile and runtime
           # find "libraries"
@@ -617,20 +621,21 @@ jobs:
           echo "PKG_CONFIG_SYSTEM_INCLUDE_PATH: ${PKG_CONFIG_SYSTEM_INCLUDE_PATH}"
           echo "PKG_CONFIG_SYSTEM_LIBRARY_PATH: ${PKG_CONFIG_SYSTEM_LIBRARY_PATH}"
 
-          # note "cygwin" has "no defaults"
+          # note "Cygwin" has "no defaults"
           #
-          # note mingw MSYS UCRT uses MSYSTEM_PREFIX="/ucrt64" in place of "/usr"
-          # note mingw MSYS UCRT variable PKG_CONFIG_PATH at the tail also has "/ucrt64/share/pkgconfig"
+          # note MSYS(mingw) UCRT uses MSYSTEM_PREFIX="/ucrt64" in place of "/usr"
+          # note MSYS(mingw) UCRT variable PKG_CONFIG_PATH at the tail also has "/ucrt64/share/pkgconfig"
           #
-          # OperatingSystem Cygwin
+          # This case handles Cygwin.
           if [ "${PKG_CONFIG_PATH}" == "" ];                then export PKG_CONFIG_PATH="/usr/lib/pkgconfig"; fi
           if [ "${PKG_CONFIG_SYSTEM_INCLUDE_PATH}" == "" ]; then export PKG_CONFIG_SYSTEM_INCLUDE_PATH="/usr/include"; fi
           if [ "${PKG_CONFIG_SYSTEM_LIBRARY_PATH}" == "" ]; then export PKG_CONFIG_SYSTEM_LIBRARY_PATH="/usr/lib"; fi
 
-          # For OperatingSystem Msys and R environment variable R_ARCH and Rlib.dll.a
-          # need ONE single leftmost headish important library path
+          # For MSYS(mingw) and R environment variable R_ARCH and Rlib.dll.a.
+          # Need ONE single leftmost headish important library path.
           export PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG=$(echo "${PKG_CONFIG_SYSTEM_LIBRARY_PATH}" |  grep -o '^[^:]*')
-          # MSYS2 UCRT
+          # MSYS2(mingw) environments
+          # e.g. UCRT
           # export PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG="/ucrt64/lib"
           echo "PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG: ${PKG_CONFIG_SYSTEM_LIBRARY_PATH}"
 
@@ -640,8 +645,8 @@ jobs:
 
           # Garantee to find the PostgreSQL libraries.
           # Some packages may also install an old "libpq" that is located in the default install location.
-          # We do not want to use that old "libpg" in compiling PL/R.
-          # Therefore, the PostgreSQL pkgconfig goes in front at the head
+          # We do not want to use that old "libpg" when compiling PL/R.
+          # Therefore, the PostgreSQL pkgconfig goes in front at the head.
           #
           export PKG_CONFIG_PATH="${PG_HOME}/lib/pkgconfig:${PKG_CONFIG_PATH}"
           export PKG_CONFIG_SYSTEM_INCLUDE_PATH="${PG_HOME}/include:${PKG_CONFIG_SYSTEM_INCLUDE_PATH}"
@@ -651,20 +656,20 @@ jobs:
           echo "PKG_CONFIG_SYSTEM_INCLUDE_PATH: ${PKG_CONFIG_SYSTEM_INCLUDE_PATH}"
           echo "PKG_CONFIG_SYSTEM_LIBRARY_PATH: ${PKG_CONFIG_SYSTEM_LIBRARY_PATH}"
 
-          # Part 1 of 2 of a hack to make "meson" think that "libpostgres" is a library
-          # from libpq.pc create a libpostgres.pc
+          # This is Part 1 of 2 of a hack to make "meson" think that "libpostgres" is a library.
+          # From the libpq.pc file, create a libpostgres.pc file.
           if [ ! -f "${PG_HOME}/lib/pkgconfig/libpostgres.pc" ]
           then
             cat "${PG_HOME}/lib/pkgconfig/libpq.pc" | sed "s/libpq/libpostgres/g" | sed "s/-lpq/-lpostgres/" > "${PG_HOME}/lib/pkgconfig/libpostgres.pc"
           fi
 
-          # Part 2 of 2 of a hack to make "meson" think that "libpostgres" is a library
+          # This is Part 2 of 2 of a hack to make "meson" think that "libpostgres" is a library
           # libpostgres.exe.a is not recognized as a static library
           # libpostgres.a     is     recognized as a static library
-          #                         # typical Repository default install
+          #                         # typical software repository default install
           if [ ! -f "${PG_HOME}/lib/libpostgres.a" ] && [ ! -f "${PG_HOME}/lib/libpostgres.dll.a" ] && [ -f "${PG_HOME}/lib/libpostgres.exe.a" ]
           then
-            #                       # meson built postgres install
+            # Note, a "meson built PostgreSQL install" will produce a file called "libpostgres.exe.a".
             cp -f   "${PG_HOME}/lib/libpostgres.exe.a" "${PG_HOME}/lib/libpostgres.a"
           fi
 
@@ -677,12 +682,19 @@ jobs:
           fi
           if [ ! -f "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}/pkgconfig/libR.pc" ]
           then
-            # provided template (based off of "R for Cygwin")
+            # Uses the provided template file "libR.pc"
+            # This template file is "based" off of the "R for Cygwin" file /lib/pkgconfig/libR.pc.
             cat "libR.pc" | sed "s|R_HOME|${R_HOME}|" | sed "s|R_ARCH|${R_ARCH}|" | sed "s/rversion/${rversion}/" > "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}/pkgconfig/libR.pc"
           fi
           #
-          # Some environments that use R_ARCH
-          # E.g. OperatingSystem  "Msys" (and Microsoft Visual C++)
+          # Cygwin already has the file /usr/lib/R/lib/libR.dll.a
+          # MSYS2 (mingw) compilers require libR.dll.a.  
+          # That file is created by ddltool program parameter "--output-lib".
+          #
+          # Note, Windows compilers (e.g. msvc) require R.lib.  
+          # To create this file, instead of using the "dlltool" program, instead use the msvc "lib" program.
+          # Alternately, in the Windows compilers case, just rename an archive dll.a to be a .lib, 
+          # and that also works.
           #
           if [ ! -d "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}${R_ARCH}" ]
           then
@@ -701,9 +713,8 @@ jobs:
           #
 
           #
-          # A started database is needed for 
-          # (1) the regression test (see FAR below)
-          # (2) query by "psql"     (see FAR below)
+          # Create and start the cluster before
+          # the non-setup regression test (see FAR below).
           #
           mkdir     PGDATA
           initdb -D PGDATA
@@ -726,6 +737,11 @@ jobs:
 
           #
           # build(create) artifacts (A "started" database is not required.)
+          #
+          # Note, from my "bad" memory, 
+          # a non-script interactive MSYS2 session, may require either or both 
+          # PG_HOME and/or R_HOME in the form producted by $(cygpath -w "${X_HOME}")
+          # TODO - Re-verify this. 
           #
           meson setup --prefix="${PG_HOME}/contrib/plr" -DR_HOME="${R_HOME}" -DPG_HOME="${PG_HOME}" -Db_pie=true ../contrib/plr
           meson compile -C ../contrib/plr  -v
@@ -774,8 +790,8 @@ jobs:
           ls -alrt        ${SHAREDIR}/extension/plr--*.sql
 
           #
-          # (1) regression test
-          # Directories of testing "sql" and testing "expected" results from "sql" exist here 
+          # non-setup regression test
+          # Directories of testing "sql" and testing "expected" results exist here 
           #
           "${PKGLIBDIR}/pgxs/src/test/regress/pg_regress" --bindir="${PG_HOME}/bin" --dbname=pl_regression plr bad_fun opt_window do out_args plr_transaction opt_window_frame || (cat regression.diffs && false)
 
@@ -798,46 +814,32 @@ jobs:
           fi
 
           #
-          # before artifact naming, determine pgversionnumeric
+          # for artifact naming, determine the Vendor Supplied pgversion
           #
-          if [ "$(uname -o)" == "Msys" ]
-          then
-            export winpty="winpty -Xallow-non-tty"
-          fi
-          if [ ! "$(uname -o)" == "Msys" ]
-          then
-            export winpty=""
-          fi
-          # (2) psql query
-          export pgversionnumeric=$(${winpty} psql -d postgres --quiet --tuples-only -c "\pset footer off" -c "\timing off" -c "select current_setting('server_version_num')::integer;"  | grep -oP '\d+$')
-          echo "pgversionnumeric=${pgversionnumeric}" >> ${GITHUB_ENV}
-          echo "pgversionnumeric: ${pgversionnumeric}"
+          export pgversion=$(pg_config | grep "^VERSION" | sed "s/ = /=/" | sed "s/^.*=//" | grep -oP '[ ].*$' | grep -oP '\d.*$')
+          # potential override
+          echo "pgversion=${pgversion}" >> ${GITHUB_ENV}
+          echo "pg_config VERSION pgversion: ${pgversion}"
 
           #
-          # for artifact naming, determine pgversionmajor
+          # for artifact naming, determine the Vendor Supplied rversion
           #
-          if [ ${pgversionnumeric} -gt 99999 ]
-          then
-            export pgversionmajor=$(postgres -V | grep -oP '(?<=\) ).*$' | grep -oP '^.\d+')
-          else
-            export pgversionmajor=$(postgres -V | grep -oP '^\d+[.]\d+')
-          fi
-          echo "pgversionmajor=${pgversionmajor}" >> ${GITHUB_ENV}
-          echo "pgversionmajor: ${pgversionmajor}"
+          export rversion=$(R --version | head --lines=1 | sed "s/R version //" | sed "s/ (.*$//")
+          # potential override
+          echo "rversion=${rversion}" >> ${GITHUB_ENV}
+          echo "R --version rversion: ${rversion}"
 
           #
-          # A stopped database from
-          # (1) the regression test (see FAR above)
-          # (2) query by "psql"     (see FAR above)
+          # Stop the cluster after
+          # the non-setup regression test (see FAR above).
           #
           pg_ctl -D PGDATA -l logfile stop
-
 
       - name: Upload artifacts plr.dll and plr.dll.a for export for LOCAL testing
         if: ${{ env.os == 'windows-latest' &&  ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) && env.testOnpgwin == 'true' }}
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ github.event.repository.name }}_${{ env.os }}_${{ env.compiler }}_${{ env.Platform }}_R${{ env.rversion }}_PG${{ env.pgversionmajor }}
+          name: ${{ github.event.repository.name }}_${{ env.os }}_${{ env.compiler }}_${{ env.Platform }}_R${{ env.rversion }}_PG${{ env.pgversion }}
           path: |
             plr.dll
             plr.dll.a
@@ -858,7 +860,7 @@ jobs:
           echo "Setup for Test on PostgreSQL for Windows"
           set -x -v -e
           #
-          # Begin adding of files to Windows (see below)
+          # Begin adding of files to Windows install directory (see below)
           #
           echo "compiler: ${{ env.compiler }}"
           export | grep MINGW
@@ -985,7 +987,7 @@ jobs:
           replacesArtifacts: true
           commit: ${{ env.USER_GITHUB_SHA }}
           tag: ${{ env.USER_GITHUB_REF_NAME }}
-          artifacts: "${{ github.event.repository.name }}_${{ env.os }}_${{ env.compiler }}_${{ env.Platform }}_R${{ env.rversion }}_PG${{ env.pgversionmajor }}.*"
+          artifacts: "${{ github.event.repository.name }}_${{ env.os }}_${{ env.compiler }}_${{ env.Platform }}_R${{ env.rversion }}_PG${{ env.pgversion }}.*"
           token: ${{ secrets.ACTIONS_CREATE_RELEASE_REPO_SECRET }}
         env:
           USER_GITHUB_SHA: ${{ github.sha }}
