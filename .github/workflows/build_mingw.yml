@@ -537,7 +537,7 @@ jobs:
           mkdir                                "C:\OTHERBIN\diffutils"
           rem 7z is provided by Github Actions
           7z x  diffutils-2.8.7-1-bin.zip    -o"C:\OTHERBIN\diffutils"
-          move  diffutils-2.8.7-1-bin.zip      "C:\OTHERBIN\diffutils"
+          copy  diffutils-2.8.7-1-bin.zip      "C:\OTHERBIN\diffutils"
           dir                                  "C:\OTHERBIN\diffutils"
           rem - man7.org/linux/man-pages/man1/printf.1.html
           printf                               "C:\\OTHERBIN\\diffutils\\bin" >> %GITHUB_PATH%
