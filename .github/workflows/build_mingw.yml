@@ -990,7 +990,8 @@ jobs:
           rem "Operating System Account: NT AUTHORITY\NetworkService"
           rem R_HOME must be defined in the environment of the user that starts the postmaster process.
 
-          rem if I use chocolatey (most chocolatey programs location, but not all)
+          rem if I use chocolatey then uncomment this line.
+          rem Most chocolatey programs are located here, but not all.
           rem set PATH="C:\ProgramData\chocolatey\bin";%PATH%
 
           setx /M R_HOME "%R_HOME%"
@@ -998,7 +999,7 @@ jobs:
 
           echo M_PATH - %PATH%
 
-          rem Put pg_regress in the local PATH.
+          rem Put MY pg_regress in the local PATH, in front of OTHER pg_regress that MAY BE installed.
           set PATH=%PG_HOME%\bin;%PATH%
 
           echo on
@@ -1034,6 +1035,15 @@ jobs:
         uses: actions/download-artifact@v3.0.2
         with:
           name: plr-${{ env.HEAD8_GITHUB_SHA }}-${{ env.os }}-${{ env.compilerEnv }}-${{ env.Platform }}-R${{ env.rversion }}-PG${{ env.pgversion }}
+
+      - name: Display CWD on Windows
+        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testOnpgwin == 'true' }}
+        env:
+          PGVER2: ${{ env.PGVER2 }}
+          Platform: ${{ env.Platform }}
+        shell: cmd
+        run: |
+          dir
 
       - name: Release
         if: github.ref_type == 'tag'
