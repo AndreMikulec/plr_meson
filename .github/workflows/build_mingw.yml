@@ -974,11 +974,20 @@ jobs:
           rem not R Sub-Architectures
           if "%R_ARCH%"=="notset" set PATH=%R_HOME%\bin;%PATH%
 
+          rem PostgreSQL for Windows, typically runs using
+          rem "Operating System Account: NT AUTHORITY\NetworkService"
+          rem
+          setx /M R_HOME "%R_HOME%"
+          setx /M PATH   "%PATH%"
+
           rem can find PG "libraries"
           set PATH=%PG_HOME%\lib;%PATH%
 
           rem can find PG "libraries"
           set PATH=%PG_HOME%\bin;%PATH%
+
+          rem may not need this
+          setx /M PATH   "%PATH%"
 
           rem if I use chocolatey (most chocolatey programs location, but not all)
           rem set PATH="C:\ProgramData\chocolatey\bin";%PATH%
