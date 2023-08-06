@@ -98,7 +98,11 @@ jobs:
           # systeminfo
           echo "${{ matrix.compilerEnv }} on ${{ matrix.os }}"
           # JUL 2023 - only THIS exists in Github Actions
-          if( Test-Path "C:\Program Files\PostgreSQL\14" ) { "pg x64-14 exists."  } else {  "pg x64-14 not exists." }
+          if( Test-Path "C:\Program Files\PostgreSQL\14" ) { 
+            "PostgreSQL for Windows x64-14 exists."  
+          } else {  
+            "PostgreSQL for Windows x64-14 does not exist."
+          }
           function Set-EnvVar {param($X)     Add-Content -Path ${env:GITHUB_ENV} -Value "$X"}
           #
           ${env:HEAD8_GITHUB_SHA} = "${env:GITHUB_SHA}".SubString(0,8)
