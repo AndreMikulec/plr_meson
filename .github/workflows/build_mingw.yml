@@ -31,6 +31,7 @@ jobs:
           # (bleeding edge R) PL/R can not be compiled using Microsoft Visual Studio
           - os: windows-latest
             compilerEnv: UCRT64
+            compilerExe: gcc
             Platform: x64
             rversion: devel
             R_HOME: 'D:\RINSTALL'
@@ -41,6 +42,7 @@ jobs:
           # (Current R) PL/R can not be compiled using Microsoft Visual Studio
           - os: windows-latest
             compilerEnv: UCRT64
+            compilerExe: gcc
             Platform: x64
             rversion: 4.3.1patched
             R_HOME: 'D:\RINSTALL'
@@ -51,6 +53,7 @@ jobs:
           # Last PL/R that can be compiled using Microsoft Visual Studio
           - os: windows-latest
             compilerEnv: UCRT64
+            compilerExe: gcc
             Platform: x64
             rversion: 4.2.3
             R_HOME: 'D:\RINSTALL'
@@ -61,6 +64,7 @@ jobs:
           # Last "R for Windows" supports x86 and sub-architecture
           - os: windows-latest
             compilerEnv: MINGW32
+            compilerExe: gcc
             Platform: x86
             rversion: 4.1.3
             R_HOME: 'D:\RINSTALL'
@@ -71,6 +75,7 @@ jobs:
           # Last "R for Windows" supports x86 and single architecure
           - os: windows-latest
             compilerEnv: MINGW32
+            compilerExe: gcc
             Platform: x86
             rversion: 2.11.1
             R_HOME: 'D:\RINSTALL'
@@ -197,6 +202,12 @@ jobs:
 
           echo "compilerClass: ${env:compilerClass}"
 
+          ${env:compilerExe} = "${{ matrix.compilerExe }}"
+          if("${env:compilerExe}" -eq ""){${env:compilerExe} = "notset"}
+          Set-EnvVar "compilerExe=${env:compilerExe}"
+
+          echo "compilerExe: ${env:compilerExe}"
+
           ${env:mingw_env} = "notset"
           if ( "${{ matrix.compilerEnv }}" -eq "MINGW64"    ) { ${env:mingw_env} = "x86_64" }
           if ( "${{ matrix.compilerEnv }}" -eq "MINGW32"    ) { ${env:mingw_env} = "i686" }
@@ -215,14 +226,6 @@ jobs:
           Set-EnvVar "MINGW_PACKAGE_PREFIX=${env:MINGW_PACKAGE_PREFIX}"
 
           echo "MINGW_PACKAGE_PREFIX: ${env:MINGW_PACKAGE_PREFIX}"
-
-          ${env:compiler_exe} = "notset"
-          if (  "${{ matrix.compilerEnv }}" -eq "UCRT64"     ) { ${env:compiler_exe} = "gcc" }
-          if (  "${{ matrix.compilerEnv }}" -eq "MINGW32"    ) { ${env:compiler_exe} = "gcc" }
-          if (  "${{ matrix.compilerEnv }}" -eq "notset"     ) { ${env:compiler_exe} = "notset" }
-          Set-EnvVar "compiler_exe=${env:compiler_exe}"
-
-          echo "compiler_exe: ${env:compiler_exe}"
 
           ${env:R_ARCHplat} = "notset"
           if("${env:R_ARCH}" -eq "/x64")    { ${env:R_ARCHplat} =    "x64" }
@@ -536,7 +539,7 @@ jobs:
             git
             ${{ env.MINGW_PACKAGE_PREFIX }}-meson
             ${{ env.MINGW_PACKAGE_PREFIX }}-make
-            ${{ env.MINGW_PACKAGE_PREFIX }}-${{ env.compiler_exe }}
+            ${{ env.MINGW_PACKAGE_PREFIX }}-${{ env.compilerExe }}
             tar
             gzip
             ${{ env.MINGW_PACKAGE_PREFIX }}-readline
