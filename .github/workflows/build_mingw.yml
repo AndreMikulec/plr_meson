@@ -699,6 +699,19 @@ jobs:
             popd # from "${R_HOME}/bin${R_ARCH}"
           fi
           #
+
+          #
+          # A started database is needed for 
+          # (1) the regression test (see FAR below)
+          # (2) query by "psql"     (see FAR below)
+          #
+          mkdir     PGDATA
+          initdb -D PGDATA
+          pg_ctl -D PGDATA -l logfile start
+          # Some environments require it
+          export PGUSER=$(whoami)
+
+
           mkdir     "${PG_HOME}/contrib"
           #
           mkdir     "${PG_HOME}/contribplr"
@@ -710,6 +723,9 @@ jobs:
           #
           rm  -f "${SHAREDIR}/extension/plr.control"
           rm  -f  ${SHAREDIR}/extension/plr--*.sql
+
+          #
+          # build(create) artifacts (A "started" database is not required.)
           #
           meson setup --prefix="${PG_HOME}/contrib/plr" -DR_HOME="${R_HOME}" -DPG_HOME="${PG_HOME}" -Db_pie=true ../contrib/plr
           meson compile -C ../contrib/plr  -v
@@ -730,6 +746,9 @@ jobs:
           # "-Wl,--end-group"
           #
 
+          #
+          # install artifacts
+          #
           if [ -f "../contrib/plr/plr.dll" ]
           then
             echo "plr.dll is found"
@@ -743,21 +762,22 @@ jobs:
             ls -alrt                         "${PKGLIBDIR}/plr.dll.a"
           fi
           #
+          # install artifacts support file - plr.control
+          #
           cp plr.control "${SHAREDIR}/extension"
           ls -alrt       "${SHAREDIR}/extension/plr.control"
 
+          #
+          # install artifacts support files - versioning "sql"
+          #
           cp plr--*.sql  "${SHAREDIR}/extension"
           ls -alrt        ${SHAREDIR}/extension/plr--*.sql
 
-          mkdir     PGDATA
-          initdb -D PGDATA
-          pg_ctl -D PGDATA -l logfile start
-
-          # Some environments require it
-          export PGUSER=$(whoami)
+          #
+          # (1) regression test
+          # Directories of testing "sql" and testing "expected" results from "sql" exist here 
+          #
           "${PKGLIBDIR}/pgxs/src/test/regress/pg_regress" --bindir="${PG_HOME}/bin" --dbname=pl_regression plr bad_fun opt_window do out_args plr_transaction opt_window_frame || (cat regression.diffs && false)
-
-          pg_ctl -D PGDATA -l logfile stop
 
           popd # from "${PG_HOME}/contribplr"
 
@@ -778,7 +798,7 @@ jobs:
           fi
 
           #
-          # for artifact naming, determine pgversionmajor
+          # before artifact naming, determine pgversionnumeric
           #
           if [ "$(uname -o)" == "Msys" ]
           then
@@ -788,14 +808,14 @@ jobs:
           then
             export winpty=""
           fi
-          # Some environments require it
-          export PGUSER=$(whoami)
-          #         # from ABOVE - should have created that PGDATA directory in $(cygpath "${GITHUB_WORKSPACE}")
-          pg_ctl -D "${PG_HOME}/contribplr/PGDATA" -l logfile start
+          # (2) psql query
           export pgversionnumeric=$(${winpty} psql -d postgres --quiet --tuples-only -c "\pset footer off" -c "\timing off" -c "select current_setting('server_version_num')::integer;"  | grep -oP '\d+$')
-          pg_ctl -D "${PG_HOME}/contribplr/PGDATA" -l logfile stop
           echo "pgversionnumeric=${pgversionnumeric}" >> ${GITHUB_ENV}
           echo "pgversionnumeric: ${pgversionnumeric}"
+
+          #
+          # for artifact naming, determine pgversionmajor
+          #
           if [ ${pgversionnumeric} -gt 99999 ]
           then
             export pgversionmajor=$(postgres -V | grep -oP '(?<=\) ).*$' | grep -oP '^.\d+')
@@ -804,6 +824,13 @@ jobs:
           fi
           echo "pgversionmajor=${pgversionmajor}" >> ${GITHUB_ENV}
           echo "pgversionmajor: ${pgversionmajor}"
+
+          #
+          # A stopped database from
+          # (1) the regression test (see FAR above)
+          # (2) query by "psql"     (see FAR above)
+          #
+          pg_ctl -D PGDATA -l logfile stop
 
 
       - name: Upload artifacts plr.dll and plr.dll.a for export for LOCAL testing
