@@ -990,10 +990,6 @@ jobs:
         with:
           allowUpdates: true
           replacesArtifacts: true
-          commit: ${{ env.USER_GITHUB_SHA }}
-          tag: ${{ env.USER_GITHUB_REF_NAME }}
           artifacts: "plr-${{ env.HEAD8_GITHUB_SHA }}-${{ env.os }}-${{ env.compiler }}-${{ env.Platform }}-R${{ env.rversion }}-PG${{ env.pgversion }}.*"
           token: ${{ secrets.ACTIONS_CREATE_RELEASE_REPO_SECRET }}
-        env:
-          USER_GITHUB_SHA: ${{ github.sha }}
-          USER_GITHUB_REF_NAME: ${{ github.ref_name }}
+
