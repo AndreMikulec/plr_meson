@@ -189,10 +189,22 @@ jobs:
 
           echo "PG_HOME: ${env:PG_HOME}"
 
+          ${env:compilerClass} = "notset"
+          if("${env:compilerEnv}" -in "MING64", "MINGW32", "UCRT64", "CLANG32", "CLANG64", "CLANGARM64") {
+            ${env:compilerClass} = "MSYS2"
+          }
+          Set-EnvVar "compilerClass=${env:compilerClass}"
+
+          echo "compilerClass: ${env:compilerClass}"
+
           ${env:mingw_env} = "notset"
-          if (  "${{ matrix.compilerEnv }}" -eq "UCRT64"     ) { ${env:mingw_env} = "ucrt-x86_64" }
-          if (  "${{ matrix.compilerEnv }}" -eq "MINGW32"    ) { ${env:mingw_env} = "i686" }
-          if (  "${{ matrix.compilerEnv }}" -eq "notset"     ) { ${env:mingw_env} = "notset" }
+          if ( "${{ matrix.compilerEnv }}" -eq "MINGW64"    ) { ${env:mingw_env} = "x86_64" }
+          if ( "${{ matrix.compilerEnv }}" -eq "MINGW32"    ) { ${env:mingw_env} = "i686" }
+          if ( "${{ matrix.compilerEnv }}" -eq "UCRT64"     ) { ${env:mingw_env} = "ucrt-x86_64" }
+          if ( "${{ matrix.compilerEnv }}" -eq "CLANG32"    ) { ${env:mingw_env} = "clang-i686" }
+          if ( "${{ matrix.compilerEnv }}" -eq "CLANG64"    ) { ${env:mingw_env} = "clang-x86_64" }
+          if ( "${{ matrix.compilerEnv }}" -eq "CLANGARM64" ) { ${env:mingw_env} = "clang-aarch64" }
+          if ( "${{ matrix.compilerEnv }}" -eq "notset"     ) { ${env:mingw_env} = "notset" }
           Set-EnvVar "mingw_env=${env:mingw_env}"
 
           echo "mingw_env: ${env:mingw_env}"
@@ -207,7 +219,7 @@ jobs:
           ${env:compiler_exe} = "notset"
           if (  "${{ matrix.compilerEnv }}" -eq "UCRT64"     ) { ${env:compiler_exe} = "gcc" }
           if (  "${{ matrix.compilerEnv }}" -eq "MINGW32"    ) { ${env:compiler_exe} = "gcc" }
-          if (  "${{ matrix.compilerEnv }}" -eq "notset"     )   { ${env:compiler_exe} = "notset" }
+          if (  "${{ matrix.compilerEnv }}" -eq "notset"     ) { ${env:compiler_exe} = "notset" }
           Set-EnvVar "compiler_exe=${env:compiler_exe}"
 
           echo "compiler_exe: ${env:compiler_exe}"
@@ -880,59 +892,6 @@ jobs:
             plr.dll.a
             plr.control
             LICENSE
-
-      - name: Setup for Test on PostgreSQL for Windows
-        if: ${{ env.os == 'windows-latest' &&  ( env.compilerEnv == 'UCRT64' || env.compilerEnv == 'MINGW32' ) && env.testOnpgwin == 'true' }}
-        uses: msys2/setup-msys2@v2
-        with:
-          msystem: ${{ env.compilerEnv }}
-        env:
-          PG_HOME: ${{ env.PG_HOME }}
-          # PostgreSQL for Windows
-          PGROOT2: ${{ env.PGROOT2 }}
-      - shell: msys2 {0}
-        run: |
-          echo "Setup for Test on PostgreSQL for Windows"
-          set -x -v -e
-          #
-          # Begin adding of files to Windows install directory (see below)
-          #
-          echo "compilerEnv: ${{ env.compilerEnv }}"
-          export | grep MINGW
-          export | grep MSYSTEM
-
-          echo  "PG_HOME: ${PG_HOME}"
-          echo  "PGROOT2: ${PGROOT2}"
-
-          if [ "${PG_HOME}" == "notset" ]; then export PG_HOME=""; fi
-          if [ ! "${PG_HOME}" == "" ]; then export PG_HOME=$(cygpath "${PG_HOME}"); fi
-
-          export BINDIR=$(pg_config | grep "^BINDIR" | sed "s/ = /=/" | sed "s/^.*=//")
-          export BINDIR=$(cygpath $(cygpath -wl "${BINDIR}"))
-
-          echo "BINDIR: ${BINDIR}"
-
-          if [   "${PG_HOME}" == "" ]; then export PG_HOME=$(dirname "${BINDIR}"); fi
-
-          echo "PG_HOME: ${PG_HOME}"
-
-          pushd     "${PG_HOME}/contribplr"
-          #
-          export PGROOT2=$(cygpath "${PGROOT2}")
-
-          echo  "cygpath PGROOT2: ${PGROOT2}"
-
-          cp ../contrib/plr/plr.dll   "${PGROOT2}/lib"
-          ls -alrt                    "${PGROOT2}/lib/plr.dll"
-          cp plr.control "${PGROOT2}/share/extension"
-          ls -alrt       "${PGROOT2}/share/extension/plr.control"
-          cp plr--*.sql  "${PGROOT2}/share/extension"
-          ls -alrt       "${PGROOT2}"/share/extension/plr--*.sql
-
-          popd # from "${PG_HOME}/contribplr"
-          #
-          # End adding of files to Windows (see below)
-          #
 
 #     # BUT the "crazy-max/ghaction-chocolatey@v2" "install diffutils" file download often times-out
 #     - name: Choco Install GNU diffutils for Test on PostgreSQL for Windows
