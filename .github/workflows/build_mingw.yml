@@ -144,10 +144,12 @@ jobs:
           echo "         rpatch: ${env:rpatch}"
           echo "rversionnumeric: ${env:rversionnumeric}"
 
+          ${env:rversionlong} = "notset"
           # derived (this will be changed FAR FAR below)
           ${env:rversionlong} = ${env:rversion}
           Set-EnvVar "rversionlong=${env:rversionlong}"
 
+          ${env:bit} = "notset"
                                            # derived
           if("${env:Platform}" -eq "x64")  { ${env:bit} = "64" }
           if("${env:Platform}" -eq "x86")  { ${env:bit} = "32" }
@@ -174,6 +176,7 @@ jobs:
 
           echo "PG_HOME: ${env:PG_HOME}"
 
+          ${env:mingw_env} = "notset"
           if (  "${{ matrix.compiler }}" -eq "UCRT64"     ) { ${env:mingw_env} = "ucrt-x86_64" }
           if (  "${{ matrix.compiler }}" -eq "MINGW32"    ) { ${env:mingw_env} = "i686" }
           if (  "${{ matrix.compiler }}" -eq "notset"     ) { ${env:mingw_env} = "notset" }
@@ -181,12 +184,14 @@ jobs:
 
           echo "mingw_env: ${env:mingw_env}"
 
+          ${env:MINGW_PACKAGE_PREFIX} = "notset"
           if ("${{ env.mingw_env }}" -ne "notset") { ${env:MINGW_PACKAGE_PREFIX} = "mingw-w64-${env:mingw_env}" }
           if ("${{ env.mingw_env }}" -eq "notset") { ${env:MINGW_PACKAGE_PREFIX} = "notset" }
           Set-EnvVar "MINGW_PACKAGE_PREFIX=${env:MINGW_PACKAGE_PREFIX}"
 
           echo "MINGW_PACKAGE_PREFIX: ${env:MINGW_PACKAGE_PREFIX}"
 
+          ${env:compiler_exe} = "notset"
           if (  "${{ matrix.compiler }}" -eq "UCRT64"     ) { ${env:compiler_exe} = "gcc" }
           if (  "${{ matrix.compiler }}" -eq "MINGW32"    ) { ${env:compiler_exe} = "gcc" }
           if (  "${{ matrix.compiler }}" -eq "notset"     )   { ${env:compiler_exe} = "notset" }
@@ -194,9 +199,10 @@ jobs:
 
           echo "compiler_exe: ${env:compiler_exe}"
 
-          if("${env:R_ARCH}" -eq "/x64")    {${env:R_ARCHplat} =    "x64"}
-          if("${env:R_ARCH}" -eq "/i386")   {${env:R_ARCHplat} =   "i386"}
-          if("${env:R_ARCH}" -eq "notset")  {${env:R_ARCHplat} = "notset"}
+          ${env:R_ARCHplat} = "notset"
+          if("${env:R_ARCH}" -eq "/x64")    { ${env:R_ARCHplat} =    "x64" }
+          if("${env:R_ARCH}" -eq "/i386")   { ${env:R_ARCHplat} =   "i386" }
+          if("${env:R_ARCH}" -eq "notset")  { ${env:R_ARCHplat} = "notset" }
           Set-EnvVar "R_ARCHplat=${env:R_ARCHplat}"
 
           echo "R_ARCHplat: ${env:R_ARCHplat}"
@@ -213,21 +219,23 @@ jobs:
 
           echo "pgwinversion: ${env:pgwinversion}"
 
+          ${env:pgwinmajor} = "notset"
           # if any, strip off the: right-most part dot, then numbers, then one hyphen, then numbers.
           if("${env:pgwinversion}" -ne "notset") { ${env:pgwinmajor} = ${env:pgwinversion} -replace "[.]\d+-\d+$" }
-          if("${env:pgwinversion}" -eq "notset") { ${env:pgwinmajor} = "none" }
+          if("${env:pgwinversion}" -eq "notset") { ${env:pgwinmajor} = "notset" }
           Set-EnvVar "pgwinmajor=${env:pgwinmajor}"
 
           echo "pgwinmajor: ${env:pgwinmajor}"
 
+          ${env:pgwinversionlong} = "notset"
           if("${env:Platform}" -eq "x86"  -and "${env:pgwinversion}" -ne "notset") {
             ${env:pgwinversionlong} = "postgresql-${env:pgwinversion}-windows"
           }
           if("${env:Platform}" -eq "x64" -and "${env:pgwinversion}" -ne "notset") {
             ${env:pgwinversionlong} = "postgresql-${env:pgwinversion}-windows-x64"
           }
-          if("${env:Platform}" -eq "none" -or "${env:pgwinversion}" -eq "notset") {
-            ${env:pgwinversionlong} = "none"
+          if("${env:Platform}" -eq "notset" -or "${env:pgwinversion}" -eq "notset") {
+            ${env:pgwinversionlong} = "notset"
           }
           Set-EnvVar "pgwinversionlong=${env:pgwinversionlong}"
 
@@ -243,12 +251,16 @@ jobs:
 
           echo "ENTDB_PG_DOWNLOAD_URL: ${env:ENTDB_PG_DOWNLOAD_URL}"
 
+          ${env:PGVER2} = "notset"
           # Prep for Install PostgreSQL for Windows (if applicable)
           ${env:PGVER2} = ${env:pgwinmajor}
           Set-EnvVar "PGVER2=${env:PGVER2}"
 
           echo "PGVER2: ${env:PGVER2}"
 
+          ${env:PGBIN2}  = "notset"
+          ${env:PGDATA2} = "notset"
+          ${env:PGROOT2} = "notset"
           if("${env:Platform}" -eq "x64") {
             ${env:PGBIN2}  = "C:\Program Files\PostgreSQL\${env:pgwinmajor}\bin"
             ${env:PGDATA2} = "C:\Program Files\PostgreSQL\${env:pgwinmajor}\data"
