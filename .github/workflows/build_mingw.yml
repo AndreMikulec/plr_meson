@@ -314,7 +314,7 @@ jobs:
 
 
       - name: Matrix Windows Platform Specific Variables
-        if: ${{ env.os == 'windows-latest' && ( env.compilerEnv == 'UCRT64' || env.compilerEnv == 'MINGW32' ) }}
+        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' }}
         run: |
           function Set-EnvVar {param($X)     Add-Content -Path ${env:GITHUB_ENV} -Value "$X"}
 
@@ -362,7 +362,7 @@ jobs:
 #           architecture: ${{ env.msvc_architecture }}
 
       - name: Cache R-x.y.z Windows Installer Exe
-        if: ${{ env.os == 'windows-latest' && ( env.compilerEnv == 'UCRT64' || env.compilerEnv == 'MINGW32' ) }}
+        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' }}
         uses: actions/cache@v3.3.1
         id: cacheRWindowsInstallerExe
         with:
@@ -372,7 +372,7 @@ jobs:
           SEGMENT_DOWNLOAD_TIMEOUT_MINS: 1
 
       - name: Cache PostgreSQL for Windows
-        if: ${{ env.os == 'windows-latest' &&  ( env.compilerEnv == 'UCRT64' || env.compilerEnv == 'MINGW32' ) && env.testOnpgwin == 'true' }}
+        if: ${{ env.os == 'windows-latest' &&  env.compilerClass == 'MSYS2' && env.testOnpgwin == 'true' }}
         uses: actions/cache@v3.3.1
         id: cachePGWindowsInstallerExe
         with:
@@ -382,7 +382,7 @@ jobs:
           SEGMENT_DOWNLOAD_TIMEOUT_MINS: 10
 
       - name: Cache GNU diffutils for Test on PostgreSQL for Windows
-        if: ${{ env.os == 'windows-latest' &&  ( env.compilerEnv == 'UCRT64' || env.compilerEnv == 'MINGW32' ) && env.testOnpgwin == 'true' }}
+        if: ${{ env.os == 'windows-latest' &&  env.compilerClass == 'MSYS2' && env.testOnpgwin == 'true' }}
         uses: actions/cache@v3.3.1
         id: cacheDiffutilsZip
         with:
@@ -401,28 +401,28 @@ jobs:
       #
       # five seconds
       - name: Download R for Windows R-x.y.z R-rmajor.rminor.rpatch
-        if: ${{ env.os == 'windows-latest' && ( env.compilerEnv == 'UCRT64' || env.compilerEnv == 'MINGW32' ) && steps.cacheRWindowsInstallerExe.outputs.cache-hit != 'true' }}
+        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && steps.cacheRWindowsInstallerExe.outputs.cache-hit != 'true' }}
         uses: suisei-cn/actions-download-file@v1.3.0
         id: downloadfileRforWindows
         with:
           url: ${{ env.CRAN_R_DOWNLOAD_URL }}
 
       - name: Download PostgreSQL for Windows
-        if: ${{ env.os == 'windows-latest' && ( env.compilerEnv == 'UCRT64' || env.compilerEnv == 'MINGW32' ) && env.testOnpgwin == 'true' && steps.cachePGWindowsInstallerExe.outputs.cache-hit != 'true' }}
+        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testOnpgwin == 'true' && steps.cachePGWindowsInstallerExe.outputs.cache-hit != 'true' }}
         uses: suisei-cn/actions-download-file@v1.3.0
         id: downloadfilePGforWindows
         with:
           url: ${{ env.ENTDB_PG_DOWNLOAD_URL }}
 
       - name: Download GNU diffutils for Test on PostgreSQL for Windows
-        if: ${{ env.os == 'windows-latest' && ( env.compilerEnv == 'UCRT64' || env.compilerEnv == 'MINGW32' ) && env.testOnpgwin == 'true' && steps.cacheDiffutilsZip.outputs.cache-hit != 'true' }}
+        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testOnpgwin == 'true' && steps.cacheDiffutilsZip.outputs.cache-hit != 'true' }}
         uses: suisei-cn/actions-download-file@v1.3.0
         id: downloadDiffutilsZip
         with:
           url: https://github.com/AndreMikulec/plr_meson/releases/download/0.0.0.0.0.GITHUBCACHE/diffutils-2.8.7-1-bin.zip
 
       - name: Install R for Windows R-x.y.z R-rmajor.rminor.rpatch
-        if: ${{ env.os == 'windows-latest' && ( env.compilerEnv == 'UCRT64' || env.compilerEnv == 'MINGW32' ) }}
+        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' }}
         env:
           R_HOME: ${{ env.R_HOME }}
           R_ARCHplat: ${{ env.R_ARCHplat }}
@@ -456,7 +456,7 @@ jobs:
       # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-software
       #
       - name: Enable PostgreSQL x64-14 for Windows and Start and Stop
-        if: ${{ env.os == 'windows-latest' && ( env.compilerEnv == 'UCRT64' || env.compilerEnv == 'MINGW32' ) && env.testOnpgwin == 'true' && env.VER2 == '14' && env.Platform == 'x64' }}
+        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testOnpgwin == 'true' && env.VER2 == '14' && env.Platform == 'x64' }}
         shell: cmd
         run: |
           echo on
@@ -465,7 +465,7 @@ jobs:
           net stop   postgresql-x64-14
 
       - name: Install PostgreSQL for Windows and Stop PostgreSQL
-        if: ${{ env.os == 'windows-latest' && ( env.compilerEnv == 'UCRT64' || env.compilerEnv == 'MINGW32' ) && env.testOnpgwin == 'true' &&  (( env.VER2 == '14' && env.Platform == 'x86' ) || ( env.VER2 != '14' )) }}
+        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testOnpgwin == 'true' &&  (( env.VER2 == '14' && env.Platform == 'x86' ) || ( env.VER2 != '14' )) }}
         env:
           PGVER2: ${{ env.PGVER2 }}
           PGROOT2: ${{ env.PGROOT2 }}
@@ -500,7 +500,7 @@ jobs:
       # Choco Install GNU diffutils
       # BUT the "crazy-max/ghaction-chocolatey@v2" "install diffutils" file download often times-out
       - name: Extract Diffuntils and add Diffuntils bin directory to the PATH for Test on PostgreSQL for Windows
-        if: ${{ env.os == 'windows-latest' &&  ( env.compilerEnv == 'UCRT64' || env.compilerEnv == 'MINGW32' ) && env.testOnpgwin == 'true' }}
+        if: ${{ env.os == 'windows-latest' &&  env.compilerClass == 'MSYS2' && env.testOnpgwin == 'true' }}
         shell: cmd
         run: |
           mkdir                                "C:\OTHERBIN"
@@ -515,7 +515,7 @@ jobs:
       # 34 seconds with zero packages
       # 2 minutes and seven(7) seconds with everything
       - name: Install Windows mingw Software
-        if: ${{ env.os == 'windows-latest' && ( env.compilerEnv == 'UCRT64' || env.compilerEnv == 'MINGW32' ) }}
+        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' }}
         uses: msys2/setup-msys2@v2
         with:
           msystem: ${{ env.compilerEnv }}
@@ -563,7 +563,7 @@ jobs:
             ${{ env.MINGW_PACKAGE_PREFIX }}-postgresql
 
       - name: Meson Setup Compile and Non-Meson Manual Test
-        if: ${{ env.os == 'windows-latest' && ( env.compilerEnv == 'UCRT64' || env.compilerEnv == 'MINGW32' ) }}
+        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' }}
         uses: msys2/setup-msys2@v2
         with:
           msystem: ${{ env.compilerEnv }}
@@ -886,7 +886,7 @@ jobs:
           fi
 
       - name: Upload artifacts plr.dll and plr.dll.a for export for LOCAL testing
-        if: ${{ env.os == 'windows-latest' &&  ( env.compilerEnv == 'UCRT64' || env.compilerEnv == 'MINGW32' ) && env.testOnpgwin == 'true' }}
+        if: ${{ env.os == 'windows-latest' &&  env.compilerClass == 'MSYS2' && env.testOnpgwin == 'true' }}
         uses: actions/upload-artifact@v3
         with:
           name: plr-${{ env.HEAD8_GITHUB_SHA }}-${{ env.os }}-${{ env.compilerEnv }}-${{ env.Platform }}-R${{ env.rversion }}-PG${{ env.pgversion }}
@@ -898,14 +898,14 @@ jobs:
 
 #     # BUT the "crazy-max/ghaction-chocolatey@v2" "install diffutils" file download often times-out
 #     - name: Choco Install GNU diffutils for Test on PostgreSQL for Windows
-#       if: ${{ env.os == 'windows-latest' && ( env.compilerEnv == 'UCRT64' || env.compilerEnv == 'MINGW32' ) && env.testOnpgwin == 'true' }}
+#       if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testOnpgwin == 'true' }}
 #       # Keep v2.  v2.2.0 may have connection to Sourceforge problems
 #       uses: crazy-max/ghaction-chocolatey@v2
 #       with:
 #         args: install diffutils
 
       - name: Start PostgreSQL for Windows
-        if: ${{ env.os == 'windows-latest' && ( env.compilerEnv == 'UCRT64' || env.compilerEnv == 'MINGW32' ) && env.testOnpgwin == 'true' }}
+        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testOnpgwin == 'true' }}
         env:
           PGVER2: ${{ env.PGVER2 }}
           Platform: ${{ env.Platform }}
@@ -920,7 +920,7 @@ jobs:
           if "%Platform%"=="notset" (echo Platform is not set, therefore no net start happens.)
 
       - name: Test on PostgreSQL for Windows
-        if: ${{ env.os == 'windows-latest' && ( env.compilerEnv == 'UCRT64' || env.compilerEnv == 'MINGW32' ) && env.testOnpgwin == 'true' }}
+        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testOnpgwin == 'true' }}
         env:
           R_HOME: ${{ env.R_HOME }}
           R_ARCH: ${{ env.R_ARCH }}
@@ -962,7 +962,7 @@ jobs:
           if "%ERRORLEVEL%"=="1" exit 1
 
       - name: Stop PostgreSQL for Windows
-        if: ${{ env.os == 'windows-latest' && ( env.compilerEnv == 'UCRT64' || env.compilerEnv == 'MINGW32' ) && env.testOnpgwin == 'true' }}
+        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testOnpgwin == 'true' }}
         env:
           PGVER2: ${{ env.PGVER2 }}
           Platform: ${{ env.Platform }}
