@@ -194,7 +194,7 @@ jobs:
 
           ${env:compilerEnv} = "${{ matrix.compilerEnv }}"
           if("${env:compilerEnv}" -eq ""){${env:compilerEnv} = "notset"}
-          Set-EnvVar "compiler=${env:compilerEnv}"
+          Set-EnvVar "compilerEnv=${env:compilerEnv}"
 
           echo "compilerEnv: ${env:compilerEnv}"
 
