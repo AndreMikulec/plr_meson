@@ -1,6 +1,8 @@
 name: Create PL/R using meson
 run-name: Meson Builds PL/R
-on: [push]
+# workflow_dispatch - Allows you to run this workflow manually from the Actions tab
+# https://github.com/lzh-mb-mod/RTSCamera/blob/bffdf99e9ec301b28b06d7807bc2b75bb99d8531/.github/workflows/Build.yml#L158
+on: [push, pull_request, workflow_dispatch]
 jobs:
   build_test_install:
     name: ${{ matrix.compiler }} R ${{ matrix.rversion }} ${{ matrix.os }}
