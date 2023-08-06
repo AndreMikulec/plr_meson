@@ -848,7 +848,27 @@ jobs:
           echo "rversion=${rversion}" >> ${GITHUB_ENV}
           echo "R --version rversion: ${rversion}"
 
+          #
+          # if "PostgreSQL for Windows" exists, then copy artifacts into it for future testing.
+          #
+          if [ -d "${PGROOT2}" ]
+          then
+            echo "PGROOT2 is found. Preparing PostgreSQL for Windows testing."
+            pushd     "${PG_HOME}/contribplr"
+            #
+            export PGROOT2=$(cygpath "${PGROOT2}")
 
+            echo  "cygpath PGROOT2: ${PGROOT2}"
+
+            cp ../contrib/plr/plr.dll   "${PGROOT2}/lib"
+            ls -alrt                    "${PGROOT2}/lib/plr.dll"
+            cp plr.control "${PGROOT2}/share/extension"
+            ls -alrt       "${PGROOT2}/share/extension/plr.control"
+            cp plr--*.sql  "${PGROOT2}/share/extension"
+            ls -alrt       "${PGROOT2}"/share/extension/plr--*.sql
+
+            popd # from "${PG_HOME}/contribplr"
+          fi
 
       - name: Upload artifacts plr.dll and plr.dll.a for export for LOCAL testing
         if: ${{ env.os == 'windows-latest' &&  ( env.compilerEnv == 'UCRT64' || env.compilerEnv == 'MINGW32' ) && env.testOnpgwin == 'true' }}
