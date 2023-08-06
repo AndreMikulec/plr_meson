@@ -1032,25 +1032,31 @@ jobs:
 
       - name: Download Artifact needed before Release
       # if: github.ref_type == 'tag'
-        uses: actions/download-artifact@v3.0.2
+        uses: actions/download-artifact@v3
+        id: downloadArtifact
         with:
           name: plr-${{ env.HEAD8_GITHUB_SHA }}-${{ env.os }}-${{ env.compilerEnv }}-${{ env.Platform }}-R${{ env.rversion }}-PG${{ env.pgversion }}
+          path: .
 
-      - name: Display CWD on Windows
+      - name: Display CWD contants on Windows
         if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testOnpgwin == 'true' }}
         env:
           PGVER2: ${{ env.PGVER2 }}
           Platform: ${{ env.Platform }}
         shell: cmd
         run: |
+          echo on
+          echo downloadArtifact download-path - ${{ steps.downloadArtifact.outputs.download-path }}
           dir
 
       - name: Release
         if: github.ref_type == 'tag'
-        uses: ncipollo/release-action@v1.12.0
+        uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
           replacesArtifacts: true
-          artifacts: "plr-${{ env.HEAD8_GITHUB_SHA }}-${{ env.os }}-${{ env.compilerEnv }}-${{ env.Platform }}-R${{ env.rversion }}-PG${{ env.pgversion }}.zip"
+          artifacts: |
+            ./plr-${{ env.HEAD8_GITHUB_SHA }}-${{ env.os }}-${{ env.compilerEnv }}-${{ env.Platform }}-R${{ env.rversion }}-PG${{ env.pgversion }}.zip
           token: ${{ secrets.ACTIONS_CREATE_RELEASE_REPO_SECRET }}
+
 
