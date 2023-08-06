@@ -990,8 +990,8 @@ jobs:
           rem can find PG "libraries"
           set PATH=%PG_HOME%\bin;%PATH%
 
-          rem may not need this
-          setx /M PATH   "%PATH%"
+          rem rem may not need this
+          rem setx /M PATH   "%PATH%"
 
           rem if I use chocolatey (most chocolatey programs location, but not all)
           rem set PATH="C:\ProgramData\chocolatey\bin";%PATH%
