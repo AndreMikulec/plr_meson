@@ -88,6 +88,11 @@ jobs:
           if( Test-Path "C:\Program Files\PostgreSQL\14" ) { "pg x64-14 exists."  } else {  "pg x64-14 not exists." }
           function Set-EnvVar {param($X)     Add-Content -Path ${env:GITHUB_ENV} -Value "$X"}
           #
+          ${env:HEAD8_GITHUB_SHA} = "${env:GITHUB_SHA}".SubString(0,8)
+          Set-EnvVar "HEAD8_GITHUB_SHA=${env:HEAD8_GITHUB_SHA}"
+
+          echo "HEAD8_GITHUB_SHA: ${env:HEAD8_GITHUB_SHA}"
+
           ${env:compiler} = "${{ matrix.compiler }}"
           if("${env:compiler}" -eq ""){${env:compiler} = "notset"}
           Set-EnvVar "compiler=${env:compiler}"
@@ -839,7 +844,7 @@ jobs:
         if: ${{ env.os == 'windows-latest' &&  ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) && env.testOnpgwin == 'true' }}
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ github.event.repository.name }}_${{ env.os }}_${{ env.compiler }}_${{ env.Platform }}_R${{ env.rversion }}_PG${{ env.pgversion }}
+          name: plr-${{ env.HEAD8_GITHUB_SHA }}-${{ env.os }}-${{ env.compiler }}-${{ env.Platform }}-R${{ env.rversion }}-PG${{ env.pgversion }}
           path: |
             plr.dll
             plr.dll.a
@@ -987,7 +992,7 @@ jobs:
           replacesArtifacts: true
           commit: ${{ env.USER_GITHUB_SHA }}
           tag: ${{ env.USER_GITHUB_REF_NAME }}
-          artifacts: "${{ github.event.repository.name }}_${{ env.os }}_${{ env.compiler }}_${{ env.Platform }}_R${{ env.rversion }}_PG${{ env.pgversion }}.*"
+          artifacts: "plr-${{ env.HEAD8_GITHUB_SHA }}-${{ env.os }}-${{ env.compiler }}-${{ env.Platform }}-R${{ env.rversion }}-PG${{ env.pgversion }}.*"
           token: ${{ secrets.ACTIONS_CREATE_RELEASE_REPO_SECRET }}
         env:
           USER_GITHUB_SHA: ${{ github.sha }}
