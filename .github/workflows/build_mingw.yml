@@ -872,6 +872,8 @@ jobs:
             cp    "${PG_HOME}/contrib/plr/plr.dll.a"  tmp/lib
             ls -alrt                                  tmp/lib/plr.dll.a
           fi
+          # PL/R Artifact for Release
+          7z a -r plr-artifact.zip tmp/*
 
           #
           # if "PostgreSQL for Windows" exists, then copy artifacts into it for future testing.
@@ -1030,15 +1032,7 @@ jobs:
           if "%Platform%"=="x86" (net stop postgresql-%PGVER2%)
           if "%Platform%"=="notset" (echo Platform is not set, therefore no net stop happens.)
 
-      - name: Download Artifact needed before Release
-      # if: github.ref_type == 'tag'
-        uses: actions/download-artifact@v3
-        id: downloadArtifact
-        with:
-          name: plr-${{ env.HEAD8_GITHUB_SHA }}-${{ env.os }}-${{ env.compilerEnv }}-${{ env.Platform }}-R${{ env.rversion }}-PG${{ env.pgversion }}
-          path: .
-
-      - name: Display CWD contants on Windows
+      - name: Prep Windows PL/R Artifact for Release
         if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testOnpgwin == 'true' }}
         env:
           PGVER2: ${{ env.PGVER2 }}
@@ -1046,17 +1040,18 @@ jobs:
         shell: cmd
         run: |
           echo on
-          echo downloadArtifact download-path - ${{ steps.downloadArtifact.outputs.download-path }}
-          dir
+          copy plr-artifact.zip plr-${{ env.HEAD8_GITHUB_SHA }}-${{ env.os }}-${{ env.compilerEnv }}-${{ env.Platform }}-R${{ env.rversion }}-PG${{ env.pgversion }}.zip
+          dir                   plr-${{ env.HEAD8_GITHUB_SHA }}-${{ env.os }}-${{ env.compilerEnv }}-${{ env.Platform }}-R${{ env.rversion }}-PG${{ env.pgversion }}.zip
 
-      - name: Release
+      - name: PL/R Artifact for Release
         if: github.ref_type == 'tag'
         uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
           replacesArtifacts: true
+          # means "files"
           artifacts: |
-            ./plr-${{ env.HEAD8_GITHUB_SHA }}-${{ env.os }}-${{ env.compilerEnv }}-${{ env.Platform }}-R${{ env.rversion }}-PG${{ env.pgversion }}.zip
+            plr-${{ env.HEAD8_GITHUB_SHA }}-${{ env.os }}-${{ env.compilerEnv }}-${{ env.Platform }}-R${{ env.rversion }}-PG${{ env.pgversion }}.zip
           token: ${{ secrets.ACTIONS_CREATE_RELEASE_REPO_SECRET }}
 
 
