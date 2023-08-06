@@ -28,27 +28,30 @@ jobs:
           # [build] for Windows
           # https://cran.r-project.org/bin/windows/base/R-x.y.z-win.exe
 
-          # (bleeding edge R) PL/R can not be compiled using Microsoft Visual Studio
-          - os: windows-latest
-            compilerEnv: UCRT64
-            compilerExe: gcc
-            Platform: x64
-            rversion: devel
-            R_HOME: 'D:\RINSTALL'
-            R_ARCH: /x64
-            testOnpgwin: true
-            pgwinversion: 15.3-3
+          # Posit Documentation - Posit - Install R from Source
+          # https://docs.posit.co/resources/install-r-source/
 
-          # (Current R) PL/R can not be compiled using Microsoft Visual Studio
-          - os: windows-latest
-            compilerEnv: UCRT64
-            compilerExe: gcc
-            Platform: x64
-            rversion: 4.3.1patched
-            R_HOME: 'D:\RINSTALL'
-            R_ARCH: /x64
-            testOnpgwin: true
-            pgwinversion: 15.3-3
+#         # (bleeding edge R) PL/R can not be compiled using Microsoft Visual Studio
+#         - os: windows-latest
+#           compilerEnv: UCRT64
+#           compilerExe: gcc
+#           Platform: x64
+#           rversion: devel
+#           R_HOME: 'D:\RINSTALL'
+#           R_ARCH: /x64
+#           testOnpgwin: true
+#           pgwinversion: 15.3-3
+#
+#         # (Current R) PL/R can not be compiled using Microsoft Visual Studio
+#         - os: windows-latest
+#           compilerEnv: UCRT64
+#           compilerExe: gcc
+#           Platform: x64
+#           rversion: 4.3.1patched
+#           R_HOME: 'D:\RINSTALL'
+#           R_ARCH: /x64
+#           testOnpgwin: true
+#           pgwinversion: 15.3-3
 
           # Last PL/R that can be compiled using Microsoft Visual Studio
           - os: windows-latest
@@ -61,26 +64,26 @@ jobs:
             testOnpgwin: true
             pgwinversion: 15.3-3
 
-          # Last "R for Windows" supports x86 and sub-architecture
-          - os: windows-latest
-            compilerEnv: MINGW32
-            compilerExe: gcc
-            Platform: x86
-            rversion: 4.1.3
-            R_HOME: 'D:\RINSTALL'
-            R_ARCH: /i386
-            testOnpgwin: true
-            pgwinversion: 10.23-1
-
-          # Last "R for Windows" supports x86 and single architecure
-          - os: windows-latest
-            compilerEnv: MINGW32
-            compilerExe: gcc
-            Platform: x86
-            rversion: 2.11.1
-            R_HOME: 'D:\RINSTALL'
-            testOnpgwin: true
-            pgwinversion: 10.23-1
+#         # Last "R for Windows" supports x86 and sub-architecture
+#         - os: windows-latest
+#           compilerEnv: MINGW32
+#           compilerExe: gcc
+#           Platform: x86
+#           rversion: 4.1.3
+#           R_HOME: 'D:\RINSTALL'
+#           R_ARCH: /i386
+#           testOnpgwin: true
+#           pgwinversion: 10.23-1
+#
+#         # Last "R for Windows" supports x86 and single architecure
+#         - os: windows-latest
+#           compilerEnv: MINGW32
+#           compilerExe: gcc
+#           Platform: x86
+#           rversion: 2.11.1
+#           R_HOME: 'D:\RINSTALL'
+#           testOnpgwin: true
+#           pgwinversion: 10.23-1
 
     steps:
 
@@ -930,6 +933,7 @@ jobs:
           name: plr-${{ env.HEAD8_GITHUB_SHA }}-${{ env.os }}-${{ env.compilerEnv }}-${{ env.Platform }}-R${{ env.rversion }}-PG${{ env.pgversion }}
           path: |
             tmp\*\*
+            tmp\PLR_LICENSE
 
 #     # BUT the "crazy-max/ghaction-chocolatey@v2" "install diffutils" file download often times-out
 #     - name: Choco Install GNU diffutils for Test on PostgreSQL for Windows
