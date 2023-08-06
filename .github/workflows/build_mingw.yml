@@ -101,12 +101,6 @@ jobs:
 
           echo "HEAD8_GITHUB_SHA: ${env:HEAD8_GITHUB_SHA}"
 
-          ${env:compilerEnv} = "${{ matrix.compilerEnv }}"
-          if("${env:compilerEnv}" -eq ""){${env:compilerEnv} = "notset"}
-          Set-EnvVar "compiler=${env:compilerEnv}"
-
-          echo "compilerEnv: ${env:compilerEnv}"
-
           ${env:os} = "${{ matrix.os }}"
           if("${env:os}" -eq ""){${env:os} = "notset"}
           Set-EnvVar "os=${env:os}"
@@ -188,6 +182,12 @@ jobs:
           Set-EnvVar "PG_HOME=${env:PG_HOME}"
 
           echo "PG_HOME: ${env:PG_HOME}"
+
+          ${env:compilerEnv} = "${{ matrix.compilerEnv }}"
+          if("${env:compilerEnv}" -eq ""){${env:compilerEnv} = "notset"}
+          Set-EnvVar "compiler=${env:compilerEnv}"
+
+          echo "compilerEnv: ${env:compilerEnv}"
 
           ${env:compilerClass} = "notset"
           if("${env:compilerEnv}" -in "MING64", "MINGW32", "UCRT64", "CLANG32", "CLANG64", "CLANGARM64") {
