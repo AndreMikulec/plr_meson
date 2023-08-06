@@ -53,6 +53,8 @@ jobs:
 #           testOnpgwin: true
 #           pgwinversion: 15.3-3
 
+          # TODO remove R_HOME. I can safely internally HARD CODE that.
+
           # Last PL/R that can be compiled using Microsoft Visual Studio
           - os: windows-latest
             compilerEnv: UCRT64
