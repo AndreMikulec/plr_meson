@@ -457,7 +457,7 @@ jobs:
           if "%Platform%"=="notset" (echo Platform is not set, therefore no net stop happens.)
           dir "%PGROOT2%"
 
-      # Choco Install GNU diffutils 
+      # Choco Install GNU diffutils
       # BUT the "crazy-max/ghaction-chocolatey@v2" "install diffutils" file download often times-out
       - name: Extract Diffuntils and add Diffuntils bin directory to the PATH for Test on PostgreSQL for Windows
         if: ${{ env.os == 'windows-latest' &&  ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) && env.testOnpgwin == 'true' }}
@@ -469,7 +469,8 @@ jobs:
           7z x  diffutils-2.8.7-1-bin.zip    -o"C:\OTHERBIN\diffutils"
           move  diffutils-2.8.7-1-bin.zip      "C:\OTHERBIN\diffutils"
           dir                                  "C:\OTHERBIN\diffutils"
-          printf                               "C:\OTHERBIN\diffutils\bin" >> %GITHUB_PATH%
+          rem - man7.org/linux/man-pages/man1/printf.1.html
+          printf                               "C:\\OTHERBIN\\diffutils\\bin" >> %GITHUB_PATH%
 
       # 34 seconds with zero packages
       # 2 minutes and seven(7) seconds with everything
@@ -755,13 +756,13 @@ jobs:
           then
             echo "Save plr.dll to be an artifact."
             cp    "${PG_HOME}/contrib/plr/plr.dll" .
-            ls -alrt                      plr.dll                  
+            ls -alrt                      plr.dll
           fi
           if [ -f "${PG_HOME}/contrib/plr/plr.dll" ]
           then
             echo "Save plr.dll.a to be an artifact."
             cp    "${PG_HOME}/contrib/plr/plr.dll.a" .
-            ls -alrt                      plr.dll.a                  
+            ls -alrt                      plr.dll.a
           fi
 
           #
@@ -774,7 +775,7 @@ jobs:
           if [ ! "$(uname -o)" == "Msys" ]
           then
             export winpty=""
-          fi  
+          fi
           # Some environments require it
           export PGUSER=$(whoami)
           #         # from ABOVE - should have created that PGDATA directory in $(cygpath "${GITHUB_WORKSPACE}")
@@ -899,22 +900,22 @@ jobs:
           echo Platform - %Platform%
 
           echo off
-          rem This SOULD HAVE BEEN PICKED UP
-          set PATH=C:\OTHERBIN\diffutils;%PATH%
-          echo on
           rem R     Sub-Architectures
-          if "%R_ARCH%"=="/x64"   set PATH="%R_HOME%\bin\x64;%PATH%"
-          if "%R_ARCH%"=="/i386"  set PATH="%R_HOME%\bin\i386;%PATH%"
+          if "%R_ARCH%"=="/x64"   set PATH=%R_HOME%\bin\x64;%PATH%
+          if "%R_ARCH%"=="/i386"  set PATH=%R_HOME%\bin\i386;%PATH%
           rem not R Sub-Architectures
-          if "%R_ARCH%"=="notset" set PATH="%R_HOME%\bin;%PATH%"
+          if "%R_ARCH%"=="notset" set PATH=%R_HOME%\bin;%PATH%
 
           rem can find PG "libraries"
-          set PATH="%PG_HOME%\lib;%PATH%"
+          set PATH=%PG_HOME%\lib;%PATH%
 
           rem can find PG "libraries"
-          set PATH="%PG_HOME%\bin;%PATH%"
+          set PATH=%PG_HOME%\bin;%PATH%
 
-          set PATH=C:\ProgramData\chocolatey\bin;%PATH%
+          rem if I use choclatey (most chocolatey programs, but not all)
+          rem set PATH="C:\ProgramData\chocolatey\bin";%PATH%
+
+          echo PATH - %PATH%
 
           echo on
           set PGUSER=postgres
