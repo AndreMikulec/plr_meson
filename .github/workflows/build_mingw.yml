@@ -934,20 +934,20 @@ jobs:
 #       with:
 #         args: install diffutils
 
-      - name: Start PostgreSQL for Windows
-        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testOnpgwin == 'true' }}
-        env:
-          PGVER2: ${{ env.PGVER2 }}
-          Platform: ${{ env.Platform }}
-        shell: cmd
-        run: |
-          echo on
-          echo PGVER2   - %PGVER2%
-          echo Platform - %Platform%
-          rem Need to manually start PostgreSQL
-          if "%Platform%"=="x64" (net start postgresql-x64-%PGVER2%)
-          if "%Platform%"=="x86" (net start postgresql-%PGVER2%)
-          if "%Platform%"=="notset" (echo Platform is not set, therefore no net start happens.)
+#     - name: Start PostgreSQL for Windows
+#       if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testOnpgwin == 'true' }}
+#       env:
+#         PGVER2: ${{ env.PGVER2 }}
+#         Platform: ${{ env.Platform }}
+#       shell: cmd
+#       run: |
+#         echo on
+#         echo PGVER2   - %PGVER2%
+#         echo Platform - %Platform%
+#         rem Need to manually start PostgreSQL
+#         if "%Platform%"=="x64" (net start postgresql-x64-%PGVER2%)
+#         if "%Platform%"=="x86" (net start postgresql-%PGVER2%)
+#         if "%Platform%"=="notset" (echo Platform is not set, therefore no net start happens.)
 
       - name: Test on PostgreSQL for Windows
         if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testOnpgwin == 'true' }}
@@ -957,6 +957,9 @@ jobs:
           #
           PG_HOME: ${{ env.PGROOT2 }} # different
           PGBIN2: ${{ env.PGBIN2 }}
+          #
+          PGVER2: ${{ env.PGVER2 }}
+          Platform: ${{ env.Platform }}
         shell: cmd
         run: |
           echo on
@@ -977,6 +980,7 @@ jobs:
           rem PostgreSQL for Windows, typically runs using
           rem "Operating System Account: NT AUTHORITY\NetworkService"
           rem
+          rem R_HOME must be defined in the environment of the user that starts the postmaster process.
           setx /M R_HOME "%R_HOME%"
           setx /M PATH   "%PATH%"
 
@@ -995,6 +999,13 @@ jobs:
           echo PATH - %PATH%
 
           echo on
+          echo PGVER2   - %PGVER2%
+          echo Platform - %Platform%
+          rem Need to manually start PostgreSQL
+          if "%Platform%"=="x64" (net start postgresql-x64-%PGVER2%)
+          if "%Platform%"=="x86" (net start postgresql-%PGVER2%)
+          if "%Platform%"=="notset" (echo Platform is not set, therefore no net start happens.)
+
           set PGUSER=postgres
           set PGPASSWORD=root
           "%PGBIN2%\pg_regress" --bindir="%PGBIN2%" --dbname=pl_regression plr bad_fun opt_window do out_args plr_transaction opt_window_frame || (type regression.diffs && call)
