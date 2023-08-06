@@ -912,7 +912,7 @@ jobs:
           rem can find PG "libraries"
           set PATH=%PG_HOME%\bin;%PATH%
 
-          rem if I use choclatey (most chocolatey programs, but not all)
+          rem if I use chocolatey (most chocolatey programs location, but not all)
           rem set PATH="C:\ProgramData\chocolatey\bin";%PATH%
 
           echo PATH - %PATH%
@@ -922,8 +922,6 @@ jobs:
           set PGPASSWORD=root
           "%PGBIN2%\pg_regress" --bindir="%PGBIN2%" --dbname=pl_regression plr bad_fun opt_window do out_args plr_transaction opt_window_frame || (type regression.diffs && call)
           if "%ERRORLEVEL%"=="1" exit 1
-
-
 
       - name: Stop PostgreSQL for Windows
         if: ${{ env.os == 'windows-latest' && ( env.compiler == 'UCRT64' || env.compiler == 'MINGW32' ) && env.testOnpgwin == 'true' }}
@@ -939,3 +937,17 @@ jobs:
           if "%Platform%"=="x64" (net stop postgresql-x64-%PGVER2%)
           if "%Platform%"=="x86" (net stop postgresql-%PGVER2%)
           if "%Platform%"=="notset" (echo Platform is not set, therefore no net stop happens.)
+
+      - name: Release
+        if: github.ref_type == 'tag'
+        uses: ncipollo/release-action@v1.12.0
+        with:
+          allowUpdates: true
+          replacesArtifacts: true
+          commit: ${{ env.USER_GITHUB_SHA }}
+          tag: ${{ env.USER_GITHUB_REF_NAME }}
+          artifacts: "${{ github.event.repository.name }}_${{ env.os }}_${{ env.compiler }}_${{ env.Platform }}_R${{ env.rversion }}_PG${{ env.pgversionmajor }}.*"
+          token: ${{ secrets.ACTIONS_CREATE_RELEASE_REPO_SECRET }}
+        env:
+          USER_GITHUB_SHA: ${{ github.sha }}
+          USER_GITHUB_REF_NAME: ${{ github.ref_name }}
