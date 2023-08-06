@@ -872,13 +872,26 @@ jobs:
           echo "pgversion=${pgversion}" >> ${GITHUB_ENV}
           echo "pg_config VERSION pgversion: ${pgversion}"
 
-          #
           # for artifact naming, determine the Vendor Supplied rversion
           #
+          # Pipes have been know to fail in Msys 
+          # when piping from a non-Msys program. E.g "R for Windows" 
+          #
+          # Update rversion only if an rversion is returned.
+          ${rversion_old} = ${rversion}
           export rversion=$(R --version | head --lines=1 | sed "s/R version //" | sed "s/ (.*$//")
-          # potential override
-          echo "rversion=${rversion}" >> ${GITHUB_ENV}
-          echo "R --version rversion: ${rversion}"
+          if [ ! "${rversion}" == "" ]
+          then
+            # potential override
+            echo "rversion=${rversion}" >> ${GITHUB_ENV}
+            echo "R --version rversion: ${rversion}"
+          fi
+          if [   "${rversion}" == "" ]
+          then
+            ${rversion} = ${rversion_old}
+            echo "rversion_old: ${rversion}"
+          fi
+          unset rversion_old
 
           #
           # if "PostgreSQL for Windows" exists, then copy artifacts into it for future testing.
