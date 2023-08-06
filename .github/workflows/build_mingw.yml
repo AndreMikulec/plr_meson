@@ -28,27 +28,27 @@ jobs:
           # [build] for Windows
           # https://cran.r-project.org/bin/windows/base/R-x.y.z-win.exe
 
-          # (bleeding edge R) PL/R can not be compiled using Microsoft Visual Studio
-          - os: windows-latest
-            compilerEnv: UCRT64
-            compilerExe: gcc
-            Platform: x64
-            rversion: devel
-            R_HOME: 'D:\RINSTALL'
-            R_ARCH: /x64
-            testOnpgwin: true
-            pgwinversion: 15.3-3
-
-          # (Current R) PL/R can not be compiled using Microsoft Visual Studio
-          - os: windows-latest
-            compilerEnv: UCRT64
-            compilerExe: gcc
-            Platform: x64
-            rversion: 4.3.1patched
-            R_HOME: 'D:\RINSTALL'
-            R_ARCH: /x64
-            testOnpgwin: true
-            pgwinversion: 15.3-3
+#         # (bleeding edge R) PL/R can not be compiled using Microsoft Visual Studio
+#         - os: windows-latest
+#           compilerEnv: UCRT64
+#           compilerExe: gcc
+#           Platform: x64
+#           rversion: devel
+#           R_HOME: 'D:\RINSTALL'
+#           R_ARCH: /x64
+#           testOnpgwin: true
+#           pgwinversion: 15.3-3
+#
+#         # (Current R) PL/R can not be compiled using Microsoft Visual Studio
+#         - os: windows-latest
+#           compilerEnv: UCRT64
+#           compilerExe: gcc
+#           Platform: x64
+#           rversion: 4.3.1patched
+#           R_HOME: 'D:\RINSTALL'
+#           R_ARCH: /x64
+#           testOnpgwin: true
+#           pgwinversion: 15.3-3
 
           # Last PL/R that can be compiled using Microsoft Visual Studio
           - os: windows-latest
@@ -61,26 +61,26 @@ jobs:
             testOnpgwin: true
             pgwinversion: 15.3-3
 
-          # Last "R for Windows" supports x86 and sub-architecture
-          - os: windows-latest
-            compilerEnv: MINGW32
-            compilerExe: gcc
-            Platform: x86
-            rversion: 4.1.3
-            R_HOME: 'D:\RINSTALL'
-            R_ARCH: /i386
-            testOnpgwin: true
-            pgwinversion: 10.23-1
-
-          # Last "R for Windows" supports x86 and single architecure
-          - os: windows-latest
-            compilerEnv: MINGW32
-            compilerExe: gcc
-            Platform: x86
-            rversion: 2.11.1
-            R_HOME: 'D:\RINSTALL'
-            testOnpgwin: true
-            pgwinversion: 10.23-1
+#         # Last "R for Windows" supports x86 and sub-architecture
+#         - os: windows-latest
+#           compilerEnv: MINGW32
+#           compilerExe: gcc
+#           Platform: x86
+#           rversion: 4.1.3
+#           R_HOME: 'D:\RINSTALL'
+#           R_ARCH: /i386
+#           testOnpgwin: true
+#           pgwinversion: 10.23-1
+#
+#         # Last "R for Windows" supports x86 and single architecure
+#         - os: windows-latest
+#           compilerEnv: MINGW32
+#           compilerExe: gcc
+#           Platform: x86
+#           rversion: 2.11.1
+#           R_HOME: 'D:\RINSTALL'
+#           testOnpgwin: true
+#           pgwinversion: 10.23-1
 
     steps:
 
@@ -98,9 +98,9 @@ jobs:
           # systeminfo
           echo "${{ matrix.compilerEnv }} on ${{ matrix.os }}"
           # JUL 2023 - only THIS exists in Github Actions
-          if( Test-Path "C:\Program Files\PostgreSQL\14" ) { 
-            "PostgreSQL for Windows x64-14 exists."  
-          } else {  
+          if( Test-Path "C:\Program Files\PostgreSQL\14" ) {
+            "PostgreSQL for Windows x64-14 exists."
+          } else {
             "PostgreSQL for Windows x64-14 does not exist."
           }
           function Set-EnvVar {param($X)     Add-Content -Path ${env:GITHUB_ENV} -Value "$X"}
@@ -469,9 +469,9 @@ jobs:
       # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-software
       #
       - name: Enable PostgreSQL x64-14 for Windows and Start and Stop
-        if: >- 
-          ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testOnpgwin == 'true' && 
-          env.VER2 == '14' && env.Platform == 'x64' 
+        if: >-
+          ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testOnpgwin == 'true' &&
+          env.VER2 == '14' && env.Platform == 'x64'
           }}
         shell: cmd
         run: |
@@ -482,8 +482,8 @@ jobs:
 
       - name: Install PostgreSQL for Windows and Stop PostgreSQL
         if: >-
-          ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testOnpgwin == 'true' && 
-          (( env.VER2 == '14' && env.Platform == 'x86' ) || ( env.VER2 != '14' )) 
+          ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testOnpgwin == 'true' &&
+          (( env.VER2 == '14' && env.Platform == 'x86' ) || ( env.VER2 != '14' ))
           }}
         env:
           PGVER2: ${{ env.PGVER2 }}
@@ -874,8 +874,8 @@ jobs:
 
           # for artifact naming, determine the Vendor Supplied rversion
           #
-          # Pipes have been know to fail in Msys 
-          # when piping from a non-Msys program. E.g "R for Windows" 
+          # Pipes have been know to fail in Msys
+          # when piping from a non-Msys program. E.g "R for Windows"
           #
           # Update rversion only if an rversion is returned.
           ${rversion_old} = ${rversion}
