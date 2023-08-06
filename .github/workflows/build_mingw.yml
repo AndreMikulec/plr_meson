@@ -811,6 +811,12 @@ jobs:
           popd # from "${PG_HOME}/contribplr"
 
           #
+          # Stop the cluster after
+          # the non-setup regression test (see FAR above).
+          #
+          pg_ctl -D PGDATA -l logfile stop
+
+          #
           # save artifacts
           #
           if [ -f "${PG_HOME}/contrib/plr/plr.dll" ]
@@ -842,11 +848,7 @@ jobs:
           echo "rversion=${rversion}" >> ${GITHUB_ENV}
           echo "R --version rversion: ${rversion}"
 
-          #
-          # Stop the cluster after
-          # the non-setup regression test (see FAR above).
-          #
-          pg_ctl -D PGDATA -l logfile stop
+
 
       - name: Upload artifacts plr.dll and plr.dll.a for export for LOCAL testing
         if: ${{ env.os == 'windows-latest' &&  ( env.compilerEnv == 'UCRT64' || env.compilerEnv == 'MINGW32' ) && env.testOnpgwin == 'true' }}
