@@ -38,7 +38,7 @@ jobs:
             R_ARCH: /x64
             testOnpgwin: true
             pgwinversion: 15.3-3
- 
+
           # (Current R) PL/R can not be compiled using Microsoft Visual Studio
           - os: windows-latest
             compilerEnv: UCRT64
@@ -71,7 +71,7 @@ jobs:
             R_ARCH: /i386
             testOnpgwin: true
             pgwinversion: 10.23-1
- 
+
           # Last "R for Windows" supports x86 and single architecure
           - os: windows-latest
             compilerEnv: MINGW32
@@ -522,7 +522,7 @@ jobs:
         if: ${{ env.os == 'windows-latest' &&  env.compilerClass == 'MSYS2' && env.testOnpgwin == 'true' }}
         shell: cmd
         run: |
-          mkdir                                "C:\OTHERBIN"
+          rem MKDIR creates any intermediate directories in the path, if needed.
           mkdir                                "C:\OTHERBIN\diffutils"
           rem 7z is provided by Github Actions
           7z x  diffutils-2.8.7-1-bin.zip    -o"C:\OTHERBIN\diffutils"
@@ -854,28 +854,58 @@ jobs:
           if [ -f "${PG_HOME}/contrib/plr/plr.dll" ]
           then
             echo "Save plr.dll to be an artifact."
-            cp    "${PG_HOME}/contrib/plr/plr.dll" .
-            ls -alrt                      plr.dll
+            mkdir -p                                tmp/lib
+            cp    LICENSE                           tmp/PLR_LICENSE
+            cp    "${PG_HOME}/contrib/plr/plr.dll"  tmp/lib
+            ls -alrt                                tmp/lib/plr.dll
+            mkdir -p                                tmp/share/extension
+            cp    *.control                         tmp/share/extension
+            cp    *.sql                             tmp/share/extension
           fi
-          if [ -f "${PG_HOME}/contrib/plr/plr.dll" ]
+          if [ -f "${PG_HOME}/contrib/plr/plr.dll.a" ]
           then
             echo "Save plr.dll.a to be an artifact."
-            cp    "${PG_HOME}/contrib/plr/plr.dll.a" .
-            ls -alrt                      plr.dll.a
+            mkdir -p                                  tmp/lib
+            cp    "${PG_HOME}/contrib/plr/plr.dll.a"  tmp/lib
+            ls -alrt                                  tmp/lib/plr.dll.a
           fi
 
           #
-          # for artifact naming, determine the Vendor Supplied pgversion
+          # if "PostgreSQL for Windows" exists, then copy artifacts into it for future testing.
+          #
+          if [ -d "${PGROOT2}" ]
+          then
+            if [ -f "${PG_HOME}/contrib/plr/plr.dll" ]
+            then
+              echo "PGROOT2 is found. Preparing PostgreSQL for Windows testing."
+              # pushd "${PG_HOME}/contribplr"
+              #
+              export PGROOT2=$(cygpath "${PGROOT2}")
+              echo  "cygpath PGROOT2: ${PGROOT2}"
+
+              cp  "${PG_HOME}/contrib/plr/plr.dll"   "${PGROOT2}/lib"
+              ls -alrt                               "${PGROOT2}/lib/plr.dll"
+              cp plr.control                         "${PGROOT2}/share/extension"
+              ls -alrt                               "${PGROOT2}/share/extension/plr.control"
+              cp plr--*.sql                          "${PGROOT2}/share/extension"
+              ls -alrt                               "${PGROOT2}"/share/extension/plr--*.sql
+
+              # popd # from "${PG_HOME}/contribplr"
+            fi
+          fi
+
+          #
+          # For artifact naming, determine the Vendor Supplied pgversion.
           #
           export pgversion=$(pg_config | grep "^VERSION" | sed "s/ = /=/" | sed "s/^.*=//" | grep -oP '[ ].*$' | grep -oP '\d.*$')
           # potential override
           echo "pgversion=${pgversion}" >> ${GITHUB_ENV}
           echo "pg_config VERSION pgversion: ${pgversion}"
 
-          # for artifact naming, determine the Vendor Supplied rversion
+          # For artifact naming, determine the Vendor Supplied rversion.
           #
-          # Pipes have been know to fail in Msys
-          # when piping from a non-Msys program. E.g "R for Windows"
+          # Pipes have been known to fail in Msys
+          # when piping from a non-Msys program. E.g "R for Windows".
           #
           # Update rversion only if an rversion is returned.
           export rversion_old=${rversion}
@@ -893,38 +923,13 @@ jobs:
           fi
           unset rversion_old
 
-          #
-          # if "PostgreSQL for Windows" exists, then copy artifacts into it for future testing.
-          #
-          if [ -d "${PGROOT2}" ]
-          then
-            echo "PGROOT2 is found. Preparing PostgreSQL for Windows testing."
-            pushd     "${PG_HOME}/contribplr"
-            #
-            export PGROOT2=$(cygpath "${PGROOT2}")
-
-            echo  "cygpath PGROOT2: ${PGROOT2}"
-
-            cp ../contrib/plr/plr.dll   "${PGROOT2}/lib"
-            ls -alrt                    "${PGROOT2}/lib/plr.dll"
-            cp plr.control "${PGROOT2}/share/extension"
-            ls -alrt       "${PGROOT2}/share/extension/plr.control"
-            cp plr--*.sql  "${PGROOT2}/share/extension"
-            ls -alrt       "${PGROOT2}"/share/extension/plr--*.sql
-
-            popd # from "${PG_HOME}/contribplr"
-          fi
-
       - name: Upload artifacts plr.dll and plr.dll.a for export for LOCAL testing
         if: ${{ env.os == 'windows-latest' &&  env.compilerClass == 'MSYS2' && env.testOnpgwin == 'true' }}
         uses: actions/upload-artifact@v3
         with:
           name: plr-${{ env.HEAD8_GITHUB_SHA }}-${{ env.os }}-${{ env.compilerEnv }}-${{ env.Platform }}-R${{ env.rversion }}-PG${{ env.pgversion }}
           path: |
-            plr.dll
-            plr.dll.a
-            plr.control
-            LICENSE
+            tmp\*\*
 
 #     # BUT the "crazy-max/ghaction-chocolatey@v2" "install diffutils" file download often times-out
 #     - name: Choco Install GNU diffutils for Test on PostgreSQL for Windows
@@ -989,7 +994,7 @@ jobs:
 
           echo M_PATH - %PATH%
 
-          rem pg_regress in the PATH
+          rem Put pg_regress in the local PATH.
           set PATH=%PG_HOME%\bin;%PATH%
 
           echo on
