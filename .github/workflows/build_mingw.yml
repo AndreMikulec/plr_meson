@@ -878,7 +878,7 @@ jobs:
           # when piping from a non-Msys program. E.g "R for Windows"
           #
           # Update rversion only if an rversion is returned.
-          ${rversion_old}=${rversion}
+          export rversion_old=${rversion}
           export rversion=$(R --version | head --lines=1 | sed "s/R version //" | sed "s/ (.*$//")
           if [ ! "${rversion}" == "" ]
           then
@@ -888,7 +888,7 @@ jobs:
           fi
           if [   "${rversion}" == "" ]
           then
-            ${rversion}=${rversion_old}
+            export rversion=${rversion_old}
             echo "rversion_old: ${rversion}"
           fi
           unset rversion_old
