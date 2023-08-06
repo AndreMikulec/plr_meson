@@ -1,5 +1,5 @@
-name: Meson Builds PL/R
-run-name: Testing Creating PL/R using meson
+name: Create PL/R using meson
+run-name: Meson Builds PL/R
 on: [push]
 jobs:
   build_test_install:
