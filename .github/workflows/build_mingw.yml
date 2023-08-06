@@ -979,24 +979,18 @@ jobs:
 
           rem PostgreSQL for Windows, typically runs using
           rem "Operating System Account: NT AUTHORITY\NetworkService"
-          rem
           rem R_HOME must be defined in the environment of the user that starts the postmaster process.
-          setx /M R_HOME "%R_HOME%"
-          setx /M PATH   "%PATH%"
-
-          rem can find PG "libraries"
-          set PATH=%PG_HOME%\lib;%PATH%
-
-          rem can find PG "libraries"
-          set PATH=%PG_HOME%\bin;%PATH%
-
-          rem rem may not need this
-          rem setx /M PATH   "%PATH%"
 
           rem if I use chocolatey (most chocolatey programs location, but not all)
           rem set PATH="C:\ProgramData\chocolatey\bin";%PATH%
 
-          echo PATH - %PATH%
+          setx /M R_HOME "%R_HOME%"
+          setx /M PATH   "%PATH%"
+
+          echo M_PATH - %PATH%
+
+          rem pg_regress in the PATH
+          set PATH=%PG_HOME%\bin;%PATH%
 
           echo on
           echo PGVER2   - %PGVER2%
