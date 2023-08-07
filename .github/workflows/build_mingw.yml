@@ -415,19 +415,10 @@ jobs:
           path: PGSOURCE
 
       - name: Windows Move PostgreSQL Code
-        if: ${{ env.os == 'windows-latest' }}
-        shell: cmd
+        if: ${{ env.os == 'windows-latest' && env.PG_SOURCE != 'notset' }}
         run: |
-          # https://stackoverflow.com/questions/10155420/recursive-move-command-on-windows
-          echo on
-          mkdir             ${{ env.PG_SOURCE }}
-          cd    PGSOURCE
-          for    %%i in (*) do move "%%i"  ${{ env.PG_SOURCE }}
-          for /d %%i in (*) do move "%%i"  ${{ env.PG_SOURCE }}
-          cd ..
-          rmdir PGSOURCE
-          dir                              ${{ env.PG_SOURCE }}
-
+          Move-Item -Path PGSOURCE -Destination ${{ env.PG_SOURCE }}
+          Get-ChildItem                         ${{ env.PG_SOURCE }}
 
 #       # running Meson on GitHub Actions will end up using GCC rather than MSVC
 #       #
