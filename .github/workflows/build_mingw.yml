@@ -2,6 +2,14 @@ name: Create PL/R using meson
 run-name: Meson Builds PL/R
 # workflow_dispatch - Allows you to run this workflow manually from the Actions tab
 # https://github.com/lzh-mb-mod/RTSCamera/blob/bffdf99e9ec301b28b06d7807bc2b75bb99d8531/.github/workflows/Build.yml#L158
+#
+# TODO - simplify some of my convolution
+# 7 GITHUB ACTIONS TRICKS I WISH I KNEW BEFORE I STARTED
+# December 3, 2021
+# Yonatan Kra
+# 
+# https://yonatankra.com/7-github-actions-tricks-i-wish-i-knew-before-i-started/
+#
 on: [push, pull_request, workflow_dispatch]
 jobs:
   build_test_install:
@@ -28,6 +36,7 @@ jobs:
           # [build] for Windows
           # https://cran.r-project.org/bin/windows/base/R-x.y.z-win.exe
 
+          # TODO - Install R from Source
           # Posit Documentation - Posit - Install R from Source
           # https://docs.posit.co/resources/install-r-source/
 
@@ -367,6 +376,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Checkout PostgreSQL Code
+        if: ${{ env.pgsrcversion != 'notset' }}
         uses: actions/checkout@v3
         with:
           repository: 'postgres/postgres'
