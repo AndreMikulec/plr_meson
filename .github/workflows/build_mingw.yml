@@ -663,8 +663,6 @@ jobs:
             ${{ env.MINGW_PACKAGE_PREFIX }}-postgresql
 
 
-./configure --enable-depend --disable-rpath --without-icu --prefix=${pgroot}
-
       - name: Meson PL/R Setup Compile and Non-Meson Manual Test
         if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' }}
         uses: msys2/setup-msys2@v2
