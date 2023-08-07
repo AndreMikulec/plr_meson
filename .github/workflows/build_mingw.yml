@@ -377,7 +377,16 @@ jobs:
           # REL_15_STABLE
           #
           ref: 'REL_16_BETA2'
-          path: '/d/PGSOURCE'
+          # Relative path under $GITHUB_WORKSPACE to place the repository
+          path: 'PGSOURCE'
+
+      - name: Windows Move PostgreSQL Code
+        if: ${{ env.os == 'windows-latest' }}
+        shell: cmd
+        run: |
+          echo on
+          move PGSOURCE "D:\"
+          dir           "D:\PGSOURCE"
 
 #       # running Meson on GitHub Actions will end up using GCC rather than MSVC
 #       #
