@@ -388,7 +388,7 @@ jobs:
           # REL_16_STABLE
           # REL_15_STABLE
           #
-          ref: 'REL_10_23'
+          ref: '02991e79f8f58bc208f05dcc8af0c62dbe0a6ea4'
           # Relative path under $GITHUB_WORKSPACE to place the repository
           path: 'PGSOURCE'
 
