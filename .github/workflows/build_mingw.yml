@@ -730,6 +730,9 @@ jobs:
             echo "cygpath PG_HOME: ${PG_HOME}"
 
           fi
+          
+          which pg_config
+          if [ "$?" == "1" ]; then echo ERROR - No pg_config found; exit 1;fi
 
           # had been already on the PATH
           export BINDIR=$(pg_config | grep "^BINDIR" | sed "s/ = /=/" | sed "s/^.*=//")
