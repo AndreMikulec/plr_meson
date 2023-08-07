@@ -418,11 +418,15 @@ jobs:
         if: ${{ env.os == 'windows-latest' }}
         shell: cmd
         run: |
+          # https://stackoverflow.com/questions/10155420/recursive-move-command-on-windows
           echo on
           mkdir             ${{ env.PG_SOURCE }}
-          move  PGSOURCE\*  ${{ env.PG_SOURCE }}
+          cd    PGSOURCE
+          for    %%i in (*) do move "%%i"  ${{ env.PG_SOURCE }}
+          for /d %%i in (*) do move "%%i"  ${{ env.PG_SOURCE }}
+          cd ..
           rmdir PGSOURCE
-          dir               ${{ env.PG_SOURCE }}
+          dir                              ${{ env.PG_SOURCE }}
 
 
 #       # running Meson on GitHub Actions will end up using GCC rather than MSVC
