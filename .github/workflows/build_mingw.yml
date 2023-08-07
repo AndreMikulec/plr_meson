@@ -46,16 +46,16 @@ jobs:
           # xx TODO remove R_HOME. I can safely internally HARD CODE that. xx - Please KEEP #
 
 #         # (bleeding edge R) PL/R can not be compiled using Microsoft Visual Studio
-#         - os: windows-latest
-#           compilerEnv: UCRT64
-#           compilerExe: gcc
-#           Platform: x64
-#           rversion: devel
-#           R_HOME: 'D:\RINSTALL'
-#           R_ARCH: /x64
-#           pgwinversion: 15.3-3
-#           #
-#           testOnpgwin: true
+          - os: windows-latest
+            compilerEnv: UCRT64
+            compilerExe: gcc
+            Platform: x64
+            rversion: devel
+            R_HOME: 'D:\RINSTALL'
+            R_ARCH: /x64
+            #
+            pgwinversion: 15.3-3
+            testOnpgwin: true
 #
 #         # (Current R) PL/R can not be compiled using Microsoft Visual Studio
 #         - os: windows-latest
@@ -65,8 +65,8 @@ jobs:
 #           rversion: 4.3.1patched
 #           R_HOME: 'D:\RINSTALL'
 #           R_ARCH: /x64
-#           pgwinversion: 15.3-3
 #           #
+#           pgwinversion: 15.3-3
 #           testOnpgwin: true
 
           # Last PL/R that can be compiled using Microsoft Visual Studio
@@ -77,8 +77,8 @@ jobs:
 #           rversion: 4.2.3
 #           R_HOME: 'D:\RINSTALL'
 #           R_ARCH: /x64
-#           pgwinversion: 15.3-3
 #           #
+#           pgwinversion: 15.3-3
 #           testOnpgwin: true
 
 #         # Last "R for Windows" supports x86 and sub-architecture
@@ -89,13 +89,12 @@ jobs:
             rversion: 4.1.3
             R_HOME: 'D:\RINSTALL'
             R_ARCH: /i386
-            pgwinversion: 10.23-1
-            # above xor below (not both)
             #             REL_10_23  
             pgsrcversion: 02991e79f8f58bc208f05dcc8af0c62dbe0a6ea4
             PG_SOURCE: 'D:\PGSOURCE'
             PG_HOME: 'D:\PGINSTALL'
             #
+            pgwinversion: 10.23-1
             testOnpgwin: true
 
 #         # Last "R for Windows" supports x86 and single architecure
@@ -105,8 +104,8 @@ jobs:
 #           Platform: x86
 #           rversion: 2.11.1
 #           R_HOME: 'D:\RINSTALL'
-#           pgwinversion: 10.23-1
 #           #
+#           pgwinversion: 10.23-1
 #           testOnpgwin: true
 
     steps:
@@ -698,6 +697,13 @@ jobs:
           # user supplied variable
           echo "cygpath R_HOME: ${R_HOME}"
 
+         # PATHs are needed for the proper compile and runtime
+          # find "libraries"
+          # R Non-Sub-Architectures
+          export PATH="${R_HOME}/bin:${PATH}"
+          # R    Sub-Architectures
+          export PATH="${R_HOME}/bin${R_ARCH}:${PATH}"
+
           if [ "${rversion}" == "notset" ] || [ "${rversion}" == "" ]
           then
             echo "One must set rversion=value"
@@ -706,20 +712,44 @@ jobs:
 
           echo "rversion: ${rversion}"
 
-          if [ "${PG_HOME}" == "notset" ]; then export PG_HOME=""; fi
-          if [ ! "${PG_HOME}" == "" ]; then export PG_HOME=$(cygpath "${PG_HOME}"); fi
+          #
+          # Trying smartly and hard to find the PG_HOME
+          #
+          if [   "${PG_HOME}" == "notset" ]; then export PG_HOME=""; fi
+          if [ ! "${PG_HOME}" == ""       ]
+          then 
+            export PG_HOME=$(cygpath "${PG_HOME}")
 
-          # user supplied variable
-          echo "cygpath PG_HOME: ${PG_HOME}"
+            # can find PG "libraries"
+            export PATH="${PG_HOME}/lib:${PATH}"
+            #
+            # can find PG "libraries" (and the CORRECT pg_config is found)
+            export PATH="${PG_HOME}/bin:${PATH}"
 
+            # user supplied variable
+            echo "cygpath PG_HOME: ${PG_HOME}"
+
+          fi
+
+          # had been already on the PATH
           export BINDIR=$(pg_config | grep "^BINDIR" | sed "s/ = /=/" | sed "s/^.*=//")
           export BINDIR=$(cygpath $(cygpath -wl "${BINDIR}"))
 
           echo "pg_config BINDIR: ${BINDIR}"
 
-          if [   "${PG_HOME}" == "" ]; then export PG_HOME=$(dirname "${BINDIR}"); fi
+          if [ "${PG_HOME}" == "" ]
+          then 
+            export PG_HOME=$(dirname "${BINDIR}")
 
-          echo "pg_config PG_HOME: ${PG_HOME}"
+            # can find PG "libraries"
+            export PATH="${PG_HOME}/lib:${PATH}"
+            #
+            # can find PG "libraries" (and the CORRECT pg_config is found)
+            export PATH="${PG_HOME}/bin:${PATH}"
+
+            # found variable
+            echo "pg_config PG_HOME: ${PG_HOME}"
+          fi
 
           export PKGLIBDIR=$(pg_config | grep "^PKGLIBDIR" | sed "s/ = /=/" | sed "s/^.*=//")
           export PKGLIBDIR=$(cygpath $(cygpath -wl "${PKGLIBDIR}"))
@@ -730,19 +760,6 @@ jobs:
           export SHAREDIR=$(cygpath $(cygpath -wl "${SHAREDIR}"))
 
           echo "pg_config SHAREDIR: ${SHAREDIR}"
-
-          # PATHs are needed for the proper compile and runtime
-          # find "libraries"
-          # R Non-Sub-Architectures
-          export PATH="${R_HOME}/bin:${PATH}"
-          # R    Sub-Architectures
-          export PATH="${R_HOME}/bin${R_ARCH}:${PATH}"
-
-          # can find PG "libraries"
-          export PATH="${PG_HOME}/lib:${PATH}"
-          #
-          # can find PG "libraries"
-          export PATH="${PG_HOME}/bin:${PATH}"
 
           echo "PKG_CONFIG_PATH: ${PKG_CONFIG_PATH}"
           echo "PKG_CONFIG_SYSTEM_INCLUDE_PATH: ${PKG_CONFIG_SYSTEM_INCLUDE_PATH}"
