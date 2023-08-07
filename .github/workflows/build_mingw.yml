@@ -90,6 +90,8 @@ jobs:
             # above xor below (not both)
             #             REL_10_23  
             pgsrcversion: 02991e79f8f58bc208f05dcc8af0c62dbe0a6ea4
+            PG_SOURCE: 'D:\PGSOURCE'
+            PG_HOME: 'D:\PGINSTALL'
             #
             testOnpgwin: true
 
@@ -204,12 +206,6 @@ jobs:
 
           echo "R_ARCH: ${env:R_ARCH}"
 
-          ${env:PG_HOME} = "${{ matrix.PG_HOME }}"
-          if("${env:PG_HOME}" -eq ""){${env:PG_HOME} = "notset"}
-          Set-EnvVar "PG_HOME=${env:PG_HOME}"
-
-          echo "PG_HOME: ${env:PG_HOME}"
-
           ${env:compilerEnv} = "${{ matrix.compilerEnv }}"
           if("${env:compilerEnv}" -eq ""){${env:compilerEnv} = "notset"}
           Set-EnvVar "compilerEnv=${env:compilerEnv}"
@@ -257,11 +253,23 @@ jobs:
 
           echo "R_ARCHplat: ${env:R_ARCHplat}"
 
+          ${env:PG_SOURCE} = "${{ matrix.PG_SOURCE }}"
+          if("${env:PG_SOURCE}" -eq ""){${env:PG_SOURCE} = "notset"}
+          Set-EnvVar "PG_SOURCE=${env:PG_SOURCE}"
+
+          echo "PG_SOURCE: ${env:PG_SOURCE}"
+
           ${env:pgsrcversion} = "${{ matrix.pgsrcversion }}"
           if("${env:pgsrcversion}" -eq ""){${env:pgsrcversion} = "notset"}
           Set-EnvVar "pgsrcversion=${env:pgsrcversion}"
 
           echo "pgsrcversion: ${env:pgsrcversion}"
+
+          ${env:PG_HOME} = "${{ matrix.PG_HOME }}"
+          if("${env:PG_HOME}" -eq ""){${env:PG_HOME} = "notset"}
+          Set-EnvVar "PG_HOME=${env:PG_HOME}"
+
+          echo "PG_HOME: ${env:PG_HOME}"
 
           ${env:testOnpgwin} = "${{ matrix.testOnpgwin }}"
           if("${env:testOnpgwin}" -eq ""){${env:testOnpgwin} = "notset"}
@@ -404,15 +412,18 @@ jobs:
           #
           ref: '02991e79f8f58bc208f05dcc8af0c62dbe0a6ea4'
           # Relative path under $GITHUB_WORKSPACE to place the repository
-          path: 'PGSOURCE'
+          path: PGSOURCE
 
       - name: Windows Move PostgreSQL Code
         if: ${{ env.os == 'windows-latest' }}
         shell: cmd
         run: |
           echo on
-          move PGSOURCE "D:\"
-          dir           "D:\PGSOURCE"
+          mkdir             ${{ env.PG_SOURCE }}
+          move  PGSOURCE\*  ${{ env.PG_SOURCE }}
+          rmdir PGSOURCE
+          dir               ${{ env.PG_SOURCE }}
+
 
 #       # running Meson on GitHub Actions will end up using GCC rather than MSVC
 #       #
@@ -651,7 +662,10 @@ jobs:
             ${{ env.MINGW_PACKAGE_PREFIX }}-lz4
             ${{ env.MINGW_PACKAGE_PREFIX }}-postgresql
 
-      - name: Meson Setup Compile and Non-Meson Manual Test
+
+./configure --enable-depend --disable-rpath --without-icu --prefix=${pgroot}
+
+      - name: Meson PL/R Setup Compile and Non-Meson Manual Test
         if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' }}
         uses: msys2/setup-msys2@v2
         with:
