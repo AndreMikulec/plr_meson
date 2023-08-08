@@ -45,6 +45,25 @@ jobs:
 
           # xx TODO remove R_HOME. I can safely internally HARD CODE that. xx - Please KEEP #
 
+          # Cheat - Look here to find the 
+          # MSys "windows", Cygwin "cygwin", Windows "windows" 
+          # MacOS, and Ubuntu Linux, repository current "pgversion"s
+          # 
+          # https://packages.msys2.org/package/mingw-w64-ucrt-x86_64-postgresql
+          # https://packages.msys2.org/package/mingw-w64-i686-postgresql
+          # https://www.cygwin.com/packages/summary/postgresql.html
+          #
+          # PostgreSQL for Windows
+          # https://github.com/actions/runner-images/blob/main/images/win/Windows2022-Readme.md
+          #
+          # MacOS (Homebrew)
+          # https://github.com/actions/runner-images/blob/main/images/macos/macos-12-Readme.md
+
+          # Ubuntu Linux
+          # https://github.com/actions/runner-images/blob/main/images/linux/Ubuntu2204-Readme.md
+          # # https://github.com/actions/runner-images
+          #
+
 #         # (bleeding edge R) PL/R can not be compiled using Microsoft Visual Studio
           - os: windows-latest
             compilerEnv: UCRT64
@@ -660,8 +679,8 @@ jobs:
             ${{ env.MINGW_PACKAGE_PREFIX }}-postgresql
 
 
-      - name: Make PG Compile To PG_HOME ${PG_HOME} pgsrcversion ${pgsrcversion}
-        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.PG_HOME != 'none' }}
+      - name: Make PG Compile To PG_HOME pgsrcversion 
+        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.PG_HOME != 'notset' }}
         uses: msys2/setup-msys2@v2
         with:
           msystem: ${{ env.compilerEnv }}
