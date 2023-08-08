@@ -1,8 +1,6 @@
 name: Create PL/R using meson
 run-name: Meson Builds PL/R
-#
-# LEFT OFF - compile PG from source - ./configure ,make, make install
-#
+
 # workflow_dispatch - Allows you to run this workflow manually from the Actions tab
 # https://github.com/lzh-mb-mod/RTSCamera/blob/bffdf99e9ec301b28b06d7807bc2b75bb99d8531/.github/workflows/Build.yml#L158
 #
@@ -13,6 +11,13 @@ run-name: Meson Builds PL/R
 #
 # https://yonatankra.com/7-github-actions-tricks-i-wish-i-knew-before-i-started/
 #
+# TODO
+# STILL install from chocolatey diff
+# BUT CACHE IT
+#
+# C:\ProgramData\chocolatey\bin\diff.exe
+#
+
 on: [push, pull_request, workflow_dispatch]
 jobs:
   build_test_install:
@@ -72,8 +77,6 @@ jobs:
             rversion: devel
             R_HOME: 'D:\RINSTALL'
             R_ARCH: /x64
-            # optional if using the default Msys UCRT repository PG_HOME C:\msys64\ucrt64
-            PG_HOME: 'C:\msys64\ucrt64'
             #
             pgwinversion: 15.3-3
             testOnpgwin: true
@@ -682,8 +685,11 @@ jobs:
             ${{ env.MINGW_PACKAGE_PREFIX }}-postgresql
 
 
-      - name: Make PG Compile PG_HOME pgsrcversion
-        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.PG_HOME != 'notset' }}
+      - name: Make PG Compile from pgsrcversion and PG_SOURCE and [here] PG_HOME
+        if: >-
+          ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' &&
+          env.pgsrcversion != 'notset' && env.PG_SOURCE != 'notset' env.PG_HOME != 'notset'
+          }}
         uses: msys2/setup-msys2@v2
         with:
           msystem: ${{ env.compilerEnv }}
@@ -693,7 +699,7 @@ jobs:
           PG_SOURCE: ${{ env.PG_SOURCE }}
           PG_HOME: ${{ env.PG_HOME }}
         run: |
-          echo "Make PG Build and Iinstall"
+          echo "Make PG Compile PG_HOME pgsrcversion"
           set -x -v -e
 
           # Msys
@@ -706,77 +712,53 @@ jobs:
           echo "PG_SOURCE:    ${PG_SOURCE}"
           echo "PG_HOME:      ${PG_HOME}"
 
-          export ignore_the_rest="none"
-          export ignore_the_rest="false"
           if [ "${pgsrcversion}" == "notset" ] || [ "${pgsrcversion}" == "" ]
           then
-            if [ "${PG_SOURCE}" == "notset" ] || [ "${PG_SOURCE}" == "" ]
-            then
-              if [ "${PG_HOME}" != "notset" ] && [ "${PG_HOME}" != "" ]
-              then
-                export PG_HOME=$(cygpath "${PG_HOME}")
-                echo  "cygpath   PG_HOME: ${PG_HOME}"
-              fi
-              if [ -d "${PG_HOME}" ] && [ -f "${PG_HOME}/bin/pg_config" ]
-              then
-                echo "You must want to use the PG install"
-                echo "that already exists here. ${PG_HOME} Using . . ."
-                export pgversion=$(pg_config | grep "^VERSION" | sed "s/ = /=/" | sed "s/^.*=//" | grep -oP '[ ].*$' | grep -oP '\d.*$')
-                echo "Detected pgversion: ${pgversion}"
-                export ignore_the_rest="true"
-              fi
-            fi
+            echo "One must set pgsrcversion=value"
+            exit 1
           fi
 
-          if [ "${ignore_the_rest}" == "true" ]
+          if [ "${PG_SOURCE}" == "notset" ] || [ "${PG_SOURCE}" == "" ]
           then
-            if [ "${pgsrcversion}" == "notset" ] || [ "${pgsrcversion}" == "" ]
-            then
-              echo "One must set pgsrcversion=value"
-              exit 1
-            fi
+            echo "One must set PG_SOURCE=value"
+            exit 1
+          fi
 
-            if [ "${PG_SOURCE}" == "notset" ] || [ "${PG_SOURCE}" == "" ]
-            then
-              echo "One must set PG_SOURCE=value"
-              exit 1
-            fi
+          export PG_SOURCE=$(cygpath "${PG_SOURCE}")
+          echo  "cygpath PG_SOURCE: ${PG_SOURCE}"
 
-            export PG_SOURCE=$(cygpath "${PG_SOURCE}")
-            echo  "cygpath PG_SOURCE: ${PG_SOURCE}"
+          if [ ! -d "${PG_SOURCE}" ]
+          then
+            echo "Missing already-existing PG source code directory: ${PG_SOURCE}"
+            echo "Did you download the source code from Github?"
+            exit 1
+          fi
 
-            if [ ! -d "${PG_SOURCE}" ]
-            then
-              echo "Missing already-existing PG source code directory: ${PG_SOURCE}"
-              exit 1
-            fi
+          if [ "${PG_HOME}" == "notset" ] || [ "${PG_HOME}" == "" ]
+          then
+            echo "One must set PG_HOME=value"
+            exit 1
+          fi
 
-            if [ "${PG_HOME}" == "notset" ] || [ "${PG_HOME}" == "" ]
-            then
-              echo "One must set PG_HOME=value"
-              exit 1
-            fi
+          export PG_HOME=$(cygpath "${PG_HOME}")
+          echo  "cygpath   PG_HOME: ${PG_HOME}"
 
-            export PG_HOME=$(cygpath "${PG_HOME}")
-            echo  "cygpath   PG_HOME: ${PG_HOME}"
+          pushd "${PG_SOURCE}"
 
-            pushd "${PG_SOURCE}"
+          echo "BEGIN PostgreSQL CONFIGURE"
+          ./configure --enable-depend --disable-rpath --without-icu --prefix="${PG_HOME}"
+          echo "END   PostgreSQL CONFIGURE"
 
-            echo "BEGIN PostgreSQL CONFIGURE"
-            ./configure --enable-depend --disable-rpath --without-icu --prefix="${PG_HOME}"
-            echo "END   PostgreSQL CONFIGURE"
+          echo "BEGIN PostgreSQL BUILD"
+          make
+          echo "END   PostgreSQL BUILD"
 
-            echo "BEGIN PostgreSQL BUILD"
-            make
-            echo "END   PostgreSQL BUILD"
+          echo "BEGIN PostgreSQL INSTALL to ${PG_HOME}"
+          make install
+          echo "END   PostgreSQL INSTALL to ${PG_HOME}"
 
-            echo "BEGIN PostgreSQL INSTALL to ${PG_HOME}"
-            make install
-            echo "END   PostgreSQL INSTALL to ${PG_HOME}"
+          popd # from "${PG_SOURCE}"
 
-            popd # from "${PG_SOURCE}"
-
-          fi # from "${ignore_the_rest}"
 
 
       - name: Meson PL/R Setup Compile and Non-Meson Manual Test
