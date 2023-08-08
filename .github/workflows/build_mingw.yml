@@ -660,6 +660,86 @@ jobs:
             ${{ env.MINGW_PACKAGE_PREFIX }}-postgresql
 
 
+      - name: Make PG Compile To PG_HOME ${PG_HOME} pgsrcversion ${pgsrcversion}
+        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.PG_HOME != 'none' }}
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: ${{ env.compilerEnv }}
+      - shell: msys2 {0}
+        env:
+          pgsrcversion: ${{ env.pgsrcversion }}
+          PG_SOURCE: ${{ env.PG_SOURCE }}
+          PG_HOME: ${{ env.PG_HOME }}
+        run: |
+          echo "Make PG Build and Iinstall"
+          set -x -v -e
+
+          # Msys
+          # export OperatingSystem=$(uname -o)
+          echo "compilerEnv: ${{ env.compilerEnv }}"
+          export | grep MINGW
+          export | grep MSYSTEM
+
+          echo "pgsrcversion: ${pgsrcversion}"
+          echo "PG_SOURCE:    ${PG_SOURCE}"
+          echo "PG_HOME:      ${PG_HOME}"
+
+          if [ "${pgsrcversion}" == "notset" ] || [ "${pgsrcversion}" == "" ]
+          then
+            echo "One must set pgsrcversion=value"
+            exit 1
+          fi
+
+          if [ "${PG_SOURCE}" == "notset" ] || [ "${PG_SOURCE}" == "" ]
+          then
+            echo "One must set PG_SOURCE=value"
+            exit 1
+          fi
+
+          export PG_SOURCE=$(cygpath "${PG_SOURCE}")
+          echo  "cygpath PG_SOURCE: ${PG_SOURCE}"
+
+          if [ ! -d "${PG_SOURCE}" ]
+          then
+            echo "Missing already-existing PG source code directory: ${PG_SOURCE}"
+            exit 1
+          fi
+
+          if [ "${PG_HOME}" == "notset" ] || [ "${PG_HOME}" == "" ]
+          then
+            echo "One must set PG_HOME=value"
+            exit 1
+          fi
+
+          export PG_HOME=$(cygpath "${PG_HOME}")
+          echo  "cygpath   PG_HOME: ${PG_HOME}"
+
+          if [ -f "${PG_HOME}/bin/pg_config" ]
+          then
+            echo "pg_config in PG installation already exists: ${PG_HOME}/bin/pg_config"
+            export pgversion=$(pg_config | grep "^VERSION" | sed "s/ = /=/" | sed "s/^.*=//" | grep -oP '[ ].*$' | grep -oP '\d.*$')
+            echo "Detected pgversion: ${pgversion}"
+            echo "Nothing to do. Exiting . . ."
+            exit 0
+          fi
+
+          pushd "${PG_SOURCE}"
+
+          loginfo "BEGIN PostgreSQL CONFIGURE"
+          ./configure --enable-depend --disable-rpath --without-icu --prefix="${PG_HOME}"
+          loginfo "END   PostgreSQL CONFIGURE"
+
+          echo "BEGIN PostgreSQL BUILD"
+          make
+          echo "END   PostgreSQL BUILD"
+
+          echo "BEGIN PostgreSQL INSTALL to ${PG_HOME}"
+          make install
+          echo "END   PostgreSQL INSTALL to ${PG_HOME}"
+
+          popd # from "${PG_SOURCE}"
+
+
       - name: Meson PL/R Setup Compile and Non-Meson Manual Test
         if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' }}
         uses: msys2/setup-msys2@v2
@@ -728,9 +808,7 @@ jobs:
 
             # user supplied variable
             echo "cygpath PG_HOME: ${PG_HOME}"
-
           fi
-          
           which pg_config
           if [ "$?" == "1" ]; then echo ERROR - No pg_config found; exit 1;fi
 
