@@ -777,7 +777,7 @@ jobs:
           rversion: ${{ env.rversion }}
           PG_HOME: ${{ env.PG_HOME }}
         run: |
-          echo "Meson Setup Compile and Non-Meson Manual Test"
+          echo "Meson PL/R Setup Compile and Non-Meson Manual Test"
           set -x -v -e
 
           # Msys
