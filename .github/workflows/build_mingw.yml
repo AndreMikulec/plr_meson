@@ -722,36 +722,39 @@ jobs:
                 echo "that already exists here. ${PG_HOME} Using . . ."
                 export pgversion=$(pg_config | grep "^VERSION" | sed "s/ = /=/" | sed "s/^.*=//" | grep -oP '[ ].*$' | grep -oP '\d.*$')
                 echo "Detected pgversion: ${pgversion}"
-                exit 0
+                export ignore_variable_tests="true"
               fi
             fi
           fi
 
-          if [ "${pgsrcversion}" == "notset" ] || [ "${pgsrcversion}" == "" ]
+          if [ "${ignore_variable_tests}" == "false" ]
           then
-            echo "One must set pgsrcversion=value"
-            exit 1
-          fi
+            if [ "${pgsrcversion}" == "notset" ] || [ "${pgsrcversion}" == "" ]
+            then
+              echo "One must set pgsrcversion=value"
+              exit 1
+            fi
 
-          if [ "${PG_SOURCE}" == "notset" ] || [ "${PG_SOURCE}" == "" ]
-          then
-            echo "One must set PG_SOURCE=value"
-            exit 1
-          fi
+            if [ "${PG_SOURCE}" == "notset" ] || [ "${PG_SOURCE}" == "" ]
+            then
+              echo "One must set PG_SOURCE=value"
+              exit 1
+            fi
 
-          export PG_SOURCE=$(cygpath "${PG_SOURCE}")
-          echo  "cygpath PG_SOURCE: ${PG_SOURCE}"
+            export PG_SOURCE=$(cygpath "${PG_SOURCE}")
+            echo  "cygpath PG_SOURCE: ${PG_SOURCE}"
 
-          if [ ! -d "${PG_SOURCE}" ]) && [ "${ignore_variable_tests}" == "false" ]
-          then
-            echo "Missing already-existing PG source code directory: ${PG_SOURCE}"
-            exit 1
-          fi
+            if [ ! -d "${PG_SOURCE}" ]
+            then
+              echo "Missing already-existing PG source code directory: ${PG_SOURCE}"
+              exit 1
+            fi
 
-          if [ "${PG_HOME}" == "notset" ] || [ "${PG_HOME}" == "" ]
-          then
-            echo "One must set PG_HOME=value"
-            exit 1
+            if [ "${PG_HOME}" == "notset" ] || [ "${PG_HOME}" == "" ]
+            then
+              echo "One must set PG_HOME=value"
+              exit 1
+            fi
           fi
 
           export PG_HOME=$(cygpath "${PG_HOME}")
