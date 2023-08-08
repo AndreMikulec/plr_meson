@@ -45,10 +45,10 @@ jobs:
 
           # xx TODO remove R_HOME. I can safely internally HARD CODE that. xx - Please KEEP #
 
-          # Cheat - Look here to find the 
-          # MSys "windows", Cygwin "cygwin", Windows "windows" 
+          # Cheat - Look here to find the
+          # MSys "windows", Cygwin "cygwin", Windows "windows"
           # MacOS, and Ubuntu Linux, repository current "pgversion"s
-          # 
+          #
           # https://packages.msys2.org/package/mingw-w64-ucrt-x86_64-postgresql
           # https://packages.msys2.org/package/mingw-w64-i686-postgresql
           # https://www.cygwin.com/packages/summary/postgresql.html
@@ -681,7 +681,7 @@ jobs:
             ${{ env.MINGW_PACKAGE_PREFIX }}-postgresql
 
 
-      - name: Make PG Compile To PG_HOME pgsrcversion 
+      - name: Make PG Compile To PG_HOME pgsrcversion
         if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.PG_HOME != 'notset' }}
         uses: msys2/setup-msys2@v2
         with:
@@ -712,13 +712,13 @@ jobs:
             if [ "${PG_SOURCE}" == "notset" ] || [ "${PG_SOURCE}" == "" ]
             then
               if [ "${PG_HOME}" != "notset" ] && [ "${PG_HOME}" != "" ]
-              then 
+              then
                 export PG_HOME=$(cygpath "${PG_HOME}")
                 echo  "cygpath   PG_HOME: ${PG_HOME}"
               fi
               if [ -d "${PG_HOME}" ] && [ -f "${PG_HOME}/bin/pg_config" ]
               then
-                echo "You must want to use the PG install" 
+                echo "You must want to use the PG install"
                 echo "that already exists here. ${PG_HOME} Using . . ."
                 export pgversion=$(pg_config | grep "^VERSION" | sed "s/ = /=/" | sed "s/^.*=//" | grep -oP '[ ].*$' | grep -oP '\d.*$')
                 echo "Detected pgversion: ${pgversion}"
@@ -756,26 +756,26 @@ jobs:
               exit 1
             fi
 
-          export PG_HOME=$(cygpath "${PG_HOME}")
-          echo  "cygpath   PG_HOME: ${PG_HOME}"
+            export PG_HOME=$(cygpath "${PG_HOME}")
+            echo  "cygpath   PG_HOME: ${PG_HOME}"
 
-          pushd "${PG_SOURCE}"
+            pushd "${PG_SOURCE}"
 
-          echo "BEGIN PostgreSQL CONFIGURE"
-          ./configure --enable-depend --disable-rpath --without-icu --prefix="${PG_HOME}"
-          echo "END   PostgreSQL CONFIGURE"
+            echo "BEGIN PostgreSQL CONFIGURE"
+            ./configure --enable-depend --disable-rpath --without-icu --prefix="${PG_HOME}"
+            echo "END   PostgreSQL CONFIGURE"
 
-          echo "BEGIN PostgreSQL BUILD"
-          make
-          echo "END   PostgreSQL BUILD"
+            echo "BEGIN PostgreSQL BUILD"
+            make
+            echo "END   PostgreSQL BUILD"
 
-          echo "BEGIN PostgreSQL INSTALL to ${PG_HOME}"
-          make install
-          echo "END   PostgreSQL INSTALL to ${PG_HOME}"
+            echo "BEGIN PostgreSQL INSTALL to ${PG_HOME}"
+            make install
+            echo "END   PostgreSQL INSTALL to ${PG_HOME}"
 
-          popd # from "${PG_SOURCE}"
+            popd # from "${PG_SOURCE}"
 
-        fi # from "${ignore_the_rest}"
+          fi # from "${ignore_the_rest}"
 
 
       - name: Meson PL/R Setup Compile and Non-Meson Manual Test
