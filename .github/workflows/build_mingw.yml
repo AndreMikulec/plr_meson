@@ -688,7 +688,7 @@ jobs:
       - name: Make PG Compile from pgsrcversion and PG_SOURCE and [here] PG_HOME
         if: >-
           ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' &&
-          env.pgsrcversion != 'notset' && env.PG_SOURCE != 'notset' env.PG_HOME != 'notset'
+          env.pgsrcversion != 'notset' && env.PG_SOURCE != 'notset' && env.PG_HOME != 'notset'
           }}
         uses: msys2/setup-msys2@v2
         with:
