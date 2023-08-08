@@ -72,6 +72,8 @@ jobs:
             rversion: devel
             R_HOME: 'D:\RINSTALL'
             R_ARCH: /x64
+            # optional if using the default Msys UCRT repository PG_HOME C:\msys64\ucrt64
+            PG_HOME: 'C:\msys64\ucrt64'
             #
             pgwinversion: 15.3-3
             testOnpgwin: true
@@ -993,7 +995,7 @@ jobs:
           #
           # Note, from my "bad" memory,
           # a non-script interactive MSYS2 session, may require either or both
-          # PG_HOME and/or R_HOME in the form producted by $(cygpath -w "${X_HOME}")
+          # PG_HOME and/or R_HOME in the form producted by $(cygpath -wl "${X_HOME}")
           # TODO - Re-verify this.
           #
           meson setup --prefix="${PG_HOME}/contrib/plr" -DR_HOME="${R_HOME}" -DPG_HOME="${PG_HOME}" -Db_pie=true ../contrib/plr
