@@ -850,15 +850,14 @@ jobs:
           if [ "${PG_HOME}" == "" ]
           then
             export PG_HOME=$(dirname "${BINDIR}")
+            # found variable
+            echo "pg_config PG_HOME: ${PG_HOME}"
 
             # can find PG "libraries"
             export PATH="${PG_HOME}/lib:${PATH}"
             #
             # can find PG "libraries" (and the CORRECT pg_config is found)
             export PATH="${PG_HOME}/bin:${PATH}"
-
-            # found variable
-            echo "pg_config PG_HOME: ${PG_HOME}"
           fi
 
           export PKGLIBDIR=$(pg_config | grep "^PKGLIBDIR" | sed "s/ = /=/" | sed "s/^.*=//")
