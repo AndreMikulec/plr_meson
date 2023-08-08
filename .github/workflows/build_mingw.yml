@@ -681,7 +681,7 @@ jobs:
             ${{ env.MINGW_PACKAGE_PREFIX }}-postgresql
 
 
-      - name: Make PG Compile To PG_HOME pgsrcversion
+      - name: Make PG Compile PG_HOME pgsrcversion
         if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.PG_HOME != 'notset' }}
         uses: msys2/setup-msys2@v2
         with:
@@ -727,7 +727,7 @@ jobs:
             fi
           fi
 
-          if [ "${ignore_the_rest}" == "false" ]
+          if [ "${ignore_the_rest}" == "true" ]
           then
             if [ "${pgsrcversion}" == "notset" ] || [ "${pgsrcversion}" == "" ]
             then
