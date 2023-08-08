@@ -692,76 +692,76 @@ jobs:
             ${{ env.MINGW_PACKAGE_PREFIX }}-postgresql
 
 
-      - name: Make PG Compile from pgsrcversion and PG_SOURCE and [here] PG_HOME
-        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.buildpg == 'true' }}
-        uses: msys2/setup-msys2@v2
-        with:
-          msystem: ${{ env.compilerEnv }}
-      - shell: msys2 {0}
-        env:
-          pgsrcversion: ${{ env.pgsrcversion }}
-          PG_SOURCE: ${{ env.PG_SOURCE }}
-          PG_HOME: ${{ env.PG_HOME }}
-        run: |
-          echo "Make PG Compile from pgsrcversion and PG_SOURCE and [here] PG_HOME"
-          set -x -v -e
-
-          # Msys
-          # export OperatingSystem=$(uname -o)
-          echo "compilerEnv: ${{ env.compilerEnv }}"
-          export | grep MINGW
-          export | grep MSYSTEM
-
-          echo "pgsrcversion: ${pgsrcversion}"
-          echo "PG_SOURCE:    ${PG_SOURCE}"
-          echo "PG_HOME:      ${PG_HOME}"
-
-          if [ "${pgsrcversion}" == "notset" ] || [ "${pgsrcversion}" == "" ]
-          then
-            echo "One must set pgsrcversion=value"
-            exit 1
-          fi
-
-          if [ "${PG_SOURCE}" == "notset" ] || [ "${PG_SOURCE}" == "" ]
-          then
-            echo "One must set PG_SOURCE=value"
-            exit 1
-          fi
-
-          export PG_SOURCE=$(cygpath "${PG_SOURCE}")
-          echo  "cygpath PG_SOURCE: ${PG_SOURCE}"
-
-          if [ ! -d "${PG_SOURCE}" ]
-          then
-            echo "Missing already-existing PG source code directory: ${PG_SOURCE}"
-            echo "Did you download the source code from Github?"
-            exit 1
-          fi
-
-          if [ "${PG_HOME}" == "notset" ] || [ "${PG_HOME}" == "" ]
-          then
-            echo "One must set PG_HOME=value"
-            exit 1
-          fi
-
-          export PG_HOME=$(cygpath "${PG_HOME}")
-          echo  "cygpath   PG_HOME: ${PG_HOME}"
-
-          pushd "${PG_SOURCE}"
-
-          echo "BEGIN PostgreSQL CONFIGURE"
-          ./configure --enable-depend --disable-rpath --without-icu --prefix="${PG_HOME}"
-          echo "END   PostgreSQL CONFIGURE"
-
-          echo "BEGIN PostgreSQL BUILD"
-          make
-          echo "END   PostgreSQL BUILD"
-
-          echo "BEGIN PostgreSQL INSTALL to ${PG_HOME}"
-          make install
-          echo "END   PostgreSQL INSTALL to ${PG_HOME}"
-
-          popd # from "${PG_SOURCE}"
+#     - name: Make PG Compile from pgsrcversion and PG_SOURCE and [here] PG_HOME
+#       if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.buildpg == 'true' }}
+#       uses: msys2/setup-msys2@v2
+#       with:
+#         msystem: ${{ env.compilerEnv }}
+#     - shell: msys2 {0}
+#       env:
+#         pgsrcversion: ${{ env.pgsrcversion }}
+#         PG_SOURCE: ${{ env.PG_SOURCE }}
+#         PG_HOME: ${{ env.PG_HOME }}
+#       run: |
+#         echo "Make PG Compile from pgsrcversion and PG_SOURCE and [here] PG_HOME"
+#         set -x -v -e
+#
+#         # Msys
+#         # export OperatingSystem=$(uname -o)
+#         echo "compilerEnv: ${{ env.compilerEnv }}"
+#         export | grep MINGW
+#         export | grep MSYSTEM
+#
+#         echo "pgsrcversion: ${pgsrcversion}"
+#         echo "PG_SOURCE:    ${PG_SOURCE}"
+#         echo "PG_HOME:      ${PG_HOME}"
+#
+#         if [ "${pgsrcversion}" == "notset" ] || [ "${pgsrcversion}" == "" ]
+#         then
+#           echo "One must set pgsrcversion=value"
+#           exit 1
+#         fi
+#
+#         if [ "${PG_SOURCE}" == "notset" ] || [ "${PG_SOURCE}" == "" ]
+#         then
+#           echo "One must set PG_SOURCE=value"
+#           exit 1
+#         fi
+#
+#         export PG_SOURCE=$(cygpath "${PG_SOURCE}")
+#         echo  "cygpath PG_SOURCE: ${PG_SOURCE}"
+#
+#         if [ ! -d "${PG_SOURCE}" ]
+#         then
+#           echo "Missing already-existing PG source code directory: ${PG_SOURCE}"
+#           echo "Did you download the source code from Github?"
+#           exit 1
+#         fi
+#
+#         if [ "${PG_HOME}" == "notset" ] || [ "${PG_HOME}" == "" ]
+#         then
+#           echo "One must set PG_HOME=value"
+#           exit 1
+#         fi
+#
+#         export PG_HOME=$(cygpath "${PG_HOME}")
+#         echo  "cygpath   PG_HOME: ${PG_HOME}"
+#
+#         pushd "${PG_SOURCE}"
+#
+#         echo "BEGIN PostgreSQL CONFIGURE"
+#         ./configure --enable-depend --disable-rpath --without-icu --prefix="${PG_HOME}"
+#         echo "END   PostgreSQL CONFIGURE"
+#
+#         echo "BEGIN PostgreSQL BUILD"
+#         make
+#         echo "END   PostgreSQL BUILD"
+#
+#         echo "BEGIN PostgreSQL INSTALL to ${PG_HOME}"
+#         make install
+#         echo "END   PostgreSQL INSTALL to ${PG_HOME}"
+#
+#         popd # from "${PG_SOURCE}"
 
 
 
