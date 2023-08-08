@@ -116,6 +116,7 @@ jobs:
             #             REL_10_23
             pgsrcversion: 02991e79f8f58bc208f05dcc8af0c62dbe0a6ea4
             PG_SOURCE: 'D:\PGSOURCE'
+            buildpg: true
             PG_HOME: 'D:\PGINSTALL'
             #
             pgwinversion: 10.23-1
@@ -279,17 +280,23 @@ jobs:
 
           echo "R_ARCHplat: ${env:R_ARCHplat}"
 
+          ${env:pgsrcversion} = "${{ matrix.pgsrcversion }}"
+          if("${env:pgsrcversion}" -eq ""){${env:pgsrcversion} = "notset"}
+          Set-EnvVar "pgsrcversion=${env:pgsrcversion}"
+
+          echo "pgsrcversion: ${env:pgsrcversion}"
+
           ${env:PG_SOURCE} = "${{ matrix.PG_SOURCE }}"
           if("${env:PG_SOURCE}" -eq ""){${env:PG_SOURCE} = "notset"}
           Set-EnvVar "PG_SOURCE=${env:PG_SOURCE}"
 
           echo "PG_SOURCE: ${env:PG_SOURCE}"
 
-          ${env:pgsrcversion} = "${{ matrix.pgsrcversion }}"
-          if("${env:pgsrcversion}" -eq ""){${env:pgsrcversion} = "notset"}
-          Set-EnvVar "pgsrcversion=${env:pgsrcversion}"
+          ${env:buildpg} = "${{ matrix.buildpg }}"
+          if("${env:buildpg}" -eq ""){${env:buildpg} = "notset"}
+          Set-EnvVar "buildpg=${env:buildpg}"
 
-          echo "pgsrcversion: ${env:pgsrcversion}"
+          echo "buildpg: ${env:buildpg}"
 
           ${env:PG_HOME} = "${{ matrix.PG_HOME }}"
           if("${env:PG_HOME}" -eq ""){${env:PG_HOME} = "notset"}
@@ -686,10 +693,7 @@ jobs:
 
 
       - name: Make PG Compile from pgsrcversion and PG_SOURCE and [here] PG_HOME
-        if: >-
-          ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' &&
-          env.pgsrcversion != 'notset' && env.PG_SOURCE != 'notset' && env.PG_HOME != 'notset'
-          }}
+        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.buildpg == 'true' }}
         uses: msys2/setup-msys2@v2
         with:
           msystem: ${{ env.compilerEnv }}
@@ -699,7 +703,7 @@ jobs:
           PG_SOURCE: ${{ env.PG_SOURCE }}
           PG_HOME: ${{ env.PG_HOME }}
         run: |
-          echo "Make PG Compile PG_HOME pgsrcversion"
+          echo "Make PG Compile from pgsrcversion and PG_SOURCE and [here] PG_HOME"
           set -x -v -e
 
           # Msys
