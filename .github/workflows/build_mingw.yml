@@ -108,8 +108,13 @@ jobs:
             R_HOME: 'D:\RINSTALL'
             R_ARCH: /x64
             #
-            # unless I build pgwin from source and "msvc"
-            # pgWINversion: 14.a.b. - No need to download - Github Actions has PostgreSQL 14-x64 Pre Installed
+            pgSRCversion: REL_14_8
+            PG_SOURCE: 'D:\PGSOURCE'
+            buildpgMSYS2: true
+            PG_HOME: 'D:\PGINSTALL'
+            #
+            # # unless I build pgwin from source and "msvc" - Version 14.8 - 14-x64
+            # pgWINversion: 14.8-4 - No need to download from EDB - Github Actions has PostgreSQL 14-x64 Pre Installed
             #
             testonpgWIN: true
 
