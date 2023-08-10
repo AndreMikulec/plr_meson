@@ -114,7 +114,7 @@ jobs:
             PG_HOME: 'D:\PGINSTALL'
             #
             # # unless I build pgwin from source and "msvc" - Version 14.8 - 14-x64
-            # pgWINversion: 14.8-4 - No need to download from EDB - Github Actions has PostgreSQL 14-x64 Pre Installed
+            pgWINversion: 14.8-4 # - REQUIRED ENTRY - Will not be download from EDB - Github Actions has PostgreSQL 14-x64 Pre Installed
             #
             testonpgWIN: true
 
@@ -563,7 +563,10 @@ jobs:
           SEGMENT_DOWNLOAD_TIMEOUT_MINS: 1
 
       - name: Cache PostgreSQL for Windows
-        if: ${{ env.os == 'windows-latest' &&  env.compilerClass == 'MSYS2' && env.pgWINversion != 'notset' }}
+        if: >-
+          ${{ env.os == 'windows-latest' &&  env.compilerClass == 'MSYS2' && env.pgWINversion != 'notset'&&
+          (( env.VER2 == '14' && env.Platform == 'x86' ) || ( env.VER2 != '14' ))
+          }}
         uses: actions/cache@v3.3.1
         id: cachePGWindowsInstallerExe
         with:
@@ -604,6 +607,7 @@ jobs:
       - name: Download PostgreSQL for Windows
         if: >-
           ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.pgWINversion != 'notset' &&
+          (( env.VER2 == '14' && env.Platform == 'x86' ) || ( env.VER2 != '14' )) &&
           steps.cachePGWindowsInstallerExe.outputs.cache-hit != 'true'
           }}
         uses: suisei-cn/actions-download-file@v1.3.0
@@ -840,7 +844,7 @@ jobs:
           echo "END   PostgreSQL INSTALL to ${PG_HOME}"
 
           popd # from "${PG_SOURCE}"
-      
+
           if [ -d "${PG_HOME}" ]
           then
             echo "BEGIN compressing pg artifact"
