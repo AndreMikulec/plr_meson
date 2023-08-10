@@ -83,7 +83,7 @@ jobs:
             testOnpgwin: true
 
 #         # First "R for Windows" 4.3.0 - PL/R can not be compiled using Microsoft Visual Studio
-#         # just a test of a recent PostgreSQL compiled from Source
+#         # just a test of a recent PostgreSQL compiled from Source . . .
           - os: windows-latest
             compilerEnv: MINGW32
             compilerExe: gcc
