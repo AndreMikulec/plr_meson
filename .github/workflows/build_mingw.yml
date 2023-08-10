@@ -82,7 +82,7 @@ jobs:
             pgwinversion: 15.3-3
             testOnpgwin: true
 
-#         # PL/R can not be compiled using Microsoft Visual Studio
+#         # First "R for Windows" 4.3.0 - PL/R can not be compiled using Microsoft Visual Studio
 #         # just a test of a recent PostgreSQL compiled from Source
           - os: windows-latest
             compilerEnv: MINGW32
@@ -100,7 +100,7 @@ jobs:
             pgwinversion: 13.11-3
             testOnpgwin: true
 
-#         # (Current R) PL/R can not be compiled using Microsoft Visual Studio
+#         # First "R for Windows" 4.3.0 - PL/R can not be compiled using Microsoft Visual Studio
 #         - os: windows-latest
 #           compilerEnv: UCRT64
 #           compilerExe: gcc
@@ -731,20 +731,18 @@ jobs:
             ${{ env.MINGW_PACKAGE_PREFIX }}-postgresql
 
 
-      - name: Make PG Compile from pgsrcversion and PG_SOURCE and [here] PG_HOME
+      - name: Make PG Compile from pgsrcversion and PG_SOURCE and Install to here PG_HOME
         if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.buildpg == 'true' }}
         uses: msys2/setup-msys2@v2
         with:
           msystem: ${{ env.compilerEnv }}
         shell: msys2 {0}
         env:
-          pgsrcversion: ${{ env.pgsrcversion }}
           PG_SOURCE: ${{ env.PG_SOURCE }}
           PG_HOME: ${{ env.PG_HOME }}
         run: |
-          echo "Make PG Compile from pgsrcversion and PG_SOURCE and [here] PG_HOME"
+          echo "Make PG Compile from pgsrcversion and PG_SOURCE and Install to here PG_HOME"
           set -x -v -e
- 
           # Msys
           # export OperatingSystem=$(uname -o)
           echo "compilerEnv: ${{ env.compilerEnv }}"
@@ -754,12 +752,6 @@ jobs:
           echo "pgsrcversion: ${pgsrcversion}"
           echo "PG_SOURCE:    ${PG_SOURCE}"
           echo "PG_HOME:      ${PG_HOME}"
- 
-          if [ "${pgsrcversion}" == "notset" ] || [ "${pgsrcversion}" == "" ]
-          then
-            echo "One must set pgsrcversion=value"
-            exit 1
-          fi
  
           if [ "${PG_SOURCE}" == "notset" ] || [ "${PG_SOURCE}" == "" ]
           then
