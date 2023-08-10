@@ -80,7 +80,7 @@ jobs:
             #
             pgsrcversion: REL_16_BETA3
             PG_SOURCE: 'D:\PGSOURCE'
-            buildpg: true
+            buildpgMSYS2: true
             PG_HOME: 'D:\PGINSTALL'
 
 #         # First "R for Windows" 4.3.0 - PL/R can not be compiled using Microsoft Visual Studio
@@ -125,7 +125,7 @@ jobs:
             #
             pgsrcversion: REL_13_11
             PG_SOURCE: 'D:\PGSOURCE'
-            buildpg: true
+            buildpgMSYS2: true
             PG_HOME: 'D:\PGINSTALL'
             #
             pgwinversion: 13.11-3
@@ -187,7 +187,7 @@ jobs:
 #           #             02991e79f8f58bc208f05dcc8af0c62dbe0a6ea4
 #           pgsrcversion: REL_10_23
 #           PG_SOURCE: 'D:\PGSOURCE'
-#           buildpg: true
+#           buildpgMSYS2: true
 #           PG_HOME: 'D:\PGINSTALL'
 #           #
 #           pgwinversion: 10.23-1
@@ -363,11 +363,11 @@ jobs:
 
           echo "PG_SOURCE: ${env:PG_SOURCE}"
 
-          ${env:buildpg} = "${{ matrix.buildpg }}"
-          if("${env:buildpg}" -eq ""){${env:buildpg} = "notset"}
-          Set-EnvVar "buildpg=${env:buildpg}"
+          ${env:buildpgMSYS2} = "${{ matrix.buildpgMSYS2 }}"
+          if("${env:buildpgMSYS2}" -eq ""){${env:buildpgMSYS2} = "notset"}
+          Set-EnvVar "buildpgMSYS2=${env:buildpgMSYS2}"
 
-          echo "buildpg: ${env:buildpg}"
+          echo "buildpgMSYS2: ${env:buildpgMSYS2}"
 
           ${env:PG_HOME} = "${{ matrix.PG_HOME }}"
           if("${env:PG_HOME}" -eq ""){${env:PG_HOME} = "notset"}
@@ -774,7 +774,7 @@ jobs:
 
       # FUTURE - if the PostgreSQL version is 16 or greater, I could compile PG using meson
       - name: Compile PG using pgsrcversion and PG_SOURCE and Install to here PG_HOME
-        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.buildpg == 'true' }}
+        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.buildpgMSYS2 == 'true' }}
 #       uses: msys2/setup-msys2@v2
         shell: msys2 {0}
         env:
@@ -844,7 +844,7 @@ jobs:
           fi
 
       - name: Windows Prep PG Artifact
-        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.buildpg == 'true' }}
+        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.buildpgMSYS2 == 'true' }}
         env:
           PGVER2: ${{ env.PGVER2 }}
           Platform: ${{ env.Platform }}
@@ -855,7 +855,7 @@ jobs:
           if exist pg-artifact.7z dir                 pg-${{ env.os }}-${{ env.compilerEnv }}-${{ env.Platform }}-PG${{ env.pgversion }}.7z
 
       - name: Upload artifact PG for export for LOCAL testing
-        if: ${{ env.os == 'windows-latest' &&  env.compilerClass == 'MSYS2' && env.buildpg == 'true' }}
+        if: ${{ env.os == 'windows-latest' &&  env.compilerClass == 'MSYS2' && env.buildpgMSYS2 == 'true' }}
         uses: actions/upload-artifact@v3
         with:
           name: pg-${{ env.os }}-${{ env.compilerEnv }}-${{ env.Platform }}-PG${{ env.pgversion }}
