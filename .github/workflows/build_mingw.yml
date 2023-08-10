@@ -78,8 +78,8 @@ jobs:
             R_HOME: 'D:\RINSTALL'
             R_ARCH: /x64
             #
-            #
             pgwinversion: 15.3-3
+            #
             testOnpgwin: true
 
 #         # First "R for Windows" 4.3.0 - PL/R can not be compiled using Microsoft Visual Studio
@@ -97,7 +97,6 @@ jobs:
             buildpg: true
             PG_HOME: 'D:\PGINSTALL'
             #
-            pgwinversion: 13.11-3
             testOnpgwin: true
 
 #         # First "R for Windows" 4.3.0 - PL/R can not be compiled using Microsoft Visual Studio
@@ -489,7 +488,7 @@ jobs:
           path: PGSOURCE
 
       - name: Windows Move PostgreSQL Code
-        if: ${{ env.os == 'windows-latest' && env.PG_SOURCE != 'notset' }}
+        if: ${{ env.os == 'windows-latest' && env.pgsrcversion != 'notset' }}
         run: |
           Move-Item -Path PGSOURCE -Destination ${{ env.PG_SOURCE }}
           Get-ChildItem                         ${{ env.PG_SOURCE }}
@@ -526,7 +525,7 @@ jobs:
           SEGMENT_DOWNLOAD_TIMEOUT_MINS: 1
 
       - name: Cache PostgreSQL for Windows
-        if: ${{ env.os == 'windows-latest' &&  env.compilerClass == 'MSYS2' && env.testOnpgwin == 'true' }}
+        if: ${{ env.os == 'windows-latest' &&  env.compilerClass == 'MSYS2' && env.pgwinversion != 'notset' }}
         uses: actions/cache@v3.3.1
         id: cachePGWindowsInstallerExe
         with:
@@ -566,7 +565,7 @@ jobs:
 
       - name: Download PostgreSQL for Windows
         if: >-
-          ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testOnpgwin == 'true' &&
+          ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.pgwinversion != 'notset' &&
           steps.cachePGWindowsInstallerExe.outputs.cache-hit != 'true'
           }}
         uses: suisei-cn/actions-download-file@v1.3.0
@@ -576,7 +575,7 @@ jobs:
 
 #     # BUT the "crazy-max/ghaction-chocolatey@v2" "install diffutils" file download often times-out
 #     - name: Choco Install GNU diffutils for Test on PostgreSQL for Windows
-#       if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testOnpgwin == 'true' }}
+#       if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && OTHER_CRITERIA }}
 #       # Keep v2.  v2.2.0 may have connection to Sourceforge problems
 #       uses: crazy-max/ghaction-chocolatey@v2
 #       with:
@@ -626,7 +625,7 @@ jobs:
       # https://github.com/actions/runner-images/blob/main/images/win/Windows2022-Readme.md
       # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-software
       #
-      - name: Enable PostgreSQL x64-14 for Windows and Start and Stop
+      - name: From Disabled, Enable PostgreSQL x64-14 for Windows and Start and Stop
         if: >-
           ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testOnpgwin == 'true' &&
           env.VER2 == '14' && env.Platform == 'x64'
@@ -640,7 +639,7 @@ jobs:
 
       - name: Install PostgreSQL for Windows and Stop PostgreSQL
         if: >-
-          ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testOnpgwin == 'true' &&
+          ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.pgwinversion != 'notset' &&
           (( env.VER2 == '14' && env.Platform == 'x86' ) || ( env.VER2 != '14' ))
           }}
         env:
@@ -740,8 +739,8 @@ jobs:
             ${{ env.MINGW_PACKAGE_PREFIX }}-lz4
             ${{ env.MINGW_PACKAGE_PREFIX }}-postgresql
 
-
-      - name: Make PG Compile from pgsrcversion and PG_SOURCE and Install to here PG_HOME
+      # FUTURE - if the PostgreSQL version is 16 or greater, I could compile PG using meson
+      - name: Compile PG using pgsrcversion and PG_SOURCE and Install to here PG_HOME
         if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.buildpg == 'true' }}
 #       uses: msys2/setup-msys2@v2
         shell: msys2 {0}
@@ -751,7 +750,7 @@ jobs:
           PG_SOURCE: ${{ env.PG_SOURCE }}
           PG_HOME: ${{ env.PG_HOME }}
         run: |
-          echo "Make PG Compile from pgsrcversion and PG_SOURCE and Install to here PG_HOME"
+          echo "Compile PG using pgsrcversion and PG_SOURCE and Install to here PG_HOME"
           set -x -v -e
           # Msys
           # export OperatingSystem=$(uname -o)
@@ -1185,7 +1184,7 @@ jobs:
           unset rversion_old
 
       - name: Upload artifacts plr.dll and plr.dll.a for export for LOCAL testing
-        if: ${{ env.os == 'windows-latest' &&  env.compilerClass == 'MSYS2' && env.testOnpgwin == 'true' }}
+        if: ${{ env.os == 'windows-latest' &&  env.compilerClass == 'MSYS2' }}
         uses: actions/upload-artifact@v3
         with:
           name: plr-${{ env.HEAD8_GITHUB_SHA }}-${{ env.os }}-${{ env.compilerEnv }}-${{ env.Platform }}-R${{ env.rversion }}-PG${{ env.pgversion }}
@@ -1282,7 +1281,7 @@ jobs:
           if "%Platform%"=="notset" (echo Platform is not set, therefore no net stop happens.)
 
       - name: Windows Prep PL/R Artifact for Release
-        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testOnpgwin == 'true' }}
+        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' }}
         env:
           PGVER2: ${{ env.PGVER2 }}
           Platform: ${{ env.Platform }}
