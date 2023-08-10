@@ -78,6 +78,7 @@ jobs:
             R_HOME: 'D:\RINSTALL'
             R_ARCH: /x64
             #
+            # unless I build pgwin from source and "msvc"
             pgwinversion: 15.3-3
             #
             testOnpgwin: true
@@ -96,6 +97,8 @@ jobs:
             PG_SOURCE: 'D:\PGSOURCE'
             buildpg: true
             PG_HOME: 'D:\PGINSTALL'
+            #
+            pgwinversion: 13.11-3
             #
             testOnpgwin: true
 
