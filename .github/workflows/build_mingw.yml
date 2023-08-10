@@ -106,21 +106,40 @@ jobs:
 #           testOnpgwin: true
 
 #         # Last "R for Windows" supports x86 and sub-architecture
-          - os: windows-latest
-            compilerEnv: MINGW32
-            compilerExe: gcc
-            Platform: x86
-            rversion: 4.1.3
-            R_HOME: 'D:\RINSTALL'
-            R_ARCH: /i386
-            #             REL_10_23
-            pgsrcversion: 02991e79f8f58bc208f05dcc8af0c62dbe0a6ea4
-            PG_SOURCE: 'D:\PGSOURCE'
-            buildpg: true
-            PG_HOME: 'D:\PGINSTALL'
-            #
-            pgwinversion: 10.23-1
-            testOnpgwin: true
+
+#         #   MSys PG 10 - BUILT FROM SOURCE
+#         #   REL_10_23
+#         #   https://github.com/AndreMikulec/plr_meson/actions/runs/5792516156/job/15698899845#step:22:840
+#         #     
+#         #   https://github.com/AndreMikulec/plr_meson/actions/runs/5792516156/job/15698899845#step:22:841
+#         #   FAILED: plr.dll.p/pg_backend_support.c.obj 
+#         # 
+#         #   https://github.com/AndreMikulec/plr_meson/actions/runs/5792516156/job/15698899845#step:22:867
+#         #   ../../contribplr/pg_backend_support.c:290:2: error: #error "DLSUFFIX must be defined to compile this file."
+#         # 
+#         #   https://github.com/AndreMikulec/plr_meson/blob/master/pg_backend_support.c#L290
+#         #   #ifndef DLSUFFIX
+#         #   #error "DLSUFFIX must be defined to compile this file."
+#         #   #endif
+#         # 
+#         #   https://github.com/msys2/MINGW-packages/commit/2bdda426852bb3c4051539c3b087b3f0ffc3294f
+#         #   Update to postgresql-12.0 *** BIG CHANGES ***
+#
+#         - os: windows-latest
+#           compilerEnv: MINGW32
+#           compilerExe: gcc
+#           Platform: x86
+#           rversion: 4.1.3
+#           R_HOME: 'D:\RINSTALL'
+#           R_ARCH: /i386
+#           #             02991e79f8f58bc208f05dcc8af0c62dbe0a6ea4
+#           pgsrcversion: REL_10_23
+#           PG_SOURCE: 'D:\PGSOURCE'
+#           buildpg: true
+#           PG_HOME: 'D:\PGINSTALL'
+#           #
+#           pgwinversion: 10.23-1
+#           testOnpgwin: true
 
 #         # Last "R for Windows" supports x86 and single architecure
 #         - os: windows-latest
@@ -443,7 +462,7 @@ jobs:
           # REL_16_STABLE
           # REL_15_STABLE
           #
-          ref: '02991e79f8f58bc208f05dcc8af0c62dbe0a6ea4'
+          ref: '${{ env.pgsrcversion }}'
           # Relative path under $GITHUB_WORKSPACE to place the repository
           path: PGSOURCE
 
@@ -783,8 +802,8 @@ jobs:
           # Msys
           # export OperatingSystem=$(uname -o)
           echo "compilerEnv: ${{ env.compilerEnv }}"
-          export | grep MINGW
-          export | grep MSYSTEM
+          export | grep MINGW     || true
+          export | grep MSYSTEM   || true
 
           echo "R_ARCH: ${R_ARCH}"
           echo "R_HOME: ${R_HOME}"
@@ -1153,20 +1172,21 @@ jobs:
 #       with:
 #         args: install diffutils
 
-#     - name: Start PostgreSQL for Windows
-#       if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testOnpgwin == 'true' }}
-#       env:
-#         PGVER2: ${{ env.PGVER2 }}
-#         Platform: ${{ env.Platform }}
-#       shell: cmd
-#       run: |
-#         echo on
-#         echo PGVER2   - %PGVER2%
-#         echo Platform - %Platform%
-#         rem Need to manually start PostgreSQL
-#         if "%Platform%"=="x64" (net start postgresql-x64-%PGVER2%)
-#         if "%Platform%"=="x86" (net start postgresql-%PGVER2%)
-#         if "%Platform%"=="notset" (echo Platform is not set, therefore no net start happens.)
+      - name: Start PostgreSQL for Windows
+        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testOnpgwin == 'true' }}
+        env:
+          PGVER2: ${{ env.PGVER2 }}
+          Platform: ${{ env.Platform }}
+        shell: cmd
+        run: |
+          echo on
+          echo PGVER2   - %PGVER2%
+          echo Platform - %Platform%
+          rem Need to manually start PostgreSQL
+          if "%Platform%"=="x64" (net start postgresql-x64-%PGVER2%)
+          if "%Platform%"=="x86" (net start postgresql-%PGVER2%)
+          if "%Platform%"=="notset" (echo Platform is not set, therefore no net start happens.)
+
 
       - name: Test on PostgreSQL for Windows
         if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testOnpgwin == 'true' }}
