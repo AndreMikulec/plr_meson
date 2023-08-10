@@ -564,7 +564,7 @@ jobs:
 
       - name: Cache PostgreSQL for Windows
         if: >-
-          ${{ env.os == 'windows-latest' &&  env.compilerClass == 'MSYS2' && env.pgWINversion != 'notset'&&
+          ${{ env.os == 'windows-latest' &&  env.compilerClass == 'MSYS2' && env.pgWINversion != 'notset' &&
           (( env.VER2 == '14' && env.Platform == 'x86' ) || ( env.VER2 != '14' ))
           }}
         uses: actions/cache@v3.3.1
