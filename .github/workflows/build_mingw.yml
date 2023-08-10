@@ -92,12 +92,12 @@ jobs:
             R_HOME: 'D:\RINSTALL'
             R_ARCH: /x64
             #
-            pgsrcversion: REL_14_8
+            pgsrcversion: REL_13_11
             PG_SOURCE: 'D:\PGSOURCE'
             buildpg: true
             PG_HOME: 'D:\PGINSTALL'
             #
-            pgwinversion: 14.8-4
+            pgwinversion: 13.11-3
             testOnpgwin: true
 
 #         # (Current R) PL/R can not be compiled using Microsoft Visual Studio
@@ -492,18 +492,18 @@ jobs:
           Move-Item -Path PGSOURCE -Destination ${{ env.PG_SOURCE }}
           Get-ChildItem                         ${{ env.PG_SOURCE }}
 
-#       # running Meson on GitHub Actions will end up using GCC rather than MSVC
-#       #
-#       # His fix .
-#       # https://dvdhrm.github.io/2021/04/21/meson-msvc-github-actions/
-#       #
-#       # `x64` for 64-bit x86 machines, `x86` for 32-bit x86 machines.
-#       # https://github.com/bus1/cabuild/blob/8c91ebf06b7a5f8405cf93c89a6928e4c76967e0/action/msdevshell/action.yml
-#       - name: Prepare Github Actions, MSVC, and Meson
-#         if: ${{ env.os == 'windows-latest' && env.compilerEnv == 'msvc' }}
-#         uses: bus1/cabuild/action/msdevshell@v1
-#         with:
-#           architecture: ${{ env.msvc_architecture }}
+#     # running Meson on GitHub Actions will end up using GCC rather than MSVC
+#     #
+#     # His fix .
+#     # https://dvdhrm.github.io/2021/04/21/meson-msvc-github-actions/
+#     #
+#     # `x64` for 64-bit x86 machines, `x86` for 32-bit x86 machines.
+#     # https://github.com/bus1/cabuild/blob/8c91ebf06b7a5f8405cf93c89a6928e4c76967e0/action/msdevshell/action.yml
+#     - name: Prepare Github Actions, MSVC, and Meson
+#       if: ${{ env.os == 'windows-latest' && env.compilerEnv == 'msvc' }}
+#       uses: bus1/cabuild/action/msdevshell@v1
+#       with:
+#         architecture: ${{ env.msvc_architecture }}
 
       # Currently will cache *patched* and *devel* and I do not want to cache these.
       #
