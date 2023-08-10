@@ -21,7 +21,7 @@ run-name: Meson Builds PL/R
 on: [push, pull_request, workflow_dispatch]
 jobs:
   build_test_install:
-    name: ${{ matrix.compilerEnv }} R ${{ matrix.rversion }} PGsrc ${{ matrix.pgsrcversion }} PGbin ${{ matrix.pgwinversion }} ${{ matrix.os }}
+    name: R ${{ matrix.rversion }} PGsrc ${{ matrix.pgsrcversion }} PGbin ${{ matrix.pgwinversion }} ${{ matrix.compilerEnv }} ${{ matrix.Platform }}  ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       # Disable fail-fast as we want results from all even if one fails.
