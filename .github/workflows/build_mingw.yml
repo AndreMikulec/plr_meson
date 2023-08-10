@@ -129,18 +129,18 @@ jobs:
 #         #   MSys PG 10 - BUILT FROM SOURCE
 #         #   REL_10_23
 #         #   https://github.com/AndreMikulec/plr_meson/actions/runs/5792516156/job/15698899845#step:22:840
-#         #     
+#         #
 #         #   https://github.com/AndreMikulec/plr_meson/actions/runs/5792516156/job/15698899845#step:22:841
-#         #   FAILED: plr.dll.p/pg_backend_support.c.obj 
-#         # 
+#         #   FAILED: plr.dll.p/pg_backend_support.c.obj
+#         #
 #         #   https://github.com/AndreMikulec/plr_meson/actions/runs/5792516156/job/15698899845#step:22:867
 #         #   ../../contribplr/pg_backend_support.c:290:2: error: #error "DLSUFFIX must be defined to compile this file."
-#         # 
+#         #
 #         #   https://github.com/AndreMikulec/plr_meson/blob/master/pg_backend_support.c#L290
 #         #   #ifndef DLSUFFIX
 #         #   #error "DLSUFFIX must be defined to compile this file."
 #         #   #endif
-#         # 
+#         #
 #         #   ANDRE - I THINK THAT THE BIG CHANGE WAS HERE
 #         #   https://github.com/msys2/MINGW-packages/commit/2bdda426852bb3c4051539c3b087b3f0ffc3294f
 #         #   Update to postgresql-12.0 *** BIG CHANGES ***
@@ -743,7 +743,7 @@ jobs:
 
       - name: Make PG Compile from pgsrcversion and PG_SOURCE and Install to here PG_HOME
         if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.buildpg == 'true' }}
-        uses: msys2/setup-msys2@v2
+#       uses: msys2/setup-msys2@v2
         with:
           msystem: ${{ env.compilerEnv }}
         shell: msys2 {0}
@@ -758,56 +758,56 @@ jobs:
           echo "compilerEnv: ${{ env.compilerEnv }}"
           export | grep MINGW
           export | grep MSYSTEM
- 
+
           echo "pgsrcversion: ${pgsrcversion}"
           echo "PG_SOURCE:    ${PG_SOURCE}"
           echo "PG_HOME:      ${PG_HOME}"
- 
+
           if [ "${PG_SOURCE}" == "notset" ] || [ "${PG_SOURCE}" == "" ]
           then
             echo "One must set PG_SOURCE=value"
             exit 1
           fi
- 
+
           export PG_SOURCE=$(cygpath "${PG_SOURCE}")
           echo  "cygpath PG_SOURCE: ${PG_SOURCE}"
- 
+
           if [ ! -d "${PG_SOURCE}" ]
           then
             echo "Missing already-existing PG source code directory: ${PG_SOURCE}"
             echo "Did you download the source code from Github?"
             exit 1
           fi
- 
+
           if [ "${PG_HOME}" == "notset" ] || [ "${PG_HOME}" == "" ]
           then
             echo "One must set PG_HOME=value"
             exit 1
           fi
- 
+
           export PG_HOME=$(cygpath "${PG_HOME}")
           echo  "cygpath   PG_HOME: ${PG_HOME}"
- 
+
           pushd "${PG_SOURCE}"
- 
+
           echo "BEGIN PostgreSQL CONFIGURE"
           ./configure --enable-depend --disable-rpath --without-icu --prefix="${PG_HOME}"
           echo "END   PostgreSQL CONFIGURE"
- 
+
           echo "BEGIN PostgreSQL BUILD"
           make
           echo "END   PostgreSQL BUILD"
- 
+
           echo "BEGIN PostgreSQL INSTALL to ${PG_HOME}"
           make install
           echo "END   PostgreSQL INSTALL to ${PG_HOME}"
- 
+
           popd # from "${PG_SOURCE}"
 
 
       - name: Meson PL/R Setup Compile and Non-Meson Manual Test
         if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' }}
-        uses: msys2/setup-msys2@v2
+#       uses: msys2/setup-msys2@v2
         with:
           msystem: ${{ env.compilerEnv }}
         shell: msys2 {0}
@@ -1130,7 +1130,7 @@ jobs:
           fi
 
           #
-          # if "PostgreSQL for Windows" exists, then 
+          # if "PostgreSQL for Windows" exists, then
           # copy artifacts into "PostgreSQL for Windows" for future testing.
           #
           if [ ! "${PGROOT2}" == "notset" ] && [ ! "${PGROOT2}" == "" ]
