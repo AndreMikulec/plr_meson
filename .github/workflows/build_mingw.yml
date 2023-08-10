@@ -565,7 +565,7 @@ jobs:
       - name: Cache PostgreSQL for Windows
         if: >-
           ${{ env.os == 'windows-latest' &&  env.compilerClass == 'MSYS2' && env.pgWINversion != 'notset' &&
-          (( env.VER2 == '14' && env.Platform == 'x86' ) || ( env.VER2 != '14' ))
+          (( env.PGVER2 == '14' && env.Platform == 'x86' ) || ( env.PGVER2 != '14' ))
           }}
         uses: actions/cache@v3.3.1
         id: cachePGWindowsInstallerExe
@@ -607,7 +607,7 @@ jobs:
       - name: Download PostgreSQL for Windows
         if: >-
           ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.pgWINversion != 'notset' &&
-          (( env.VER2 == '14' && env.Platform == 'x86' ) || ( env.VER2 != '14' )) &&
+          (( env.PGVER2 == '14' && env.Platform == 'x86' ) || ( env.PGVER2 != '14' )) &&
           steps.cachePGWindowsInstallerExe.outputs.cache-hit != 'true'
           }}
         uses: suisei-cn/actions-download-file@v1.3.0
@@ -670,7 +670,7 @@ jobs:
       - name: From Disabled, Enable PostgreSQL x64-14 for Windows and Start and Stop
         if: >-
           ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testonpgWIN == 'true' &&
-          env.VER2 == '14' && env.Platform == 'x64'
+          env.PGVER2 == '14' && env.Platform == 'x64'
           }}
         shell: cmd
         run: |
@@ -682,7 +682,7 @@ jobs:
       - name: Install PostgreSQL for Windows and Stop PostgreSQL
         if: >-
           ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.pgWINversion != 'notset' &&
-          (( env.VER2 == '14' && env.Platform == 'x86' ) || ( env.VER2 != '14' ))
+          (( env.PGVER2 == '14' && env.Platform == 'x86' ) || ( env.PGVER2 != '14' ))
           }}
         env:
           PGVER2: ${{ env.PGVER2 }}
