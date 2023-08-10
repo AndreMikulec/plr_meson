@@ -1192,23 +1192,7 @@ jobs:
             tmp\*\*
             tmp\PLR_LICENSE
 
-      - name: Start PostgreSQL for Windows
-        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testOnpgwin == 'true' }}
-        env:
-          PGVER2: ${{ env.PGVER2 }}
-          Platform: ${{ env.Platform }}
-        shell: cmd
-        run: |
-          echo on
-          echo PGVER2   - %PGVER2%
-          echo Platform - %Platform%
-          rem Need to manually start PostgreSQL
-          if "%Platform%"=="x64" (net start postgresql-x64-%PGVER2%)
-          if "%Platform%"=="x86" (net start postgresql-%PGVER2%)
-          if "%Platform%"=="notset" (echo Platform is not set, therefore no net start happens.)
-
-
-      - name: Test on PostgreSQL for Windows
+      - name: Set R_HOME and PG PATH, Start PG(read OS variables), Test on PostgreSQL for Windows
         if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testOnpgwin == 'true' }}
         env:
           R_HOME: ${{ env.R_HOME }}
