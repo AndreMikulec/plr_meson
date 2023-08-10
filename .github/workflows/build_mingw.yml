@@ -357,6 +357,8 @@ jobs:
 
           ${env:pgwinmajor} = "notset"
           # if any, strip off the: right-most part dot, then numbers, then one hyphen, then numbers.
+          # e.g.  9.6.24-1 becomes  9.6
+          # e.g. 13.11-3   becomes 13
           if("${env:pgwinversion}" -ne "notset") { ${env:pgwinmajor} = ${env:pgwinversion} -replace "[.]\d+-\d+$" }
           if("${env:pgwinversion}" -eq "notset") { ${env:pgwinmajor} = "notset" }
           Set-EnvVar "pgwinmajor=${env:pgwinmajor}"
@@ -983,8 +985,8 @@ jobs:
           # That file is created by ddltool program parameter "--output-lib".
           #
           # Note, Windows compilers (e.g. msvc) require R.lib.
-          # To create this file, instead of using the "dlltool" program, instead use the msvc "lib" program.
-          # Alternately, in the Windows compilers case, just rename an archive dll.a to be a .lib,
+          # To create this file, instead of using the "dlltool" program, use the msvc "lib" program.
+          # Alternately, in the Windows "msvc" compiler case, just rename an archive dll.a to be a .lib,
           # and that also works.
           #
           if [ ! -d "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}${R_ARCH}" ]
@@ -1011,12 +1013,17 @@ jobs:
           initdb -D PGDATA
           pg_ctl -D PGDATA -l logfile start
 
+          # Create the contribplr directory parallel to contrib.
+          # Copy all of the PL/R source code into contribplr.
+          #
           mkdir     "${PG_HOME}/contrib"
           #
           mkdir     "${PG_HOME}/contribplr"
           cp -R   * "${PG_HOME}/contribplr"
           #
           pushd     "${PG_HOME}/contribplr"
+
+          # Clean up previous builds.
           #
           rm -Rf ../contrib/plr; rm -f "${PKGLIBDIR}/plr.dll.a" ;rm -f "${PKGLIBDIR}/plr.dll"
           rm  -f "${SHAREDIR}/extension/plr.control"
@@ -1032,6 +1039,8 @@ jobs:
           #
           meson setup --prefix="${PG_HOME}/contrib/plr" -DR_HOME="${R_HOME}" -DPG_HOME="${PG_HOME}" -Db_pie=true ../contrib/plr
           meson compile -C ../contrib/plr  -v
+          #
+          # Example output of MSYS2(mingw) UCRT
           #
           # [6/6] "cc" -o plr.dll
           # plr.dll.p/plr.c.obj
@@ -1049,7 +1058,6 @@ jobs:
           # "-Wl,--end-group"
           #
 
-          #
           # install artifacts
           #
           if [ -f "../contrib/plr/plr.dll" ]
@@ -1071,7 +1079,7 @@ jobs:
           ls -alrt       "${SHAREDIR}/extension/plr.control"
 
           #
-          # install artifacts support files - versioning "sql"
+          # install artifacts SQL support files - versioning "sql"
           #
           cp plr--*.sql  "${SHAREDIR}/extension"
           ls -alrt        ${SHAREDIR}/extension/plr--*.sql
@@ -1122,26 +1130,28 @@ jobs:
           fi
 
           #
-          # if "PostgreSQL for Windows" exists, then copy artifacts into it for future testing.
+          # if "PostgreSQL for Windows" exists, then 
+          # copy artifacts into "PostgreSQL for Windows" for future testing.
           #
-          if [ -d "${PGROOT2}" ]
+          if [ ! "${PGROOT2}" == "notset" ] && [ ! "${PGROOT2}" == "" ]
           then
-            if [ -f "${PG_HOME}/contrib/plr/plr.dll" ]
+            export PGROOT2=$(cygpath "${PGROOT2}")
+            echo  "cygpath PGROOT2: ${PGROOT2}"
+
+            if [ -d "${PGROOT2}" ]
             then
-              echo "PGROOT2 is found. Preparing PostgreSQL for Windows testing."
-              # pushd "${PG_HOME}/contribplr"
-              #
-              export PGROOT2=$(cygpath "${PGROOT2}")
-              echo  "cygpath PGROOT2: ${PGROOT2}"
+              if [ -f "${PG_HOME}/contrib/plr/plr.dll" ]
+              then
+                echo "PGROOT2 is found. Preparing PostgreSQL for Windows testing."
 
-              cp  "${PG_HOME}/contrib/plr/plr.dll"   "${PGROOT2}/lib"
-              ls -alrt                               "${PGROOT2}/lib/plr.dll"
-              cp plr.control                         "${PGROOT2}/share/extension"
-              ls -alrt                               "${PGROOT2}/share/extension/plr.control"
-              cp plr--*.sql                          "${PGROOT2}/share/extension"
-              ls -alrt                               "${PGROOT2}"/share/extension/plr--*.sql
+                cp  "${PG_HOME}/contrib/plr/plr.dll"   "${PGROOT2}/lib"
+                ls -alrt                               "${PGROOT2}/lib/plr.dll"
+                cp plr.control                         "${PGROOT2}/share/extension"
+                ls -alrt                               "${PGROOT2}/share/extension/plr.control"
+                cp plr--*.sql                          "${PGROOT2}/share/extension"
+                ls -alrt                               "${PGROOT2}"/share/extension/plr--*.sql
 
-              # popd # from "${PG_HOME}/contribplr"
+              fi
             fi
           fi
 
