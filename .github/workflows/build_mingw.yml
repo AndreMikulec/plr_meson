@@ -795,6 +795,7 @@ jobs:
           R_ARCH: ${{ env.R_ARCH }}
           rversion: ${{ env.rversion }}
           PG_HOME: ${{ env.PG_HOME }}
+          PGROOT2: ${{ env.PGROOT2 }}
         run: |
           echo "Meson PL/R Setup Compile and Non-Meson Manual Test"
           set -x -v -e
