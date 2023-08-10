@@ -69,6 +69,19 @@ jobs:
           # # https://github.com/actions/runner-images
           #
 
+#         # (bleeding edge R) PL/R can not be compiled using Microsoft Visual Studio
+          - os: windows-latest
+            compilerEnv: UCRT64
+            compilerExe: gcc
+            Platform: x64
+            rversion:  devel
+            R_HOME: 'D:\RINSTALL'
+            R_ARCH: /x64
+            #
+            pgsrcversion: REL_16_BETA3
+            PG_SOURCE: 'D:\PGSOURCE'
+            buildpg: true
+            PG_HOME: 'D:\PGINSTALL'
 
 #         # First "R for Windows" 4.3.0 - PL/R can not be compiled using Microsoft Visual Studio
 #         # just a test of a recent PostgreSQL compiled from Source . . .
@@ -80,22 +93,23 @@ jobs:
             R_HOME: 'D:\RINSTALL'
             R_ARCH: /x64
             #
-            pgsrcversion: REL_16_BETA3
-            PG_SOURCE: 'D:\PGSOURCE'
-            buildpg: true
-            PG_HOME: 'D:\PGINSTALL'
+            # unless I build pgwin from source and "msvc"
+            pgwinversion: 15.3-3
+            #
+            testOnpgwin: true
 
-#         # (bleeding edge R) PL/R can not be compiled using Microsoft Visual Studio
+#         # First "R for Windows" 4.3.0 - PL/R can not be compiled using Microsoft Visual Studio
+#         # just a test of a recent PostgreSQL compiled from Source . . .
           - os: windows-latest
             compilerEnv: UCRT64
             compilerExe: gcc
             Platform: x64
-            rversion: devel
+            rversion: 4.3.1patched
             R_HOME: 'D:\RINSTALL'
             R_ARCH: /x64
             #
             # unless I build pgwin from source and "msvc"
-            pgwinversion: 15.3-3
+            # pgwinversion: 14.a.b. - No need to download - Github Actions has PostgreSQL 14-x64 Pre Installed
             #
             testOnpgwin: true
 
