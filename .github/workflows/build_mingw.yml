@@ -21,7 +21,7 @@ run-name: Meson Builds PL/R
 on: [push, pull_request, workflow_dispatch]
 jobs:
   build_test_install:
-    name: R ${{ matrix.rversion }} PGsrc ${{ matrix.pgsrcversion }} PGbin ${{ matrix.pgWINversion }} ${{ matrix.compilerEnv }} ${{ matrix.Platform }}  ${{ matrix.os }}
+    name: R ${{ matrix.rversion }} PGsrc ${{ matrix.pgSRCversion }} PGbin ${{ matrix.pgWINversion }} ${{ matrix.compilerEnv }} ${{ matrix.Platform }}  ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       # Disable fail-fast as we want results from all even if one fails.
@@ -78,7 +78,7 @@ jobs:
             R_HOME: 'D:\RINSTALL'
             R_ARCH: /x64
             #
-            pgsrcversion: REL_16_BETA3
+            pgSRCversion: REL_16_BETA3
             PG_SOURCE: 'D:\PGSOURCE'
             buildpgMSYS2: true
             PG_HOME: 'D:\PGINSTALL'
@@ -123,7 +123,7 @@ jobs:
             R_HOME: 'D:\RINSTALL'
             R_ARCH: /x64
             #
-            pgsrcversion: REL_13_11
+            pgSRCversion: REL_13_11
             PG_SOURCE: 'D:\PGSOURCE'
             buildpgMSYS2: true
             PG_HOME: 'D:\PGINSTALL'
@@ -185,7 +185,7 @@ jobs:
 #           R_HOME: 'D:\RINSTALL'
 #           R_ARCH: /i386
 #           #             02991e79f8f58bc208f05dcc8af0c62dbe0a6ea4
-#           pgsrcversion: REL_10_23
+#           pgSRCversion: REL_10_23
 #           PG_SOURCE: 'D:\PGSOURCE'
 #           buildpgMSYS2: true
 #           PG_HOME: 'D:\PGINSTALL'
@@ -351,11 +351,11 @@ jobs:
 
           echo "R_ARCHplat: ${env:R_ARCHplat}"
 
-          ${env:pgsrcversion} = "${{ matrix.pgsrcversion }}"
-          if("${env:pgsrcversion}" -eq ""){${env:pgsrcversion} = "notset"}
-          Set-EnvVar "pgsrcversion=${env:pgsrcversion}"
+          ${env:pgSRCversion} = "${{ matrix.pgSRCversion }}"
+          if("${env:pgSRCversion}" -eq ""){${env:pgSRCversion} = "notset"}
+          Set-EnvVar "pgSRCversion=${env:pgSRCversion}"
 
-          echo "pgsrcversion: ${env:pgsrcversion}"
+          echo "pgSRCversion: ${env:pgSRCversion}"
 
           ${env:PG_SOURCE} = "${{ matrix.PG_SOURCE }}"
           if("${env:PG_SOURCE}" -eq ""){${env:PG_SOURCE} = "notset"}
@@ -494,7 +494,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Checkout PostgreSQL Code
-        if: ${{ env.pgsrcversion != 'notset' }}
+        if: ${{ env.pgSRCversion != 'notset' }}
         uses: actions/checkout@v3
         with:
           repository: 'postgres/postgres'
@@ -516,12 +516,12 @@ jobs:
           # REL_16_STABLE
           # REL_15_STABLE
           #
-          ref: '${{ env.pgsrcversion }}'
+          ref: '${{ env.pgSRCversion }}'
           # Relative path under $GITHUB_WORKSPACE to place the repository
           path: PGSOURCE
 
       - name: Windows Move PostgreSQL Code
-        if: ${{ env.os == 'windows-latest' && env.pgsrcversion != 'notset' }}
+        if: ${{ env.os == 'windows-latest' && env.pgSRCversion != 'notset' }}
         run: |
           Move-Item -Path PGSOURCE -Destination ${{ env.PG_SOURCE }}
           Get-ChildItem                         ${{ env.PG_SOURCE }}
@@ -773,7 +773,7 @@ jobs:
             ${{ env.MINGW_PACKAGE_PREFIX }}-postgresql
 
       # FUTURE - if the PostgreSQL version is 16 or greater, I could compile PG using meson
-      - name: Compile PG using pgsrcversion and PG_SOURCE and Install to here PG_HOME
+      - name: Compile PG using pgSRCversion and PG_SOURCE and Install to here PG_HOME
         if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.buildpgMSYS2 == 'true' }}
 #       uses: msys2/setup-msys2@v2
         shell: msys2 {0}
@@ -783,7 +783,7 @@ jobs:
           PG_SOURCE: ${{ env.PG_SOURCE }}
           PG_HOME: ${{ env.PG_HOME }}
         run: |
-          echo "Compile PG using pgsrcversion and PG_SOURCE and Install to here PG_HOME"
+          echo "Compile PG using pgSRCversion and PG_SOURCE and Install to here PG_HOME"
           set -x -v -e
           # Msys
           # export OperatingSystem=$(uname -o)
@@ -791,7 +791,7 @@ jobs:
           export | grep MINGW
           export | grep MSYSTEM
 
-          echo "pgsrcversion: ${pgsrcversion}"
+          echo "pgSRCversion: ${pgSRCversion}"
           echo "PG_SOURCE:    ${PG_SOURCE}"
           echo "PG_HOME:      ${PG_HOME}"
 
