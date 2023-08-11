@@ -753,7 +753,7 @@ jobs:
           # 100% sure THIS IS broken
           # location: D:\
           #
-          # DO NOT KEEP "TRUE" - if using  multiple" MSYS2 environments" in this workflow
+          # NEEDS REVIEW - DO NOT KEEP "TRUE" - if using  multiple" MSYS2 environments" in this workflow
           # By default (true), caches various things between runs to make repeated runs faster.
           cache: false
           #
@@ -792,9 +792,18 @@ jobs:
         uses: cygwin/cygwin-install-action@v4
         with:
           # x86 or x86_64
+          #         GitHub offers ternary operator like behaviour that you can use in expressions
           platform: ${{ env.Platform == 'x64' && 'x86_64' || 'x86' }}
-          packages: wget
           add-to-path: false
+          packages: >-
+             pkg-config  meson  gendef
+             gcc-core  make  tar  gzip  libreadline7  zlib  icu-devel  bison  perl
+             flex  libreadline-devel  libssl-devel  libxml2-devel  libxslt-devel  openldap-devel  zlib-devel
+             libintl-devel  libcrypt-devel
+             p7zip
+             postgresql-client  postgresql  postgresql-devel
+             libpq-devel
+             R  R-debuginfo
 
       # help from
       # https://github.com/egor-tensin/setup-cygwin/tree/v3.0.1
