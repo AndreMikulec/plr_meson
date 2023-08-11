@@ -69,79 +69,78 @@ jobs:
           # # https://github.com/actions/runner-images
           #
 
-#####         # Repository R and Repository postgresql
+#         # Repository R and Repository postgresql
+          - os: windows-latest
+            compilerEnv: cygwin
+            Platform: x86
+
+#####         # (bleeding edge R) PL/R can not be compiled using Microsoft Visual Studio
 ####          - os: windows-latest
-####            compilerEnv: cygwin
-####            Platform: x86
-
-#         # (bleeding edge R) PL/R can not be compiled using Microsoft Visual Studio
-          - os: windows-latest
-            compilerEnv: UCRT64
-            compilerExe: gcc
-            Platform: x64
-            rversion:  devel
-            R_HOME: 'D:\RINSTALL'
-            R_ARCH: /x64
-            #
-            pgSRCversion: REL_16_BETA3
-            PG_SOURCE: 'D:\PGSOURCE'
-            buildpgMSYS2: true
-            PG_HOME: 'D:\PGINSTALL'
-
-#         # First "R for Windows" 4.3.0 - PL/R can not be compiled using Microsoft Visual Studio
-#         # just a test of a recent PostgreSQL compiled from Source . . .
-          - os: windows-latest
-            compilerEnv: UCRT64
-            compilerExe: gcc
-            Platform: x64
-            rversion: 4.3.1patched
-            R_HOME: 'D:\RINSTALL'
-            R_ARCH: /x64
-            #
-            # unless I build pgwin from source and "msvc"
-            pgWINversion: 15.3-3
-            #
-            testonpgWIN: true
-
-#         # First "R for Windows" 4.3.0 - PL/R can not be compiled using Microsoft Visual Studio
-#         # just a test of a recent PostgreSQL compiled from Source . .
-          - os: windows-latest
-            compilerEnv: UCRT64
-            compilerExe: gcc
-            Platform: x64
-            rversion: 4.3.1patched
-            R_HOME: 'D:\RINSTALL'
-            R_ARCH: /x64
-            #
-            pgSRCversion: REL_14_8
-            PG_SOURCE: 'D:\PGSOURCE'
-            buildpgMSYS2: true
-            PG_HOME: 'D:\PGINSTALL'
-            #
-            # # Unless I build pgwin from source and "msvc" - Version 14.8 - 14-x64. . . .
-            # # Should read the Windows host Services and eventually extract - pgWINversion. 
-            # pgWINversion: 14.8-4 # - REQUIRED ENTRY - Will not be download from EDB - Github Actions has PostgreSQL 14-x64 Pre Installed
-            #
-            testonpgWIN: true
-
-#         # First "R for Windows" 4.3.0 - PL/R can not be compiled using Microsoft Visual Studio
-#         # just a test of a recent PostgreSQL compiled from Source . . .
-          - os: windows-latest
-            compilerEnv: UCRT64
-            compilerExe: gcc
-            Platform: x64
-            rversion: 4.3.1patched
-            R_HOME: 'D:\RINSTALL'
-            R_ARCH: /x64
-            #
-            pgSRCversion: REL_13_11
-            PG_SOURCE: 'D:\PGSOURCE'
-            buildpgMSYS2: true
-            PG_HOME: 'D:\PGINSTALL'
-            #
-            pgWINversion: 13.11-3
-            #
-            testonpgWIN: true
+####            compilerEnv: UCRT64
+####            compilerExe: gcc
+####            Platform: x64
+####            rversion:  devel
+####            R_HOME: 'D:\RINSTALL'
+####            R_ARCH: /x64
+####            #
+####            pgSRCversion: REL_16_BETA3
+####            PG_SOURCE: 'D:\PGSOURCE'
+####            buildpgMSYS2: true
+####            PG_HOME: 'D:\PGINSTALL'
+####
+#####         # First "R for Windows" 4.3.0 - PL/R can not be compiled using Microsoft Visual Studio
+#####         # just a test of a recent PostgreSQL compiled from Source . . .
+####          - os: windows-latest
+####            compilerEnv: UCRT64
+####            compilerExe: gcc
+####            Platform: x64
+####            rversion: 4.3.1patched
+####            R_HOME: 'D:\RINSTALL'
+####            R_ARCH: /x64
+####            #
+####            # unless I build pgwin from source and "msvc"
+####            pgWINversion: 15.3-3
+####            #
+####            testonpgWIN: true
+####
+#####         # First "R for Windows" 4.3.0 - PL/R can not be compiled using Microsoft Visual Studio
+#####         # just a test of a recent PostgreSQL compiled from Source . .
+####          - os: windows-latest
+####            compilerEnv: UCRT64
+####            compilerExe: gcc
+####            Platform: x64
+####            rversion: 4.3.1patched
+####            R_HOME: 'D:\RINSTALL'
+####            R_ARCH: /x64
+####            #
+####            pgSRCversion: REL_14_8
+####            PG_SOURCE: 'D:\PGSOURCE'
+####            buildpgMSYS2: true
+####            PG_HOME: 'D:\PGINSTALL'
+####            #
+####            # # unless I build pgwin from source and "msvc" - Version 14.8 - 14-x64
+####            pgWINversion: 14.8-4 # - REQUIRED ENTRY - Will not be download from EDB - Github Actions has PostgreSQL 14-x64 Pre Installed
+####            #
+####            testonpgWIN: true
+####
+#####         # First "R for Windows" 4.3.0 - PL/R can not be compiled using Microsoft Visual Studio
+#####         # just a test of a recent PostgreSQL compiled from Source . . .
+####          - os: windows-latest
+####            compilerEnv: UCRT64
+####            compilerExe: gcc
+####            Platform: x64
+####            rversion: 4.3.1patched
+####            R_HOME: 'D:\RINSTALL'
+####            R_ARCH: /x64
+####            #
+####            pgSRCversion: REL_13_11
+####            PG_SOURCE: 'D:\PGSOURCE'
+####            buildpgMSYS2: true
+####            PG_HOME: 'D:\PGINSTALL'
+####            #
+####            pgWINversion: 13.11-3
+####            #
+####            testonpgWIN: true
 
 #         # First "R for Windows" 4.3.0 - PL/R can not be compiled using Microsoft Visual Studio
 #         # MATRIX ITEM NEEDS REVIEW
@@ -400,7 +399,6 @@ jobs:
 
           echo "testonpgWIN: ${env:testonpgWIN}"
 
-
           ${env:pgWINversion} = "${{ matrix.pgWINversion }}"
           if("${env:pgWINversion}" -eq ""){${env:pgWINversion} = "notset"}
           Set-EnvVar "pgWINversion=${env:pgWINversion}"
@@ -408,7 +406,7 @@ jobs:
           echo "pgWINversion: ${env:pgWINversion}"
 
           ${env:pgwinmajor} = "notset"
-          # if any, strip off the: right-most part - dot, then numbers, then one hyphen, then numbers.
+          # if any, strip off the: right-most part dot, then numbers, then one hyphen, then numbers.
           # e.g.  9.6.24-1 becomes  9.6
           # e.g. 13.11-3   becomes 13
           if("${env:pgWINversion}" -ne "notset") { ${env:pgwinmajor} = ${env:pgWINversion} -replace "[.]\d+-\d+$" }
@@ -417,60 +415,36 @@ jobs:
 
           echo "pgwinmajor: ${env:pgwinmajor}"
 
+          ${env:pgWINversionlong} = "notset"
+          if("${env:Platform}" -eq "x86"  -and "${env:pgWINversion}" -ne "notset") {
+            ${env:pgWINversionlong} = "postgresql-${env:pgWINversion}-windows"
+          }
+          if("${env:Platform}" -eq "x64" -and "${env:pgWINversion}" -ne "notset") {
+            ${env:pgWINversionlong} = "postgresql-${env:pgWINversion}-windows-x64"
+          }
+          if("${env:Platform}" -eq "notset" -or "${env:pgWINversion}" -eq "notset") {
+            ${env:pgWINversionlong} = "notset"
+          }
+          Set-EnvVar "pgWINversionlong=${env:pgWINversionlong}"
+
+          echo "pgWINversionlong: ${env:pgWINversionlong}"
+
+          if("${env:pgWINversionlong}" -ne "notset") {
+            ${env:ENTDB_PG_DOWNLOAD_URL} = "http://get.enterprisedb.com/postgresql/${env:pgWINversionlong}.exe"
+          }
+          if("${env:pgWINversionlong}" -eq "notset") {
+            ${env:ENTDB_PG_DOWNLOAD_URL} = "notset"
+          }
+          Set-EnvVar "ENTDB_PG_DOWNLOAD_URL=${env:ENTDB_PG_DOWNLOAD_URL}"
+
+          echo "ENTDB_PG_DOWNLOAD_URL: ${env:ENTDB_PG_DOWNLOAD_URL}"
+
           ${env:PGVER2} = "notset"
-          ${env:pgWINServiceName} = "notset"
-          ${env:pgWINplatform} = "notset"
-          ${env:PGPLATFORM2} = "notset"
-
-          # Use Github Actions default PostgreSQL 14-x64
-          if("${env:pgWINversion}" -eq "notset") {
-            # ONE hit - Github Actions default PostgreSQL 14-x64
-            ${env:pgWINServiceName} = (Get-Service | where-object {$_.name -like "*postgres*"}).Name
-
-            if("${env:pgWINServiceName}" -eq "") {
-              ${env:pgWINversion} = "none"
-              ${env:PGVER2} = ${env:pgWINversion}
-            }
-            if("${env:pgWINServiceName}" -ne "") {
-
-              if("${env:pgWINServiceName}" -match "(\d+[.]{0,1}\d+$)") {
-                 ${env:pgWINversion} = $matches[1]; $matches = @()
-                 ${env:PGVER2} = ${env:pgWINversion}
-              } else {
-                 ${env:pgWINversion} = "unknown"
-                 ${env:PGVER2} = ${env:pgWINversion}
-              }
-
-              if("${env:pgWINServiceName}" -match "^.*[-](x64)[-].*$") {
-                 # "x64"
-                 ${env:pgWINplatform} = $matches[1]; $matches = @()
-                 ${env:PGPLATFORM2} = ${env:pgWINplatform}
-              } else {
-                if("${env:pgWINServiceName}" -match "^.*[-].*$") {
-                   ${env:pgWINplatform} = "x86"; $matches = @()
-                   ${env:PGPLATFORM2} = ${env:pgWINplatform}
-                }
-              }
-            }
-          }
-
-          # override
-          if("${env:PGVER2}" -ne "notset" -and "${env:PGVER2}" -ne "unknown") {
-            ${env:pgwinmajor} = ${env:PGVER2}
-          }
-          Set-EnvVar "pgwinmajor=${env:pgwinmajor}"
-
-          echo "pgwinmajor: ${env:pgwinmajor}"
-
+          # Prep for Install PostgreSQL for Windows (if applicable)
+          ${env:PGVER2} = ${env:pgwinmajor}
           Set-EnvVar "PGVER2=${env:PGVER2}"
-          Set-EnvVar "pgWINServiceName=${env:pgWINServiceName}"
-          Set-EnvVar "pgWINplatform=${env:pgWINplatform}"
-          Set-EnvVar "PGPLATFORM2=${env:PGPLATFORM2}"
 
           echo "PGVER2: ${env:PGVER2}"
-          echo "pgWINServiceName: ${env:pgWINServiceName}"
-          echo "pgWINplatform: ${env:pgWINplatform}"
-          echo "PGPLATFORM2: ${env:PGPLATFORM2}"
 
           ${env:PGBIN2}  = "notset"
           ${env:PGDATA2} = "notset"
@@ -498,35 +472,6 @@ jobs:
           echo "PGDATA2: ${env:PGDATA2}"
           echo "PGROOT2: ${env:PGROOT2}"
 
-          # I download "PostgreSQL for Windows" from EnterpiseDB and Install and eventually Stop
-          ${env:pgWINversionlong} = "notset"
-          if("${env:Platform}" -eq "x86"  -and "${env:pgWINversion}" -ne "notset") {
-            ${env:pgWINversionlong} = "postgresql-${env:pgWINversion}-windows"
-          }
-          if("${env:Platform}" -eq "x64" -and "${env:pgWINversion}" -ne "notset") {
-            ${env:pgWINversionlong} = "postgresql-${env:pgWINversion}-windows-x64"
-          }
-          if("${env:Platform}" -eq "notset" -or "${env:pgWINversion}" -eq "notset") {
-            ${env:pgWINversionlong} = "notset"
-          }
-          Set-EnvVar "pgWINversionlong=${env:pgWINversionlong}"
-
-          echo "pgWINversionlong: ${env:pgWINversionlong}"
-
-          if("${env:pgWINversionlong}" -ne "notset") {
-            ${env:ENTDB_PG_DOWNLOAD_URL} = "http://get.enterprisedb.com/postgresql/${env:pgWINversionlong}.exe"
-          }
-          if("${env:pgWINversionlong}" -eq "notset") {
-            ${env:ENTDB_PG_DOWNLOAD_URL} = "notset"
-          }
-          Set-EnvVar "ENTDB_PG_DOWNLOAD_URL=${env:ENTDB_PG_DOWNLOAD_URL}"
-
-          echo "ENTDB_PG_DOWNLOAD_URL: ${env:ENTDB_PG_DOWNLOAD_URL}"
-
-
-
-
-
 
       - name: Matrix Windows Platform Specific Variables
         if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' }}
@@ -535,7 +480,7 @@ jobs:
 
           # enhances and overrides #
           ${env:rversionlong} = "${{ env.rversionlong }}-win"
-
+          
           $matches = @()
           if( "${{ env.rversion }}" -match "2.11.0|2.11.1") {
             ${env:rversionlong} = "${{ env.rversion }}-win${{ env.bit }}"
@@ -1463,5 +1408,4 @@ jobs:
           artifacts: |
             plr-${{ env.HEAD8_GITHUB_SHA }}-${{ env.os }}-${{ env.compilerEnv }}-${{ env.Platform }}-R${{ env.rversion }}-PG${{ env.pgversion }}.zip
           token: ${{ secrets.ACTIONS_CREATE_RELEASE_REPO_SECRET }}
-
 
