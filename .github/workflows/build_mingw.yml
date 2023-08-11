@@ -263,17 +263,17 @@ jobs:
           ${env:rpatch} = "notset"
           ${env:rversionnumeric} = "notset"
 
-          $matches = ""
+          $matches = @()
           if("${env:rversion}" -ne "notset") {
             # R-major.minor.patch
             # R-major.minor.patchpatched
-            if(${env:rversion} -match '(\d+)')             { ${env:rmajor} = $matches[1]; $matches = "" }
-            if(${env:rversion} -match '\d+[.](\d+)')       { ${env:rminor} = $matches[1]; $matches = "" }
-            if(${env:rversion} -match '\d+[.]\d+[.](\d+)') { ${env:rpatch} = $matches[1]; $matches = "" }
+            if(${env:rversion} -match '(\d+)')             { ${env:rmajor} = $matches[1]; $matches = @() }
+            if(${env:rversion} -match '\d+[.](\d+)')       { ${env:rminor} = $matches[1]; $matches = @() }
+            if(${env:rversion} -match '\d+[.]\d+[.](\d+)') { ${env:rpatch} = $matches[1]; $matches = @() }
             if(${env:rversion} -match '\d+[.]\d+[.](\d+)') {
               ${env:rversionnumeric} = ([int]"${env:rmajor}" * 10000) + ([int]"${env:rminor}" * 100) + ([int]"${env:rpatch}")
             }
-            $matches = ""
+            $matches = @()
           }
           if("${env:rversion}" -match 'devel') {
             ${env:rmajor} = "devel"
@@ -281,7 +281,7 @@ jobs:
             ${env:rpatch} = "devel"
             ${env:rversionnumeric} = "999999"
           }
-          $matches = ""
+          $matches = @()
 
           Set-EnvVar "rmajor=${env:rmajor}"
           Set-EnvVar "rminor=${env:rminor}"
@@ -481,11 +481,11 @@ jobs:
           # enhances and overrides #
           ${env:rversionlong} = "${{ env.rversionlong }}-win"
           
-          $matches = ""
+          $matches = @()
           if( "${{ env.rversion }}" -match "2.11.0|2.11.1") {
             ${env:rversionlong} = "${{ env.rversion }}-win${{ env.bit }}"
           }
-          $matches = ""
+          $matches = @()
           ${env:rversionlong} = "R-${env:rversionlong}"
 
           Set-EnvVar "rversionlong=${env:rversionlong}"
@@ -495,7 +495,7 @@ jobs:
           # CRAN download URL
           ${env:CRAN_R_DOWNLOAD_URL} ="notset"
 
-          $matches = ""
+          $matches = @()
           if(-not ("${env:rversionlong}" -match 'patched|devel')) {
             if([int]"${{ env.rversionnumeric }}" -ge 30600 ) {
               ${env:CRAN_R_DOWNLOAD_URL} = "https://cran.r-project.org/bin/windows/base/old/${{ env.rversion }}/${env:rversionlong}.exe"
@@ -505,11 +505,11 @@ jobs:
               ${env:CRAN_R_DOWNLOAD_URL} = "https://cran-archive.r-project.org/bin/windows/base/old/${{ env.rversion }}/${env:rversionlong}.exe"
             }
           }
-          $matches = ""
+          $matches = @()
           if("${env:rversionlong}" -match 'patched|devel') {
             ${env:CRAN_R_DOWNLOAD_URL} = "https://cran.r-project.org/bin/windows/base/${env:rversionlong}.exe"
           }
-          $matches = ""
+          $matches = @()
           Set-EnvVar "CRAN_R_DOWNLOAD_URL=${env:CRAN_R_DOWNLOAD_URL}"
 
           echo "CRAN_R_DOWNLOAD_URL: ${env:CRAN_R_DOWNLOAD_URL}"
