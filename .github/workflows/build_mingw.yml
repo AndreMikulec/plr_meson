@@ -87,6 +87,8 @@ jobs:
             PG_SOURCE: 'D:\PGSOURCE'
             buildpgMSYS2: true
             PG_HOME: 'D:\PGINSTALL'
+            #
+            # no "testonpgWIN: true" because No existing "PG for Windows REL_16_any" exists anywhre
 
 #         # First "R for Windows" 4.3.0 - PL/R can not be compiled using Microsoft Visual Studio
 #         # just a test of a recent PostgreSQL compiled from Source . . .
@@ -399,9 +401,6 @@ jobs:
 
           echo "testonpgWIN: ${env:testonpgWIN}"
 
-          ${env:pgWINServiceName} = (Get-Service -ErrorAction SilentlyContinue | where-object {$_.name -like "*postgres*"}).Name
-          echo "pgWINServiceName: ${env:pgWINServiceName}"
-
 
           ${env:pgWINversion} = "${{ matrix.pgWINversion }}"
           if("${env:pgWINversion}" -eq ""){${env:pgWINversion} = "notset"}
@@ -409,7 +408,25 @@ jobs:
 
           echo "pgWINversion: ${env:pgWINversion}"
 
+          ${env:pgWINServiceNameHostDefault} = "notset" 
+          ${env:pgWINServiceNameHostDefault} = (Get-Service -ErrorAction SilentlyContinue | where-object {$_.name -like "*postgres*"}).Name
+          echo "pgWINServiceNameHostDefault: ${env:pgWINServiceNameHostDefault}"
+          Set-EnvVar "pgWINServiceNameHostDefault=${env:pgWINServiceNameHostDefault}"
+
           ${env:pgwinmajor} = "notset"
+          if("${env:pgWINversion}" -eq "notset") {
+            if("${env:pgWINServiceNameHostDefault}" -match "(\d+[.]{0,1}\d+$)") {
+              # if (1) no entry "pgwinmajor: whatever" and yes entry "testonpgWIN: true"
+              # then THIS(14) is the default TESTING(14) "testonpgWIN PostgreSQL"
+              # 9.6
+              # 13
+              ${env:pgwinmajor} = $matches[1]; $matches = @()
+            }
+          }
+          Set-EnvVar "pgwinmajor=${env:pgwinmajor}"
+
+          echo "pgwinmajor: ${env:pgwinmajor}"
+
           # if any, strip off the: right-most part dot, then numbers, then one hyphen, then numbers.
           # e.g.  9.6.24-1 becomes  9.6
           # e.g. 13.11-3   becomes 13
