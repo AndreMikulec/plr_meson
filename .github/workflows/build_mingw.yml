@@ -321,6 +321,9 @@ jobs:
           if("${env:compilerEnv}" -in "MING64", "MINGW32", "UCRT64", "CLANG32", "CLANG64", "CLANGARM64") {
             ${env:compilerClass} = "MSYS2"
           }
+          if("${env:compilerEnv}" -eq "cygwin") {
+            ${env:compilerClass} = "cygwin"
+          }
           Set-EnvVar "compilerClass=${env:compilerClass}"
 
           echo "compilerClass: ${env:compilerClass}"
@@ -784,7 +787,30 @@ jobs:
             ${{ env.MINGW_PACKAGE_PREFIX }}-lz4
             ${{ env.MINGW_PACKAGE_PREFIX }}-postgresql
 
+      - name: Set up Cygwin
+        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'cygwin' }}
+        uses: cygwin/cygwin-install-action@v4
+        with:
+          # x86 or x86_64
+          platform: ${{ env.Platform == 'x64' && 'x86_64' || 'x86' }}
+          packages: wget
+          add-to-path: false
 
+      # help from
+      # https://github.com/egor-tensin/setup-cygwin/tree/v3.0.1
+      - name: Run Cygwin
+        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'cygwin' }}
+        env:
+          SHELLOPTS: igncr
+          CHERE_INVOKING: 1
+        shell:  C:\Cygwin\bin\bash.exe --login '{0}'
+        run: |
+          export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
+          set -x -v -e
+          uname -a
+          echo "Present Working Directory: $(pwd)"
+          export | grep TEMP
+          # bash mini
 
       # FUTURE - if the PostgreSQL version is 16 or greater, I could compile PG using meson
       - name: Compile PG using pgSRCversion and PG_SOURCE and Install to here PG_HOME
