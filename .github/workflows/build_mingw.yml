@@ -69,73 +69,78 @@ jobs:
           # # https://github.com/actions/runner-images
           #
 
-#         # (bleeding edge R) PL/R can not be compiled using Microsoft Visual Studio
+#         # Repository R and Repository postgresql
           - os: windows-latest
-            compilerEnv: UCRT64
-            compilerExe: gcc
-            Platform: x64
-            rversion:  devel
-            R_HOME: 'D:\RINSTALL'
-            R_ARCH: /x64
-            #
-            pgSRCversion: REL_16_BETA3
-            PG_SOURCE: 'D:\PGSOURCE'
-            buildpgMSYS2: true
-            PG_HOME: 'D:\PGINSTALL'
+            compilerEnv: cygwin
+            Platform: x86
 
-#         # First "R for Windows" 4.3.0 - PL/R can not be compiled using Microsoft Visual Studio
-#         # just a test of a recent PostgreSQL compiled from Source . . .
-          - os: windows-latest
-            compilerEnv: UCRT64
-            compilerExe: gcc
-            Platform: x64
-            rversion: 4.3.1patched
-            R_HOME: 'D:\RINSTALL'
-            R_ARCH: /x64
-            #
-            # unless I build pgwin from source and "msvc"
-            pgWINversion: 15.3-3
-            #
-            testonpgWIN: true
-
-#         # First "R for Windows" 4.3.0 - PL/R can not be compiled using Microsoft Visual Studio
-#         # just a test of a recent PostgreSQL compiled from Source . .
-          - os: windows-latest
-            compilerEnv: UCRT64
-            compilerExe: gcc
-            Platform: x64
-            rversion: 4.3.1patched
-            R_HOME: 'D:\RINSTALL'
-            R_ARCH: /x64
-            #
-            pgSRCversion: REL_14_8
-            PG_SOURCE: 'D:\PGSOURCE'
-            buildpgMSYS2: true
-            PG_HOME: 'D:\PGINSTALL'
-            #
-            # # unless I build pgwin from source and "msvc" - Version 14.8 - 14-x64
-            pgWINversion: 14.8-4 # - REQUIRED ENTRY - Will not be download from EDB - Github Actions has PostgreSQL 14-x64 Pre Installed
-            #
-            testonpgWIN: true
-
-#         # First "R for Windows" 4.3.0 - PL/R can not be compiled using Microsoft Visual Studio
-#         # just a test of a recent PostgreSQL compiled from Source . . .
-          - os: windows-latest
-            compilerEnv: UCRT64
-            compilerExe: gcc
-            Platform: x64
-            rversion: 4.3.1patched
-            R_HOME: 'D:\RINSTALL'
-            R_ARCH: /x64
-            #
-            pgSRCversion: REL_13_11
-            PG_SOURCE: 'D:\PGSOURCE'
-            buildpgMSYS2: true
-            PG_HOME: 'D:\PGINSTALL'
-            #
-            pgWINversion: 13.11-3
-            #
-            testonpgWIN: true
+#####         # (bleeding edge R) PL/R can not be compiled using Microsoft Visual Studio
+####          - os: windows-latest
+####            compilerEnv: UCRT64
+####            compilerExe: gcc
+####            Platform: x64
+####            rversion:  devel
+####            R_HOME: 'D:\RINSTALL'
+####            R_ARCH: /x64
+####            #
+####            pgSRCversion: REL_16_BETA3
+####            PG_SOURCE: 'D:\PGSOURCE'
+####            buildpgMSYS2: true
+####            PG_HOME: 'D:\PGINSTALL'
+####
+#####         # First "R for Windows" 4.3.0 - PL/R can not be compiled using Microsoft Visual Studio
+#####         # just a test of a recent PostgreSQL compiled from Source . . .
+####          - os: windows-latest
+####            compilerEnv: UCRT64
+####            compilerExe: gcc
+####            Platform: x64
+####            rversion: 4.3.1patched
+####            R_HOME: 'D:\RINSTALL'
+####            R_ARCH: /x64
+####            #
+####            # unless I build pgwin from source and "msvc"
+####            pgWINversion: 15.3-3
+####            #
+####            testonpgWIN: true
+####
+#####         # First "R for Windows" 4.3.0 - PL/R can not be compiled using Microsoft Visual Studio
+#####         # just a test of a recent PostgreSQL compiled from Source . .
+####          - os: windows-latest
+####            compilerEnv: UCRT64
+####            compilerExe: gcc
+####            Platform: x64
+####            rversion: 4.3.1patched
+####            R_HOME: 'D:\RINSTALL'
+####            R_ARCH: /x64
+####            #
+####            pgSRCversion: REL_14_8
+####            PG_SOURCE: 'D:\PGSOURCE'
+####            buildpgMSYS2: true
+####            PG_HOME: 'D:\PGINSTALL'
+####            #
+####            # # unless I build pgwin from source and "msvc" - Version 14.8 - 14-x64
+####            pgWINversion: 14.8-4 # - REQUIRED ENTRY - Will not be download from EDB - Github Actions has PostgreSQL 14-x64 Pre Installed
+####            #
+####            testonpgWIN: true
+####
+#####         # First "R for Windows" 4.3.0 - PL/R can not be compiled using Microsoft Visual Studio
+#####         # just a test of a recent PostgreSQL compiled from Source . . .
+####          - os: windows-latest
+####            compilerEnv: UCRT64
+####            compilerExe: gcc
+####            Platform: x64
+####            rversion: 4.3.1patched
+####            R_HOME: 'D:\RINSTALL'
+####            R_ARCH: /x64
+####            #
+####            pgSRCversion: REL_13_11
+####            PG_SOURCE: 'D:\PGSOURCE'
+####            buildpgMSYS2: true
+####            PG_HOME: 'D:\PGINSTALL'
+####            #
+####            pgWINversion: 13.11-3
+####            #
+####            testonpgWIN: true
 
 #         # First "R for Windows" 4.3.0 - PL/R can not be compiled using Microsoft Visual Studio
 #         # MATRIX ITEM NEEDS REVIEW
