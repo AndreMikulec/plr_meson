@@ -853,7 +853,28 @@ jobs:
           uname -a
           echo "Present Working Directory: $(pwd)"
           export | grep TEMP
+          #
           # bash mini
+          #
+          # shutdown current
+          cygrunsrv -E cygserver || true
+          # uninstall previous
+          cygrunsrv -R cygserver || true
+          # install
+          cygserver-config --yes
+          cp /etc/defaults/etc/cygserver.conf /etc/defaults/etc/cygserver.conf.original
+          echo kern.ipc.shmmni 32767 >> /etc/defaults/etc/cygserver.conf
+          echo kern.ipc.shmseg 32767 >> /etc/defaults/etc/cygserver.conf
+          # start
+          cygrunsrv -S cygserver
+          #
+          # bash mini
+          #
+          # shutdown current
+          cygrunsrv -E cygserver
+          # uninstall previous
+          cygrunsrv -R cygserver
+
 
       # FUTURE - if the PostgreSQL version is 16 or greater, I could compile PG using meson
       - name: Compile PG using pgSRCversion and PG_SOURCE and Install to here PG_HOME
