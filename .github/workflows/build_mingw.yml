@@ -138,6 +138,7 @@ jobs:
             testonpgWIN: true
 
 #         # First "R for Windows" 4.3.0 - PL/R can not be compiled using Microsoft Visual Studio
+#         # MATRIX ITEM NEEDS REVIEW
 #         - os: windows-latest
 #           compilerEnv: UCRT64
 #           compilerExe: gcc
@@ -150,6 +151,7 @@ jobs:
 #           testonpgWIN: true
 
           # Last "R for Windows" 4.2.3 - Last PL/R that can be compiled using Microsoft Visual Studio
+#         # MATRIX ITEM NEEDS REVIEW
 #         - os: windows-latest
 #           compilerEnv: UCRT64
 #           compilerExe: gcc
@@ -781,6 +783,8 @@ jobs:
             ${{ env.MINGW_PACKAGE_PREFIX }}-libxslt
             ${{ env.MINGW_PACKAGE_PREFIX }}-lz4
             ${{ env.MINGW_PACKAGE_PREFIX }}-postgresql
+
+
 
       # FUTURE - if the PostgreSQL version is 16 or greater, I could compile PG using meson
       - name: Compile PG using pgSRCversion and PG_SOURCE and Install to here PG_HOME
