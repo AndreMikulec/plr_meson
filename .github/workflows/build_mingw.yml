@@ -120,8 +120,8 @@ jobs:
             buildpgMSYS2: true
             PG_HOME: 'D:\PGINSTALL'
             #
-            # # unless I build pgwin from source and "msvc" - Version 14.8 - 14-x64
-            pgWINversion: 14.8-4 # - REQUIRED ENTRY - Will not be download from EDB - Github Actions has PostgreSQL 14-x64 Pre Installed
+            # pgWINversion: "uses pgWINServiceNameHostDefault"
+            # PG will not be download from EDB - Github Actions has PostgreSQL 14-x64 Pre Installed
             #
             testonpgWIN: true
 
