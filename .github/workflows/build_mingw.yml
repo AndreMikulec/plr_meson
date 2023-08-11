@@ -400,6 +400,8 @@ jobs:
           echo "testonpgWIN: ${env:testonpgWIN}"
 
           ${env:pgWINServiceName} = (Get-Service -ErrorAction SilentlyContinue | where-object {$_.name -like "*postgres*"}).Name
+          echo "pgWINServiceName: ${env:pgWINServiceName}"
+
 
           ${env:pgWINversion} = "${{ matrix.pgWINversion }}"
           if("${env:pgWINversion}" -eq ""){${env:pgWINversion} = "notset"}
