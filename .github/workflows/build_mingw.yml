@@ -338,6 +338,12 @@ jobs:
 
           echo "compilerClass: ${env:compilerClass}"
 
+          ${env:envShellEnv} = "${{ matrix.envShellEnv }}"
+          if("${env:envShellEnv}" -eq ""){${env:envShellEnv} = "notset"}
+          Set-EnvVar "envShellEnv=${env:envShellEnv}"
+
+          echo "envShellEnv: ${env:envShellEnv}"
+
           ${env:compilerExe} = "${{ matrix.compilerExe }}"
           if("${env:compilerExe}" -eq ""){${env:compilerExe} = "notset"}
           Set-EnvVar "compilerExe=${env:compilerExe}"
@@ -828,7 +834,8 @@ jobs:
           # x86 or x86_64
           #         GitHub offers ternary operator like behaviour that you can use in expressions
           platform: ${{ env.Platform == 'x64' && 'x86_64' || 'x86' }}
-          add-to-path: false
+          # REQUIRED def true - otherwise the default install MING64 "bash" will be found
+          # add-to-path: true
           packages: >-
              cygrunsrv pkg-config  meson  gendef
              gcc-core  make  tar  gzip  libreadline7  zlib  icu-devel  bison  perl
@@ -846,11 +853,12 @@ jobs:
         env:
           SHELLOPTS: igncr
           CHERE_INVOKING: 1
-        shell:  C:\Cygwin\bin\bash.exe --login '{0}'
+        shell: bash
         run: |
           export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
           set -x -v -e
           uname -a
+          echo "bash: $(which bash)"
           echo "Present Working Directory: $(pwd)"
           export | grep TEMP
           #
@@ -879,7 +887,6 @@ jobs:
       # FUTURE - if the PostgreSQL version is 16 or greater, I could compile PG using meson
       - name: Compile PG using pgSRCversion and PG_SOURCE and Install to here PG_HOME
         if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.buildpgMSYS2 == 'true' }}
-#       uses: msys2/setup-msys2@v2
         shell: msys2 {0}
         env:
           msystem: ${{ env.compilerEnv }}
@@ -889,6 +896,7 @@ jobs:
         run: |
           echo "Compile PG using pgSRCversion and PG_SOURCE and Install to here PG_HOME"
           set -x -v -e
+          uname -a
           # Msys
           # export OperatingSystem=$(uname -o)
           echo "compilerEnv: ${{ env.compilerEnv }}"
@@ -968,7 +976,6 @@ jobs:
 
       - name: Meson PL/R Setup Compile and Non-Meson Manual Test
         if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' }}
-#       uses: msys2/setup-msys2@v2
         shell: msys2 {0}
         env:
           msystem: ${{ env.compilerEnv }}
@@ -981,6 +988,7 @@ jobs:
         run: |
           echo "Meson PL/R Setup Compile and Non-Meson Manual Test"
           set -x -v -e
+          uname -a
           # Msys
           # export OperatingSystem=$(uname -o)
           echo "compilerEnv: ${{ env.compilerEnv }}"
