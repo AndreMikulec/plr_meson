@@ -73,7 +73,6 @@ jobs:
           - os: windows-latest
             compilerEnv: cygwin
             Platform: x86
-            shellEnv: bash
 
 #####         # (bleeding edge R) PL/R can not be compiled using Microsoft Visual Studio
 ####          - os: windows-latest
