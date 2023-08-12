@@ -219,14 +219,20 @@ jobs:
 #           pgWINversion: 10.23-1
 #           testonpgWIN: true
 
+    defaults:
+      run:
+        shell: ${{ matrix.shellEnv || 'bash' }}
+
     steps:
       - name: Prepare to Download Files from Github
+        shell: powershell
         run: |
           git config --global core.autocrlf input
           git config --global advice.detachedHead false
 
       - name: Matrix Variables
         if: matrix.os == 'windows-latest'
+        shell: powershell
         run: |
           # systeminfo
           echo "${{ matrix.compilerEnv }} on ${{ matrix.os }}"
@@ -408,7 +414,6 @@ jobs:
 
           echo "testonpgWIN: ${env:testonpgWIN}"
 
-
           ${env:pgWINversion} = "${{ matrix.pgWINversion }}"
           if("${env:pgWINversion}" -eq ""){${env:pgWINversion} = "notset"}
           Set-EnvVar "pgWINversion=${env:pgWINversion}"
@@ -502,6 +507,7 @@ jobs:
 
       - name: Matrix Windows Platform Specific Variables
         if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' }}
+        shell: powershell
         run: |
           function Set-EnvVar {param($X)     Add-Content -Path ${env:GITHUB_ENV} -Value "$X"}
 
@@ -573,6 +579,7 @@ jobs:
 
       - name: Windows Move PostgreSQL Code
         if: ${{ env.os == 'windows-latest' && env.pgSRCversion != 'notset' }}
+        shell: powershell
         run: |
           Move-Item -Path PGSOURCE -Destination ${{ env.PG_SOURCE }}
           Get-ChildItem                         ${{ env.PG_SOURCE }}
@@ -794,9 +801,9 @@ jobs:
           # 100% sure THIS IS broken
           # location: D:\
           #
-          # NEEDS REVIEW - DO NOT KEEP "TRUE" - if using  multiple" MSYS2 environments" in this workflow
           # By default (true), caches various things between runs to make repeated runs faster.
-          cache: false
+          # TEMP USING THE DEFAULT OF TRUE - SEE WHAT HAPPENS
+          # cache: false
           #
           install: >-
             ${{ env.MINGW_PACKAGE_PREFIX }}-pkg-config
@@ -854,7 +861,7 @@ jobs:
         env:
           SHELLOPTS: igncr
           CHERE_INVOKING: 1
-        shell: bash
+        shell: ${{ env.shellEnv }}
         run: |
           export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
           set -x -v -e
@@ -879,11 +886,6 @@ jobs:
           #
           # bash mini
           #
-          # shutdown current
-          cygrunsrv -E cygserver
-          # uninstall previous
-          cygrunsrv -R cygserver
-
 
       # FUTURE - if the PostgreSQL version is 16 or greater, I could compile PG using meson
       - name: Compile PG using pgSRCversion and PG_SOURCE and Install to here PG_HOME
@@ -1354,6 +1356,24 @@ jobs:
             echo "rversion_old: ${rversion}"
           fi
           unset rversion_old
+
+
+      - name: Cleanup Cygwin
+        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'cygwin' }}
+        env:
+          SHELLOPTS: igncr
+          CHERE_INVOKING: 1
+        shell: ${{ env.shellEnv }}
+        run: |
+          export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
+          set -x -v -e
+          uname -a
+          echo "bash: $(which bash)"
+          echo "Present Working Directory: $(pwd)"
+          # shutdown current
+          cygrunsrv -E cygserver
+          # uninstall previous
+          cygrunsrv -R cygserver
 
       - name: Upload artifacts plr.dll and plr.dll.a for export for LOCAL testing
         if: ${{ env.os == 'windows-latest' &&  env.compilerClass == 'MSYS2' }}
