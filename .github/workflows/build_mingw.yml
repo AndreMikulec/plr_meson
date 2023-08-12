@@ -884,6 +884,8 @@ jobs:
       - name: Compile PG using pgSRCversion and PG_SOURCE and Install to here PG_HOME
         if: ${{ env.os == 'windows-latest' && ( env.compilerClass == 'MSYS2' || env.compilerClass == 'cygwin' ) && env.buildpgMSYS2 == 'true' }}
         env:
+          SHELLOPTS: igncr
+          CHERE_INVOKING: 1
           msystem: ${{ env.compilerEnv }}
           #
           PG_SOURCE: ${{ env.PG_SOURCE }}
@@ -972,6 +974,8 @@ jobs:
       - name: Meson PL/R Setup Compile and Non-Meson Manual Test
         if: ${{ env.os == 'windows-latest' && ( env.compilerClass == 'MSYS2' || env.compilerClass == 'cygwin' ) }}
         env:
+          SHELLOPTS: igncr
+          CHERE_INVOKING: 1
           msystem: ${{ env.compilerEnv }}
           #
           R_HOME: ${{ env.R_HOME }}
