@@ -830,7 +830,7 @@ jobs:
           platform: ${{ env.Platform == 'x64' && 'x86_64' || 'x86' }}
           add-to-path: false
           packages: >-
-             pkg-config  meson  gendef
+             cygrunsrv pkg-config  meson  gendef
              gcc-core  make  tar  gzip  libreadline7  zlib  icu-devel  bison  perl
              flex  libreadline-devel  libssl-devel  libxml2-devel  libxslt-devel  openldap-devel  zlib-devel
              libintl-devel  libcrypt-devel
