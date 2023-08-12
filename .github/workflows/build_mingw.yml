@@ -861,7 +861,7 @@ jobs:
         env:
           SHELLOPTS: igncr
           CHERE_INVOKING: 1
-        shell: ${{ env.shellEnv }}
+        shell: ${{ matrix.shellEnv }}
         run: |
           export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
           set -x -v -e
