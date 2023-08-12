@@ -73,6 +73,7 @@ jobs:
           - os: windows-latest
             compilerEnv: cygwin
             Platform: x86
+            shellEnv: bash
 
 #####         # (bleeding edge R) PL/R can not be compiled using Microsoft Visual Studio
 ####          - os: windows-latest
@@ -886,8 +887,8 @@ jobs:
 
       # FUTURE - if the PostgreSQL version is 16 or greater, I could compile PG using meson
       - name: Compile PG using pgSRCversion and PG_SOURCE and Install to here PG_HOME
-        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.buildpgMSYS2 == 'true' }}
-        shell: msys2 {0}
+        if: ${{ env.os == 'windows-latest' && ( env.compilerClass == 'MSYS2' || env.compilerClass == 'cygwin' ) && env.buildpgMSYS2 == 'true' }}
+        shell: ${{ env.shellEnv }}
         env:
           msystem: ${{ env.compilerEnv }}
           #
@@ -975,8 +976,8 @@ jobs:
             pg-${{ env.os }}-${{ env.compilerEnv }}-${{ env.Platform }}-PG${{ env.pgversion }}.7z
 
       - name: Meson PL/R Setup Compile and Non-Meson Manual Test
-        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' }}
-        shell: msys2 {0}
+        if: ${{ env.os == 'windows-latest' && ( env.compilerClass == 'MSYS2' || env.compilerClass == 'cygwin' ) }}
+        shell: ${{ env.shellEnv }}
         env:
           msystem: ${{ env.compilerEnv }}
           #
