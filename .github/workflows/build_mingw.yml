@@ -77,6 +77,7 @@ jobs:
 #####         # (bleeding edge R) PL/R can not be compiled using Microsoft Visual Studio
 ####          - os: windows-latest
 ####            compilerEnv: UCRT64
+                shellEnv: msys2 {0}
 ####            compilerExe: gcc
 ####            Platform: x64
 ####            rversion:  devel
@@ -90,25 +91,27 @@ jobs:
 ####            #
 ####            # no "testonpgWIN: true" because No existing "PG for Windows REL_16_any" exists anywhre
 ####
-#####         # First "R for Windows" 4.3.0 - PL/R can not be compiled using Microsoft Visual Studio
-#####         # just a test of a recent PostgreSQL compiled from Source . . .
-####          - os: windows-latest
-####            compilerEnv: UCRT64
-####            compilerExe: gcc
-####            Platform: x64
-####            rversion: 4.3.1patched
-####            R_HOME: 'D:\RINSTALL'
-####            R_ARCH: /x64
-####            #
-####            # unless I build pgwin from source and "msvc"
-####            pgWINversion: 15.3-3
-####            #
-####            testonpgWIN: true
+    #         # First "R for Windows" 4.3.0 - PL/R can not be compiled using Microsoft Visual Studio
+    #         # just a test of a recent PostgreSQL compiled from Source . . .
+              - os: windows-latest
+                compilerEnv: UCRT64
+                shellEnv: msys2 {0}
+                compilerExe: gcc
+                Platform: x64
+                rversion: 4.3.1patched
+                R_HOME: 'D:\RINSTALL'
+                R_ARCH: /x64
+                #
+                # unless I build pgwin from source and "msvc"
+                pgWINversion: 15.3-3
+                #
+                testonpgWIN: true
 ####
 #####         # First "R for Windows" 4.3.0 - PL/R can not be compiled using Microsoft Visual Studio
 #####         # just a test of a recent PostgreSQL compiled from Source . .
 ####          - os: windows-latest
 ####            compilerEnv: UCRT64
+####            shellEnv: msys2 {0}
 ####            compilerExe: gcc
 ####            Platform: x64
 ####            rversion: 4.3.1patched
@@ -129,6 +132,7 @@ jobs:
 #####         # just a test of a recent PostgreSQL compiled from Source . . .
 ####          - os: windows-latest
 ####            compilerEnv: UCRT64
+####            shellEnv: msys2 {0}
 ####            compilerExe: gcc
 ####            Platform: x64
 ####            rversion: 4.3.1patched
@@ -148,6 +152,7 @@ jobs:
 #         # MATRIX ITEM NEEDS REVIEW
 #         - os: windows-latest
 #           compilerEnv: UCRT64
+#           shellEnv: msys2 {0}
 #           compilerExe: gcc
 #           Platform: x64
 #           rversion: 4.3.1patched
@@ -161,6 +166,7 @@ jobs:
 #         # MATRIX ITEM NEEDS REVIEW
 #         - os: windows-latest
 #           compilerEnv: UCRT64
+#           shellEnv: msys2 {0}
 #           compilerExe: gcc
 #           Platform: x64
 #           rversion: 4.2.3
