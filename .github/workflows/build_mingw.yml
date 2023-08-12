@@ -345,12 +345,6 @@ jobs:
 
           echo "compilerClass: ${env:compilerClass}"
 
-          ${env:envShellEnv} = "${{ matrix.envShellEnv }}"
-          if("${env:envShellEnv}" -eq ""){${env:envShellEnv} = "notset"}
-          Set-EnvVar "envShellEnv=${env:envShellEnv}"
-
-          echo "envShellEnv: ${env:envShellEnv}"
-
           ${env:compilerExe} = "${{ matrix.compilerExe }}"
           if("${env:compilerExe}" -eq ""){${env:compilerExe} = "notset"}
           Set-EnvVar "compilerExe=${env:compilerExe}"
@@ -420,7 +414,7 @@ jobs:
 
           echo "pgWINversion: ${env:pgWINversion}"
 
-          ${env:pgWINServiceNameHostDefault} = "notset" 
+          ${env:pgWINServiceNameHostDefault} = "notset"
           ${env:pgWINServiceNameHostDefault} = (Get-Service -ErrorAction SilentlyContinue | where-object {$_.name -like "*postgres*"}).Name
           echo "pgWINServiceNameHostDefault: ${env:pgWINServiceNameHostDefault}"
           Set-EnvVar "pgWINServiceNameHostDefault=${env:pgWINServiceNameHostDefault}"
@@ -513,7 +507,7 @@ jobs:
 
           # enhances and overrides #
           ${env:rversionlong} = "${{ env.rversionlong }}-win"
-          
+
           $matches = @()
           if( "${{ env.rversion }}" -match "2.11.0|2.11.1") {
             ${env:rversionlong} = "${{ env.rversion }}-win${{ env.bit }}"
@@ -861,7 +855,6 @@ jobs:
         env:
           SHELLOPTS: igncr
           CHERE_INVOKING: 1
-        shell: ${{ matrix.shellEnv }}
         run: |
           export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
           set -x -v -e
@@ -890,7 +883,6 @@ jobs:
       # FUTURE - if the PostgreSQL version is 16 or greater, I could compile PG using meson
       - name: Compile PG using pgSRCversion and PG_SOURCE and Install to here PG_HOME
         if: ${{ env.os == 'windows-latest' && ( env.compilerClass == 'MSYS2' || env.compilerClass == 'cygwin' ) && env.buildpgMSYS2 == 'true' }}
-        shell: ${{ env.shellEnv }}
         env:
           msystem: ${{ env.compilerEnv }}
           #
@@ -979,7 +971,6 @@ jobs:
 
       - name: Meson PL/R Setup Compile and Non-Meson Manual Test
         if: ${{ env.os == 'windows-latest' && ( env.compilerClass == 'MSYS2' || env.compilerClass == 'cygwin' ) }}
-        shell: ${{ env.shellEnv }}
         env:
           msystem: ${{ env.compilerEnv }}
           #
@@ -1363,7 +1354,6 @@ jobs:
         env:
           SHELLOPTS: igncr
           CHERE_INVOKING: 1
-        shell: ${{ env.shellEnv }}
         run: |
           export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
           set -x -v -e
