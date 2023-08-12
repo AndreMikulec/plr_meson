@@ -890,8 +890,8 @@ jobs:
           PG_HOME: ${{ env.PG_HOME }}
         run: |
           echo "Compile PG using pgSRCversion and PG_SOURCE and Install to here PG_HOME"
-          set -x -v -e
           uname -a
+          set -x -v -e
           # Msys
           # export OperatingSystem=$(uname -o)
           echo "compilerEnv: ${{ env.compilerEnv }}"
