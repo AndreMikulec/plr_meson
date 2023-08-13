@@ -1012,6 +1012,44 @@ jobs:
           echo "PGROOT2: ${PGROOT2}"
 
           #
+          # Trying smartly and hard to find the R_HOME
+          #
+          if [ ! "${R_HOME}" == "notset" ] && [ ! "${R_HOME}" == "" ]
+          then
+            export R_HOME=$(cygpath "${PG_HOME}")
+
+            # user supplied variable
+            echo "cygpath R_HOME: ${R_HOME}"
+
+            export ERRORLEVEL=0
+            ls -alrt "${PG_HOME}/bin/R" || export ERRORLEVEL=$?
+            if [ ! "${ERRORLEVEL}" == "0" ]; then echo ERROR - No R found at "${R_HOME}/bin/R"; exit 1;fi
+
+            # PATHs are needed for the proper compile and runtime
+            # find "libraries"
+            # R Non-Sub-Architectures
+            export PATH="${R_HOME}/bin:${PATH}"
+
+          fi
+
+          export ERRORLEVEL=0
+          which R || export ERRORLEVEL=$?
+          if [ ! "${ERRORLEVEL}" == "0" ]; then echo ERROR - No R found in the PATH - ${PATH}; exit 1;fi
+
+          if [ "${R_HOME}" == "notset" ] || [ "${R_HOME}" == "" ]
+          then
+            export R_HOME=$(dirname "$(which R)")
+
+            # determined variable
+            echo "dirname which R R_HOME: ${R_HOME}"
+
+            # PATHs are needed for the proper compile and runtime
+            # find "libraries"
+            # R Non-Sub-Architectures
+            export PATH="${R_HOME}/bin:${PATH}"
+          fi
+
+          #
           # Trying smartly and hard to find the PG_HOME
           #
           if [ ! "${PG_HOME}" == "notset" ] && [ ! "${PG_HOME}" == "" ]
