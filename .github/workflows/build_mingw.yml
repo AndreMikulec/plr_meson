@@ -899,8 +899,9 @@ jobs:
           PG_HOME: ${{ env.PG_HOME }}
         run: |
           echo "Compile PG using pgSRCversion and PG_SOURCE and Install to here PG_HOME"
-          uname -a
+          export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
           set -x -v -e
+          uname -a
           # Msys
           # export OperatingSystem=$(uname -o)
           echo "compilerEnv: ${{ env.compilerEnv }}"
@@ -993,6 +994,7 @@ jobs:
           PGROOT2: ${{ env.PGROOT2 }}
         run: |
           echo "Meson PL/R Setup Compile and Non-Meson Manual Test"
+          export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
           set -x -v -e
           uname -a
           # Msys
