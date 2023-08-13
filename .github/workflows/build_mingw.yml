@@ -1119,6 +1119,7 @@ jobs:
             echo "rversion=${rversion}" >> ${GITHUB_ENV}
             echo "R --version: ${rversion}"
 
+            export
             if [ ! "${OperatingSystem}" == "Msys" ]
             then
               if [ ! "${rversion_supplied}" == "${rversion}" ]
