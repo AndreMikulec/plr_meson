@@ -1018,13 +1018,13 @@ jobs:
           #
           if [ ! "${R_HOME}" == "notset" ] && [ ! "${R_HOME}" == "" ]
           then
-            export R_HOME=$(cygpath "${PG_HOME}")
+            export R_HOME=$(cygpath "${R_HOME}")
 
             # user supplied variable
             echo "cygpath R_HOME: ${R_HOME}"
 
             export ERRORLEVEL=0
-            ls -alrt "${PG_HOME}/bin/R" || export ERRORLEVEL=$?
+            ls -alrt "${R_HOME}/bin/R" || export ERRORLEVEL=$?
             if [ ! "${ERRORLEVEL}" == "0" ]; then echo ERROR - No R found at "${R_HOME}/bin/R"; exit 1;fi
 
             # PATHs are needed for the proper compile and runtime
@@ -1133,6 +1133,8 @@ jobs:
             # LAST
             if [ ! "${R_ARCH}" == "notset" ] && [ ! "${R_ARCH}" == "" ]
             then
+              echo "R_ARCH=${R_ARCH}" >> ${GITHUB_ENV}
+              echo "directory test R_ARCH: ${R_ARCH}"
               # R    Sub-Architectures
               export PATH="${R_HOME}/bin${R_ARCH}:${PATH}"
             fi
