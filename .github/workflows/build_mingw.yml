@@ -986,6 +986,7 @@ jobs:
           msystem: ${{ env.compilerEnv }}
           #
           R_HOME: ${{ env.R_HOME }}
+          Platform: ${{ env.Platform }}
           R_ARCH: ${{ env.R_ARCH }}
           rversion: ${{ env.rversion }}
           PG_HOME: ${{ env.PG_HOME }}
@@ -1038,7 +1039,7 @@ jobs:
           then
             export PG_HOME=$(cygpath "${PG_HOME}")
 
-            # user supplied variable
+            # determined variable
             echo "cygpath PG_HOME: ${PG_HOME}"
 
             export ERRORLEVEL=0
@@ -1334,7 +1335,7 @@ jobs:
           fi
 
           #
-          # For artifact naming, determine the Vendor Supplied pgversion.
+          # For artifact naming, determine the Compiler Supplied pgversion.
           #
           export pgversion=$(pg_config | grep "^VERSION" | sed "s/ = /=/" | sed "s/^.*=//" | grep -oP '[ ].*$' | grep -oP '\d.*$')
           # potential override
