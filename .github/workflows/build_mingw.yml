@@ -1106,14 +1106,19 @@ jobs:
               # discovered
               # export rversion=$(R --version | head --lines=1 | sed "s/R version //" | sed "s/ (.*$//")
               # regression
-              echo $(Rscript --vanilla -e 'cat(gsub('\'' '\'', replacement = '\''_'\'', x = paste0(R.version$major,'\''.'\'',R.version$minor,tolower(R.version$status))))' 2>/dev/null 1>rversion.txt)
-              cat     rversion.txt
-              export  rversion=$(cat rversion.txt)
-              echo   "rversion: ${rversion}"
+              # echo $(Rscript --vanilla -e 'cat(gsub('\'' '\'', replacement = '\''_'\'', x = paste0(R.version$major,'\''.'\'',R.version$minor,tolower(R.version$status))))' 2>/dev/null 1>rversion.txt)
+              # cat     rversion.txt
+              # export  rversion=$(cat rversion.txt)
               export R_HOME=${OLD_R_HOME}
               unset OLD_R_HOME
-              echo "rversion=${rversion}" >> ${GITHUB_ENV}
-              echo "R --version: ${rversion}"
+                                 R --version
+                                 R --version | head --lines=1
+                                 R --version | head --lines=1 | sed "s/R version //"
+                                 R --version | head --lines=1 | sed "s/R version //" | sed "s/ (.*$//"
+              export  rversion=$(R --version | head --lines=1 | sed "s/R version //" | sed "s/ (.*$//")
+              echo   "rversion: ${rversion}"
+              echo   "rversion=${rversion}" >> ${GITHUB_ENV}
+              echo   "R --version: ${rversion}"
             fi
             # Fail if the user supplied rversion does not match the true rversion
             #
