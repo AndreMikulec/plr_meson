@@ -683,7 +683,9 @@ jobs:
         uses: suisei-cn/actions-download-file@v1.3.0
         id: downloadDiffutilsZip
         with:
-          url: https://github.com/AndreMikulec/plr_meson/releases/download/0.0.0.0.0.GITHUBCACHE/diffutils-2.8.7-1-bin.zip
+          retry-times: 1
+        # url: https://github.com/AndreMikulec/plr_meson/releases/download/0.0.0.0.0.GITHUBCACHE/diffutils-2.8.7-1-bin.zip
+          url: https://zenlayer.dl.sourceforge.net/project/gnuwin32/diffutils/2.8.7-1/diffutils-2.8.7-1-bin.zip
 
       - name: Install R for Windows R-x.y.z R-rmajor.rminor.rpatch
         if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' }}
