@@ -1073,7 +1073,7 @@ jobs:
 
           if [ "${R_HOME}" == "notset" ] || [ "${R_HOME}" == "" ]
           then
-            export R_HOME=$(dirname "$(which R)")
+            export R_HOME=$(dirname $(dirname "$(which R)"))
 
             # determined variable
             echo "dirname which R R_HOME: ${R_HOME}"
