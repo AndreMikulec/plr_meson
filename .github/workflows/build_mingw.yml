@@ -1098,7 +1098,7 @@ jobs:
           fi
 
           #
-          # verify user supplied R_ARCH or determine R_ARCH
+          # verify user supplied R_ARCH or determine the R_ARCH
           #
           if [ ! "${R_ARCH}" == "notset" ] && [ ! "${R_ARCH}" == "" ]
           then
