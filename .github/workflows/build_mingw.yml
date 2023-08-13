@@ -868,7 +868,7 @@ jobs:
         run: |
           echo "Run Cygwin"
           set -x -v -e
-          if [ "${OperatingSystem}" == "" ]; then export OperatingSystem=$(unname -o); fi
+          if [ "${OperatingSystem}" == "" ]; then export OperatingSystem=$(uname -o); fi
           echo "OperatingSystem: ${OperatingSystem}"
           if [ "${OperatingSystem}" == "Cygwin" ]
           then
@@ -913,7 +913,7 @@ jobs:
         run: |
           echo "Compile PG using pgSRCversion and PG_SOURCE and Install to here PG_HOME"
           set -x -v -e
-          if [ "${OperatingSystem}" == "" ]; then export OperatingSystem=$(unname -o); fi
+          if [ "${OperatingSystem}" == "" ]; then export OperatingSystem=$(uname -o); fi
           echo "OperatingSystem: ${OperatingSystem}"
           if [ "${OperatingSystem}" == "Cygwin" ]
           then
@@ -1022,7 +1022,7 @@ jobs:
         run: |
           echo "Meson PL/R Setup Compile and Non-Meson Manual Test"
           set -x -v -e
-          if [ "${OperatingSystem}" == "" ]; then export OperatingSystem=$(unname -o); fi
+          if [ "${OperatingSystem}" == "" ]; then export OperatingSystem=$(uname -o); fi
           echo "OperatingSystem: ${OperatingSystem}"
           if [ "${OperatingSystem}" == "Cygwin" ]
           then
@@ -1503,7 +1503,7 @@ jobs:
         run: |
           echo "Cleanup Cygwin"
           set -x -v -e
-          if [ "${OperatingSystem}" == "" ]; then export OperatingSystem=$(unname -o); fi
+          if [ "${OperatingSystem}" == "" ]; then export OperatingSystem=$(uname -o); fi
           echo "OperatingSystem: ${OperatingSystem}"
           if [ "${OperatingSystem}" == "Cygwin" ]
           then
