@@ -1171,10 +1171,12 @@ jobs:
               # R    Sub-Architectures
               export PATH="${R_HOME}/bin${R_ARCH}:${PATH}"
             fi
-            if [  "${R_ARCH}" == "notset" ] || [   "${R_ARCH}" == "" ]
-            then
-              echo "user and determined R_ARCH : not set"
-            fi
+          fi
+          if [  "${R_ARCH}" == "notset" ] || [   "${R_ARCH}" == "" ]
+          then
+            # The rest of this program uses R_ARCH like this.
+            unset R_ARCH
+            echo "user and determined R_ARCH: ${R_ARCH}"
           fi
 
           #
