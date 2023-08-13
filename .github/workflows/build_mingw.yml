@@ -1050,6 +1050,54 @@ jobs:
           fi
 
           #
+          # determine rversion xor verify user supplied rversion
+          #
+          # For artifact naming, match and verify the Compiler Supplied rversion.
+          #
+          if [ "${rversion}" == "notset" ] || [  "${rversion}" == "" ]
+          then
+            # OperatingSystem "Cygwin"
+            export OLD_R_HOME=${R_HOME}
+            unset               R_HOME
+            # discovered
+            export rversion=$(R --version | head --lines=1 | sed "s/R version //" | sed "s/ (.*$//")
+            export R_HOME=${OLD_R_HOME}
+            unset OLD_R_HOME
+            echo "rversion=${rversion}" >> ${GITHUB_ENV}
+            echo "R --version: ${rversion}"
+
+          else
+            export rversion_supplied=${rversion}
+
+            # For artifact naming, determine the Compiler Supplied rversion.
+            #
+            # Pipes have been known to fail in Msys
+            # when piping from a non-Msys program. E.g "R for Windows".
+            #
+            # Fail if the user supplied rversion does not match the true rversion
+            #
+            # OLD_R_HOME part - OperatingSystem "Cygwin"
+            #
+            export OLD_R_HOME=${R_HOME}
+            unset               R_HOME
+            export rversion=$(R --version | head --lines=1 | sed "s/R version //" | sed "s/ (.*$//")
+            export R_HOME=${OLD_R_HOME}
+            unset OLD_R_HOME
+            echo "rversion=${rversion}" >> ${GITHUB_ENV}
+            echo "R --version: ${rversion}"
+
+            if [ ! "${OperatingSystem}" == "Msys" ] 
+            then
+              if [ ! "${rversion_supplied}" == "${rversion}" ]
+              then
+                 echo ERROR - No user supplied rversion(supplied) ${rversion_supplied} match found R version ${rversion}
+                 exit 1
+              fi
+            fi
+            unset rversion_supplied
+          fi
+
+          #
           # Trying smartly and hard to find the PG_HOME
           #
           if [ ! "${PG_HOME}" == "notset" ] && [ ! "${PG_HOME}" == "" ]
