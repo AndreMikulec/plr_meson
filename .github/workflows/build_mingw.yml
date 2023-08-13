@@ -1163,20 +1163,22 @@ jobs:
             # is in a space separated string.
             # pushd "${R_HOME}/bin"; ls -d */ | grep -oP '^.*[^/]' | xargs; popd
             #
-            # LAST
-            if [ ! "${R_ARCH}" == "notset" ] && [ ! "${R_ARCH}" == "" ]
-            then
-              echo "R_ARCH=${R_ARCH}" >> ${GITHUB_ENV}
-              echo "directory test R_ARCH: ${R_ARCH}"
-              # R    Sub-Architectures
-              export PATH="${R_HOME}/bin${R_ARCH}:${PATH}"
-            fi
           fi
+
           if [  "${R_ARCH}" == "notset" ] || [   "${R_ARCH}" == "" ]
           then
             # The rest of this program uses R_ARCH like this.
             unset R_ARCH
             echo "user and determined R_ARCH: ${R_ARCH}"
+          fi
+
+          # LAST
+          if [ ! "${R_ARCH}" == "notset" ] && [ ! "${R_ARCH}" == "" ]
+          then
+            echo "R_ARCH=${R_ARCH}" >> ${GITHUB_ENV}
+            echo "directory test R_ARCH: ${R_ARCH}"
+            # R    Sub-Architectures
+            export PATH="${R_HOME}/bin${R_ARCH}:${PATH}"
           fi
 
           #
@@ -1203,6 +1205,7 @@ jobs:
 
           export ERRORLEVEL=0
           which pg_config || export ERRORLEVEL=$?
+
           if [ ! "${ERRORLEVEL}" == "0" ]; then echo ERROR - No pg_config found in the PATH - ${PATH}; exit 1;fi
 
           # had been already on the PATH
@@ -1307,13 +1310,14 @@ jobs:
           then
             mkdir "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}/pkgconfig"
           fi
+
           if [ ! -f "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}/pkgconfig/libR.pc" ]
           then
             # Uses the provided template file "libR.pc"
             # This template file is "based" off of the "R for Cygwin" file /lib/pkgconfig/libR.pc.
             cat "libR.pc" | sed "s|R_HOME|${R_HOME}|" | sed "s|R_ARCH|${R_ARCH}|" | sed "s/rversion/${rversion}/" > "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}/pkgconfig/libR.pc"
           fi
-          #
+
           # Cygwin already has the file /usr/lib/R/lib/libR.dll.a
           # MSYS2 (mingw) compilers require libR.dll.a.
           # That file is created by ddltool program parameter "--output-lib".
@@ -1337,7 +1341,6 @@ jobs:
             mv libR.dll.a "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}${R_ARCH}/libR.dll.a"
             popd # from "${R_HOME}/bin${R_ARCH}"
           fi
-          #
 
           #
           # Create and start the cluster before
@@ -1406,6 +1409,7 @@ jobs:
             then cp ../contrib/plr/plr.dll.a "${PKGLIBDIR}/plr.dll.a"
             ls -alrt                         "${PKGLIBDIR}/plr.dll.a"
           fi
+
           #
           # install artifacts support file - plr.control
           #
@@ -1435,7 +1439,7 @@ jobs:
           pg_ctl -D PGDATA -l logfile stop
 
           #
-          # save artifacts
+          # save artifact plr.dll
           #
           if [ -f "${PG_HOME}/contrib/plr/plr.dll" ]
           then
@@ -1448,6 +1452,10 @@ jobs:
             cp    *.control                         tmp/share/extension
             cp    *.sql                             tmp/share/extension
           fi
+
+          #
+          # save artifact plr.dll.a
+          #
           if [ -f "${PG_HOME}/contrib/plr/plr.dll.a" ]
           then
             echo "Save plr.dll.a to be an artifact."
@@ -1456,7 +1464,7 @@ jobs:
             ls -alrt                                  tmp/lib/plr.dll.a
           fi
 
-          # PL/R Artifact for Release
+          # 7z PL/R Artifact for Release
           if [ -f "tmp/PLR_LICENSE" ]
           then
             echo "Create PL/R Artifact .zip for future Release"
