@@ -606,7 +606,7 @@ jobs:
       #
       - name: Cache R-x.y.z Windows Installer Exe
         if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' }}
-        uses: actions/cache@v3.3.1
+        uses: actions/cache@v3
         id: cacheRWindowsInstallerExe
         with:
           path: ${{ env.rversionlong }}.exe
@@ -619,7 +619,7 @@ jobs:
           ${{ env.os == 'windows-latest' &&  env.compilerClass == 'MSYS2' && env.pgWINversion != 'notset' &&
           (( env.PGVER2 == '14' && env.Platform == 'x86' ) || ( env.PGVER2 != '14' ))
           }}
-        uses: actions/cache@v3.3.1
+        uses: actions/cache@v3
         id: cachePGWindowsInstallerExe
         with:
           path: ${{ env.pgWINversionlong }}.exe
@@ -629,7 +629,7 @@ jobs:
 
       - name: Cache GNU diffutils for Test on PostgreSQL for Windows
         if: ${{ env.os == 'windows-latest' &&  env.compilerClass == 'MSYS2' && env.testonpgWIN == 'true' }}
-        uses: actions/cache@v3.3.1
+        uses: actions/cache@v3
         id: cacheDiffutilsZip
         with:
           path: diffutils-2.8.7-1-bin.zip
