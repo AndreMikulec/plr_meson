@@ -1001,10 +1001,12 @@ jobs:
           export | grep MINGW     || true
           export | grep MSYSTEM   || true
 
-          echo "R_ARCH: ${R_ARCH}"
           echo "R_HOME: ${R_HOME}"
+          echo "Platform: ${Platform}"
+          echo "R_ARCH: ${R_ARCH}"
           echo "rversion: ${rversion}"
           echo "PG_HOME: ${PG_HOME}"
+          echo "PGROOT2: ${PGROOT2}"
 
           if [ "${R_ARCH}" == "notset" ]; then export R_ARCH=""; fi
           if [ "${R_HOME}" == "notset" ] || [ "${R_HOME}" == "" ]
@@ -1031,6 +1033,8 @@ jobs:
           fi
 
           echo "rversion: ${rversion}"
+
+
 
           #
           # Trying smartly and hard to find the PG_HOME
