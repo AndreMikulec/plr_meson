@@ -1087,54 +1087,48 @@ jobs:
             export PATH="${R_HOME}/bin:${PATH}"
           fi
 
+          # Pipes have been known to fail in Msys
+          # when piping from a non-Msys program. E.g "R for Windows".
           #
-          # determine rversion xor verify user supplied rversion
-          #
-          # For artifact naming, match and verify the Compiler Supplied rversion.
-          #
-          if [ "${rversion}" == "notset" ] || [  "${rversion}" == "" ]
+          if [ ! "${OperatingSystem}" == "Msys" ]
           then
-            # OperatingSystem "Cygwin"
-            export OLD_R_HOME=${R_HOME}
-            unset               R_HOME
-            # discovered
-            export rversion=$(R --version | head --lines=1 | sed "s/R version //" | sed "s/ (.*$//")
-            export R_HOME=${OLD_R_HOME}
-            unset OLD_R_HOME
-            echo "rversion=${rversion}" >> ${GITHUB_ENV}
-            echo "R --version: ${rversion}"
-
-          else
+            # determine rversion xor verify user supplied rversion
+            #
+            # For artifact naming, match and verify the Compiler Supplied rversion.
+            #
             export rversion_supplied=${rversion}
             echo "reversion_supplied: ${rversion_supplied}"
-
-            # For artifact naming, determine the Compiler Supplied rversion.
-            #
-            # Pipes have been known to fail in Msys
-            # when piping from a non-Msys program. E.g "R for Windows".
-            #
+            if [ "${reversion_supplied}" == "notset" ] || [  "${reversion_supplied}" == "" ]
+            then
+              # For artifact naming, determine the Compiler Supplied rversion.
+              #
+              # OLD_R_HOME part - OperatingSystem "Cygwin"
+              #
+              export OLD_R_HOME=${R_HOME}
+              unset               R_HOME
+              # discovered
+              # export rversion=$(R --version | head --lines=1 | sed "s/R version //" | sed "s/ (.*$//")
+              # regression
+              export rversion=$(Rscript --vanilla -e 'cat(gsub('\'' '\'', replacement = '\''_'\'', x = paste0(R.version$major,'\''.'\'',R.version$minor,tolower(R.version$status))))' 2>/dev/null)
+              export R_HOME=${OLD_R_HOME}
+              unset OLD_R_HOME
+              echo "rversion=${rversion}" >> ${GITHUB_ENV}
+              echo "R --version: ${rversion}"
+            fi
             # Fail if the user supplied rversion does not match the true rversion
             #
-            # OLD_R_HOME part - OperatingSystem "Cygwin"
-            #
-            export OLD_R_HOME=${R_HOME}
-            unset               R_HOME
-            export rversion=$(R --version | head --lines=1 | sed "s/R version //" | sed "s/ (.*$//")
-            export R_HOME=${OLD_R_HOME}
-            unset OLD_R_HOME
-            echo "rversion=${rversion}" >> ${GITHUB_ENV}
-            echo "R --version: ${rversion}"
-
-            export
-            if [ ! "${OperatingSystem}" == "Msys" ]
+            if [ ! "${reversion_supplied}" == "notset" ] && [ ! "${reversion_supplied}" == "" ]
             then
               if [ ! "${rversion_supplied}" == "${rversion}" ]
               then
-                 echo ERROR - No user supplied rversion ${rversion_supplied} match found R version ${rversion}
+                 echo ERROR - No user supplied rversion - ${rversion_supplied} match found matching R version - ${rversion}
                  exit 1
               fi
             fi
-            unset rversion_supplied
+          fi
+          if [ "${reversion}" == "notset" ] || [  "${reversion}" == "" ]
+          then
+            echo ERROR - No user supplied rversion or no determined rversion - ${rversion}
           fi
 
           #
