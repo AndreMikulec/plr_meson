@@ -864,7 +864,7 @@ jobs:
         env:
           # Cygwin OS variables
           SHELLOPTS: igncr
-          CYGWIN_NOWINPATH: 1
+          CHERE_INVOKING: 1
         run: |
           echo "Run Cygwin"
           set -x -v -e
@@ -872,9 +872,8 @@ jobs:
           echo "OperatingSystem: ${OperatingSystem}"
           if [ "${OperatingSystem}" == "Cygwin" ]
           then
-            # because I set CYGWIN_NOWINPATH to be 1
-            export PATH=${PATH}:/bin:/usr/sbin:/sbin
-            if [ ! "${GITHUB_WORKSPACE}" == "" ]; then cd ${GITHUB_WORKSPACE}; fi
+            # because I set CHERE_INVOKING to be 1
+            export PATH=/usr/local/bin:/usr/bin:/usr/lib/lapack:/bin:/usr/sbin:/sbin
           fi
           uname -a
           echo "compilerEnv: ${{ env.compilerEnv }}"
@@ -904,7 +903,7 @@ jobs:
         env:
           # Cygwin OS variables
           SHELLOPTS: igncr
-          CYGWIN_NOWINPATH: 1
+          CHERE_INVOKING: 1
           # Msys OS variable
           msystem: ${{ env.compilerEnv }}
           #
@@ -917,9 +916,8 @@ jobs:
           echo "OperatingSystem: ${OperatingSystem}"
           if [ "${OperatingSystem}" == "Cygwin" ]
           then
-            # because I set CYGWIN_NOWINPATH to be 1
-            export PATH=${PATH}:/bin:/usr/sbin:/sbin
-            if [ ! "${GITHUB_WORKSPACE}" == "" ]; then cd ${GITHUB_WORKSPACE}; fi
+            # because I set CHERE_INVOKING to be 1
+            export PATH=/usr/local/bin:/usr/bin:/usr/lib/lapack:/bin:/usr/sbin:/sbin
           fi
           uname -a
           echo "compilerEnv: ${{ env.compilerEnv }}"
@@ -1009,7 +1007,7 @@ jobs:
         env:
           # Cygwin shell variables
           SHELLOPTS: igncr
-          CYGWIN_NOWINPATH: 1
+          CHERE_INVOKING: 1
           # Msys shell variable
           msystem: ${{ env.compilerEnv }}
           #
@@ -1026,9 +1024,8 @@ jobs:
           echo "OperatingSystem: ${OperatingSystem}"
           if [ "${OperatingSystem}" == "Cygwin" ]
           then
-            # because I set CYGWIN_NOWINPATH to be 1
-            export PATH=${PATH}:/bin:/usr/sbin:/sbin
-            if [ ! "${GITHUB_WORKSPACE}" == "" ]; then cd ${GITHUB_WORKSPACE}; fi
+            # because I set CHERE_INVOKING to be 1
+            export PATH=/usr/local/bin:/usr/bin:/usr/lib/lapack:/bin:/usr/sbin:/sbin
           fi
           uname -a
           echo "compilerEnv: ${{ env.compilerEnv }}"
@@ -1493,7 +1490,7 @@ jobs:
         env:
           # Cygwin OS variables
           SHELLOPTS: igncr
-          CYGWIN_NOWINPATH: 1
+          CHERE_INVOKING: 1
         run: |
           echo "Cleanup Cygwin"
           set -x -v -e
@@ -1501,9 +1498,8 @@ jobs:
           echo "OperatingSystem: ${OperatingSystem}"
           if [ "${OperatingSystem}" == "Cygwin" ]
           then
-            # because I set CYGWIN_NOWINPATH to be 1
-            export PATH=${PATH}:/bin:/usr/sbin:/sbin
-            if [ ! "${GITHUB_WORKSPACE}" == "" ]; then cd ${GITHUB_WORKSPACE}; fi
+            # because I set CHERE_INVOKING to be 1
+            export PATH=/usr/local/bin:/usr/bin:/usr/lib/lapack:/bin:/usr/sbin:/sbin
           fi
           uname -a
           echo "compilerEnv: ${{ env.compilerEnv }}"
