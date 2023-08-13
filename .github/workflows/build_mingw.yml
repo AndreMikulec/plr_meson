@@ -1106,7 +1106,10 @@ jobs:
               # discovered
               # export rversion=$(R --version | head --lines=1 | sed "s/R version //" | sed "s/ (.*$//")
               # regression
-              export rversion=$(Rscript --vanilla -e 'cat(gsub('\'' '\'', replacement = '\''_'\'', x = paste0(R.version$major,'\''.'\'',R.version$minor,tolower(R.version$status))))' 2>/dev/null)
+              echo $(Rscript --vanilla -e 'cat(gsub('\'' '\'', replacement = '\''_'\'', x = paste0(R.version$major,'\''.'\'',R.version$minor,tolower(R.version$status))))' 2>/dev/null 1>rversion.txt)
+              cat     rversion.txt
+              export  rversion=$(cat rversion.txt)
+              echo   "reversion: ${rversion}"
               export R_HOME=${OLD_R_HOME}
               unset OLD_R_HOME
               echo "rversion=${rversion}" >> ${GITHUB_ENV}
