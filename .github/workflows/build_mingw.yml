@@ -1128,7 +1128,8 @@ jobs:
           fi
           if [ "${rversion}" == "notset" ] || [  "${rversion}" == "" ]
           then
-            echo ERROR - No user supplied rversion or no determined rversion - ${rversion}
+            echo ERROR - No user supplied rversion and no determined rversion - ${rversion}
+            exit 1
           fi
 
           #
