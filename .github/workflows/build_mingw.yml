@@ -1094,8 +1094,8 @@ jobs:
             # For artifact naming, match and verify the Compiler Supplied rversion.
             #
             export rversion_supplied=${rversion}
-            echo "reversion_supplied: ${rversion_supplied}"
-            if [ "${reversion_supplied}" == "notset" ] || [  "${reversion_supplied}" == "" ]
+            echo "rversion_supplied: ${rversion_supplied}"
+            if [ "${rversion_supplied}" == "notset" ] || [  "${rversion_supplied}" == "" ]
             then
               # For artifact naming, determine the Compiler Supplied rversion.
               #
@@ -1109,7 +1109,7 @@ jobs:
               echo $(Rscript --vanilla -e 'cat(gsub('\'' '\'', replacement = '\''_'\'', x = paste0(R.version$major,'\''.'\'',R.version$minor,tolower(R.version$status))))' 2>/dev/null 1>rversion.txt)
               cat     rversion.txt
               export  rversion=$(cat rversion.txt)
-              echo   "reversion: ${rversion}"
+              echo   "rversion: ${rversion}"
               export R_HOME=${OLD_R_HOME}
               unset OLD_R_HOME
               echo "rversion=${rversion}" >> ${GITHUB_ENV}
@@ -1117,7 +1117,7 @@ jobs:
             fi
             # Fail if the user supplied rversion does not match the true rversion
             #
-            if [ ! "${reversion_supplied}" == "notset" ] && [ ! "${reversion_supplied}" == "" ]
+            if [ ! "${rversion_supplied}" == "notset" ] && [ ! "${rversion_supplied}" == "" ]
             then
               if [ ! "${rversion_supplied}" == "${rversion}" ]
               then
@@ -1126,7 +1126,7 @@ jobs:
               fi
             fi
           fi
-          if [ "${reversion}" == "notset" ] || [  "${reversion}" == "" ]
+          if [ "${rversion}" == "notset" ] || [  "${rversion}" == "" ]
           then
             echo ERROR - No user supplied rversion or no determined rversion - ${rversion}
           fi
