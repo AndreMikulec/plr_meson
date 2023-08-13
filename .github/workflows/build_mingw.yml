@@ -1048,12 +1048,14 @@ jobs:
             # user supplied variable
             echo "cygpath PG_HOME: ${PG_HOME}"
 
-            ls -alrt "${PG_HOME}/bin/pg_config"
-            if [ ! "$?" == "0" ]; then echo ERROR - No pg_config found at "${PG_HOME}/bin/pg_config"; exit 1;fi
+            export ERRORLEVEL=0
+            ls -alrt "${PG_HOME}/bin/pg_config" || export ERRORLEVEL=$?
+            if [ ! "${ERRORLEVEL}" == "0" ]; then echo ERROR - No pg_config found at "${PG_HOME}/bin/pg_config"; exit 1;fi
           fi
 
-          which pg_config
-          if [ ! "$?" == "0" ]; then echo ERROR - No pg_config found in the PATH - ${PATH}; exit 1;fi
+          export ERRORLEVEL=0
+          which pg_config || export ERRORLEVEL=$?
+          if [ ! "${ERRORLEVEL}" == "0" ]; then echo ERROR - No pg_config found in the PATH - ${PATH}; exit 1;fi
 
           # had been already on the PATH
           export BINDIR=$(pg_config | grep "^BINDIR" | sed "s/ = /=/" | sed "s/^.*=//")
