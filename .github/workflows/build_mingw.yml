@@ -1078,6 +1078,14 @@ jobs:
             export PATH="${PG_HOME}/bin:${PATH}"
           fi
 
+          #
+          # For artifact naming, determine the Compiler Supplied pgversion.
+          #
+          export pgversion=$(pg_config | grep "^VERSION" | sed "s/ = /=/" | sed "s/^.*=//" | grep -oP '[ ].*$' | grep -oP '\d.*$')
+          # potential override
+          echo "pgversion=${pgversion}" >> ${GITHUB_ENV}
+          echo "pg_config VERSION pgversion: ${pgversion}"
+
           export PKGLIBDIR=$(pg_config | grep "^PKGLIBDIR" | sed "s/ = /=/" | sed "s/^.*=//")
           export PKGLIBDIR=$(cygpath $(cygpath -wl "${PKGLIBDIR}"))
 
@@ -1333,35 +1341,6 @@ jobs:
               fi
             fi
           fi
-
-          #
-          # For artifact naming, determine the Compiler Supplied pgversion.
-          #
-          export pgversion=$(pg_config | grep "^VERSION" | sed "s/ = /=/" | sed "s/^.*=//" | grep -oP '[ ].*$' | grep -oP '\d.*$')
-          # potential override
-          echo "pgversion=${pgversion}" >> ${GITHUB_ENV}
-          echo "pg_config VERSION pgversion: ${pgversion}"
-
-          # For artifact naming, determine the Vendor Supplied rversion.
-          #
-          # Pipes have been known to fail in Msys
-          # when piping from a non-Msys program. E.g "R for Windows".
-          #
-          # Update rversion only if an rversion is returned.
-          export rversion_old=${rversion}
-          export rversion=$(R --version | head --lines=1 | sed "s/R version //" | sed "s/ (.*$//")
-          if [ ! "${rversion}" == "" ]
-          then
-            # potential override
-            echo "rversion=${rversion}" >> ${GITHUB_ENV}
-            echo "R --version rversion: ${rversion}"
-          fi
-          if [   "${rversion}" == "" ]
-          then
-            export rversion=${rversion_old}
-            echo "rversion_old: ${rversion}"
-          fi
-          unset rversion_old
 
 
       - name: Cleanup Cygwin
