@@ -1098,6 +1098,49 @@ jobs:
           fi
 
           #
+          # verify user supplied R_ARCH or determine R_ARCH
+          #
+          if [ ! "${R_ARCH}" == "notset" ] && [ ! "${R_ARCH}" == "" ]
+          then
+            if [ ! -d "${R_HOME}/bin${R_ARCH}" ]
+            then
+               echo ERROR - No user supplied R_ARCH found in - ${R_HOME}/bin${R_ARCH}
+               exit 1
+            fi
+          fi
+
+          # Note on Windows, one can compile /i386 on x64.
+          # But that scenario is too complex to support that here.
+          #
+          if [  "${R_ARCH}" == "notset" ] || [ "${R_ARCH}" == "" ]
+          then
+            if [ "${Platform}" == "x64" ] && [ -d "${R_HOME}/bin/x64" ]
+            then
+              export R_ARCH="/x64"
+              echo "user and determined R_ARCH: ${R_ARCH}"
+            fi
+            if [ "${Platform}" == "x86" ] && [ -d "${R_HOME}/bin/i386" ]
+            then
+              export R_ARCH="/i386"
+              echo "user and determined R_ARCH: ${R_ARCH}"
+            fi
+            #
+            # FUTURE - The ONE(first) subdirectory name in alphabetical order.
+            # ls -d */ | grep -oP '^.*[^/]'
+            #
+            # LAST
+            if [ ! "${R_ARCH}" == "notset" ] && [ ! "${R_ARCH}" == "" ]
+            then
+              # R    Sub-Architectures
+              export PATH="${R_HOME}/bin${R_ARCH}:${PATH}"
+            fi
+            if [  "${R_ARCH}" == "notset" ] || [   "${R_ARCH}" == "" ]
+            then
+              echo "user and determined R_ARCH : not set"
+            fi
+          fi
+
+          #
           # Trying smartly and hard to find the PG_HOME
           #
           if [ ! "${PG_HOME}" == "notset" ] && [ ! "${PG_HOME}" == "" ]
