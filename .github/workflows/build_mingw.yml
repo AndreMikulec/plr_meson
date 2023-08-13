@@ -1104,12 +1104,6 @@ jobs:
               export OLD_R_HOME=${R_HOME}
               unset               R_HOME
               # discovered
-              # export rversion=$(R --version | head --lines=1 | sed "s/R version //" | sed "s/ (.*$//")
-              # regression
-              # echo $(Rscript --vanilla -e 'cat(gsub('\'' '\'', replacement = '\''_'\'', x = paste0(R.version$major,'\''.'\'',R.version$minor,tolower(R.version$status))))' 2>/dev/null 1>rversion.txt)
-              # cat     rversion.txt
-              # export  rversion=$(cat rversion.txt)
-              # export  rversion=$(R --version | head --lines=1 | sed "s/R version //" | sed "s/ (.*$//")
               export  rversion=$(Rscript --version | grep -oP "\d+[.]\d+[.]\d+")
               echo   "rversion: ${rversion}"
               echo   "rversion=${rversion}" >> ${GITHUB_ENV}
