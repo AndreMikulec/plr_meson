@@ -1001,40 +1001,15 @@ jobs:
           export | grep MINGW     || true
           export | grep MSYSTEM   || true
 
+          export OperatingSystem=$(uname -o)
+          echo "OperatingSystem: ${OperatingSystem}"
+
           echo "R_HOME: ${R_HOME}"
           echo "Platform: ${Platform}"
           echo "R_ARCH: ${R_ARCH}"
           echo "rversion: ${rversion}"
           echo "PG_HOME: ${PG_HOME}"
           echo "PGROOT2: ${PGROOT2}"
-
-          if [ "${R_ARCH}" == "notset" ]; then export R_ARCH=""; fi
-          if [ "${R_HOME}" == "notset" ] || [ "${R_HOME}" == "" ]
-          then
-            echo "One must set R_HOME=value"
-            exit 1
-          fi
-          export  R_HOME=$(cygpath "${R_HOME}")
-
-          # user supplied variable
-          echo "cygpath R_HOME: ${R_HOME}"
-
-          # PATHs are needed for the proper compile and runtime
-          # find "libraries"
-          # R Non-Sub-Architectures
-          export PATH="${R_HOME}/bin:${PATH}"
-          # R    Sub-Architectures
-          export PATH="${R_HOME}/bin${R_ARCH}:${PATH}"
-
-          if [ "${rversion}" == "notset" ] || [ "${rversion}" == "" ]
-          then
-            echo "One must set rversion=value"
-            exit 1
-          fi
-
-          echo "rversion: ${rversion}"
-
-
 
           #
           # Trying smartly and hard to find the PG_HOME
