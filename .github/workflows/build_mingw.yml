@@ -790,11 +790,13 @@ jobs:
         if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' }}
         uses: msys2/setup-msys2@v2
         with:
-          update: true
-          msystem: ${{ env.compilerEnv }}
           # By default, the installation is not updated; hence package versions are those of the installation tarball.
           # Faster without the "update"
           # update: true
+          update: true
+          # do not inherit anything from the PATH
+          path-type: strict
+          msystem: ${{ env.compilerEnv }}
           #
           # if a 2nd run (not the proper way to install "postgres" separately)
           # if a 2nd run DO NOT DO "update: true"
@@ -860,15 +862,22 @@ jobs:
       - name: Run Cygwin
         if: ${{ env.os == 'windows-latest' && env.compilerClass == 'cygwin' }}
         env:
+          # Cygwin OS variables
           SHELLOPTS: igncr
-          CHERE_INVOKING: 1
+          CYGWIN_NOWINPATH: 1
         run: |
-          export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
+          echo "Run Cygwin"
           set -x -v -e
+          if [ "${OperatingSystem}" == "Cygwin" ]
+          then
+            # because I set CYGWIN_NOWINPATH to be 1
+            export PATH=${PATH}:/bin:/usr/sbin:/sbin
+            if [ ! "${GITHUB_WORKSPACE}" == "" ]; then cd ${GITHUB_WORKSPACE}; fi
+          fi
           uname -a
+          echo "compilerEnv: ${{ env.compilerEnv }}"
           echo "bash: $(which bash)"
           echo "Present Working Directory: $(pwd)"
-          export | grep TEMP
           #
           # bash mini
           #
@@ -891,23 +900,35 @@ jobs:
       - name: Compile PG using pgSRCversion and PG_SOURCE and Install to here PG_HOME
         if: ${{ env.os == 'windows-latest' && ( env.compilerClass == 'MSYS2' || env.compilerClass == 'cygwin' ) && env.buildpgMSYS2 == 'true' }}
         env:
+          # Cygwin OS variables
           SHELLOPTS: igncr
-          CHERE_INVOKING: 1
+          CYGWIN_NOWINPATH: 1
+          # Msys OS variable
           msystem: ${{ env.compilerEnv }}
           #
           PG_SOURCE: ${{ env.PG_SOURCE }}
           PG_HOME: ${{ env.PG_HOME }}
         run: |
           echo "Compile PG using pgSRCversion and PG_SOURCE and Install to here PG_HOME"
-          export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
           set -x -v -e
+          if [ "${OperatingSystem}" == "Cygwin" ]
+          then
+            # because I set CYGWIN_NOWINPATH to be 1
+            export PATH=${PATH}:/bin:/usr/sbin:/sbin
+            if [ ! "${GITHUB_WORKSPACE}" == "" ]; then cd ${GITHUB_WORKSPACE}; fi
+          fi
           uname -a
-          # Msys
-          # export OperatingSystem=$(uname -o)
           echo "compilerEnv: ${{ env.compilerEnv }}"
-          export | grep MINGW
-          export | grep MSYSTEM
-
+          echo "bash: $(which bash)"
+          echo "Present Working Directory: $(pwd)"
+          #
+          if [ "${OperatingSystem}" == "Msys" ]
+          then
+            echo "msystem: ${msystem}"
+            export | grep MINGW
+            export | grep MSYSTEM
+          fi
+          #
           echo "pgSRCversion: ${pgSRCversion}"
           echo "PG_SOURCE:    ${PG_SOURCE}"
           echo "PG_HOME:      ${PG_HOME}"
@@ -982,8 +1003,10 @@ jobs:
       - name: Meson PL/R Setup Compile and Non-Meson Manual Test
         if: ${{ env.os == 'windows-latest' && ( env.compilerClass == 'MSYS2' || env.compilerClass == 'cygwin' ) }}
         env:
+          # Cygwin shell variables
           SHELLOPTS: igncr
-          CHERE_INVOKING: 1
+          CYGWIN_NOWINPATH: 1
+          # Msys shell variable
           msystem: ${{ env.compilerEnv }}
           #
           R_HOME: ${{ env.R_HOME }}
@@ -994,18 +1017,25 @@ jobs:
           PGROOT2: ${{ env.PGROOT2 }}
         run: |
           echo "Meson PL/R Setup Compile and Non-Meson Manual Test"
-          export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
           set -x -v -e
+          if [ "${OperatingSystem}" == "Cygwin" ]
+          then
+            # because I set CYGWIN_NOWINPATH to be 1
+            export PATH=${PATH}:/bin:/usr/sbin:/sbin
+            if [ ! "${GITHUB_WORKSPACE}" == "" ]; then cd ${GITHUB_WORKSPACE}; fi
+          fi
           uname -a
-          # Msys
-          # export OperatingSystem=$(uname -o)
           echo "compilerEnv: ${{ env.compilerEnv }}"
-          export | grep MINGW     || true
-          export | grep MSYSTEM   || true
-
-          export OperatingSystem=$(uname -o)
-          echo "OperatingSystem: ${OperatingSystem}"
-
+          echo "bash: $(which bash)"
+          echo "Present Working Directory: $(pwd)"
+          #
+          if [ "${OperatingSystem}" == "Msys" ]
+          then
+            echo "msystem: ${msystem}"
+            export | grep MINGW
+            export | grep MSYSTEM
+          fi
+          #
           echo "R_HOME: ${R_HOME}"
           echo "Platform: ${Platform}"
           echo "R_ARCH: ${R_ARCH}"
@@ -1089,7 +1119,7 @@ jobs:
             echo "rversion=${rversion}" >> ${GITHUB_ENV}
             echo "R --version: ${rversion}"
 
-            if [ ! "${OperatingSystem}" == "Msys" ] 
+            if [ ! "${OperatingSystem}" == "Msys" ]
             then
               if [ ! "${rversion_supplied}" == "${rversion}" ]
               then
@@ -1128,8 +1158,9 @@ jobs:
               echo "user and determined R_ARCH: ${R_ARCH}"
             fi
             #
-            # FUTURE - The ONE(first) subdirectory name in alphabetical order.
-            # ls -d */ | grep -oP '^.*[^/]'
+            # FUTURE - The ONE(first) subdirectory name in alphabetical order
+            # is in a space separated string.
+            # pushd "${R_HOME}/bin"; ls -d */ | grep -oP '^.*[^/]' | xargs; popd
             #
             # LAST
             if [ ! "${R_ARCH}" == "notset" ] && [ ! "${R_ARCH}" == "" ]
@@ -1459,14 +1490,23 @@ jobs:
       - name: Cleanup Cygwin
         if: ${{ env.os == 'windows-latest' && env.compilerClass == 'cygwin' }}
         env:
+          # Cygwin OS variables
           SHELLOPTS: igncr
-          CHERE_INVOKING: 1
+          CYGWIN_NOWINPATH: 1
         run: |
-          export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
+          echo "Cleanup Cygwin"
           set -x -v -e
+          if [ "${OperatingSystem}" == "Cygwin" ]
+          then
+            # because I set CYGWIN_NOWINPATH to be 1
+            export PATH=${PATH}:/bin:/usr/sbin:/sbin
+            if [ ! "${GITHUB_WORKSPACE}" == "" ]; then cd ${GITHUB_WORKSPACE}; fi
+          fi
           uname -a
+          echo "compilerEnv: ${{ env.compilerEnv }}"
           echo "bash: $(which bash)"
           echo "Present Working Directory: $(pwd)"
+          #
           # shutdown current
           cygrunsrv -E cygserver
           # uninstall previous
