@@ -72,7 +72,7 @@ jobs:
 #         # Repository R and Repository postgresql
           - os: windows-latest
             compilerEnv: cygwin
-            Platform: x86
+            Platform: x64
 
 #####         # (bleeding edge R) PL/R can not be compiled using Microsoft Visual Studio
 ####          - os: windows-latest
