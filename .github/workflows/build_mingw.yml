@@ -1393,12 +1393,13 @@ jobs:
 
           if [ "${OperatingSystem}" == "Cygwin" ]
           then
+            echo "cygrunsrv START"
             # shutdown current
-            cygrunsrv -E cygserver || true
+            #### cygrunsrv -E cygserver || true
             # uninstall previous
-            cygrunsrv -R cygserver || true
+            #### cygrunsrv -R cygserver || true
             # install
-            cygserver-config --yes
+            #### cygserver-config --yes
             #### cp /etc/defaults/etc/cygserver.conf /etc/defaults/etc/cygserver.conf.original
             #### echo kern.ipc.shmmni 32767 >> /etc/defaults/etc/cygserver.conf
             #### echo kern.ipc.shmmni 262144000 >> /etc/defaults/etc/cygserver.conf
@@ -1417,11 +1418,12 @@ jobs:
             # https://community.progress.com/s/article/P18482#:~:text=SHMSEG%3A%20Maximum%20number%20of%20shared,memory%20that%20can%20be%20used.
             #### echo kern.ipc.shmmax 134217728 >> /etc/defaults/etc/cygserver.conf
             #### echo kern.ipc.shmmax 524288000 >> /etc/defaults/etc/cygserver.conf
-            echo kern.ipc.shmmax 4294967296 >> /etc/defaults/etc/cygserver.conf
-            echo kern.ipc.shmall 4294967296 >> /etc/defaults/etc/cygserver.conf
+            
+            #### echo kern.ipc.shmmax 4294967296 >> /etc/defaults/etc/cygserver.conf
+            #### echo kern.ipc.shmall 4294967296 >> /etc/defaults/etc/cygserver.conf
 
             # start
-            cygrunsrv -S cygserver
+            #### cygrunsrv -S cygserver
           fi
 
           echo "whoami: $(whoami)"
@@ -1524,10 +1526,11 @@ jobs:
           # HERE2
           if [ "${OperatingSystem}" == "Cygwin" ]
           then
+            echo "cygrunsrv STOP"
             # shutdown current
-            cygrunsrv -E cygserver
+            #### cygrunsrv -E cygserver
             # uninstall previous
-            cygrunsrv -R cygserver
+            #### cygrunsrv -R cygserver
           fi
 
           #
