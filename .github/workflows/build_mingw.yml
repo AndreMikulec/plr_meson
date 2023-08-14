@@ -231,7 +231,7 @@ jobs:
     steps:
 
       - name: Windows Machine Stats systeminfo
-        if: ${{ env.os == 'windows-latest' }}
+        if: ${{ matrix.os == 'windows-latest' }}
         shell: cmd
         run: |
           systeminfo
