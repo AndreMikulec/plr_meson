@@ -229,6 +229,13 @@ jobs:
         shell: ${{ matrix.shellEnv || 'bash' }}
 
     steps:
+
+      - name: Windows Machine Stats systeminfo
+        if: ${{ env.os == 'windows-latest' }}
+        shell: cmd
+        run: |
+          systeminfo
+
       - name: Prepare to Download Files from Github
         shell: powershell
         run: |
