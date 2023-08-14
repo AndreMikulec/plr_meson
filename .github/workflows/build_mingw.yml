@@ -1117,9 +1117,9 @@ jobs:
               if [ ! "${rversion_supplied}" == "${rversion}" ]
               then
                 #
-                # Skip the "user provided R version" validation test. 
+                # Skip the "user provided R version" validation test.
                 # Do not bother to compare. Just TAKE the Compiler provided "rversion".
-                # 
+                #
                 # R 4.2.3
                 #
                 # R-4.2.3\bin\x64\Rscript" --version
@@ -1273,6 +1273,12 @@ jobs:
           if [ "${PKG_CONFIG_SYSTEM_INCLUDE_PATH}" == "" ]; then export PKG_CONFIG_SYSTEM_INCLUDE_PATH="/usr/include"; fi
           if [ "${PKG_CONFIG_SYSTEM_LIBRARY_PATH}" == "" ]; then export PKG_CONFIG_SYSTEM_LIBRARY_PATH="/usr/lib"; fi
 
+          export PKG_CONFIG_PATH_ORIG=$(echo "${PKG_CONFIG_PATH}" |  grep -o '^[^:]*')
+          echo "PKG_CONFIG_PATH_ORIG: ${PKG_CONFIG_PATH}"
+
+          export PKG_CONFIG_SYSTEM_INCLUDE_PATH_ORIG=$(echo "${PKG_CONFIG_SYSTEM_INCLUDE_PATH}" |  grep -o '^[^:]*')
+          echo "PKG_CONFIG_SYSTEM_INCLUDE_PATH_ORIG: ${PKG_CONFIG_SYSTEM_INCLUDE_PATH}"
+
           # For MSYS(mingw) and R environment variable R_ARCH and Rlib.dll.a.
           # Need ONE single leftmost headish important library path.
           export PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG=$(echo "${PKG_CONFIG_SYSTEM_LIBRARY_PATH}" |  grep -o '^[^:]*')
@@ -1344,16 +1350,38 @@ jobs:
           then
             mkdir   "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}${R_ARCH}"
           fi
+
+          # Create and Move, or, Copy, the R static library,
+          # to the target location - "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}${R_ARCH}/libR.dll.a"
           if [ ! -f "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}${R_ARCH}/libR.dll.a" ]
           then
-            pushd "${R_HOME}/bin${R_ARCH}"
-            gendef  -         R.dll >     R.def
-            dlltool --dllname R.dll --def R.def --output-lib libR.dll.a
             #
-            # Put libR.dll.a into the general library location {...ORIG}${R_ARCH}/libR.dll.a
-            mv libR.dll.a "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}${R_ARCH}/libR.dll.a"
-            popd # from "${R_HOME}/bin${R_ARCH}"
+            # These should? be exclusive cases.
+            #
+            # Cygwin Repository R install case.
+            # Do I need to do this at all?
+            # If I am not given the R.dll, then THEY must provide the static library libR.dll.a.
+            if [ -f         "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}/R/lib/libR.dll.a" ]
+            then
+              pushd         "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}/R/lib"
+              cp libR.dll.a "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}${R_ARCH}/libR.dll.a"
+              popd
+            fi
+            # Msys case using "R for Windows" from CRAN
+            # If I am given the R.dll, then I can myself, create the static library libR.dll.a.
+            if [ -f "${R_HOME}/bin${R_ARCH}/R.dll" ]
+            then
+              pushd "${R_HOME}/bin${R_ARCH}"
+              gendef  -         R.dll >     R.def
+              dlltool --dllname R.dll --def R.def --output-lib libR.dll.a
+              #
+              # Put libR.dll.a into the general library location {...ORIG}${R_ARCH}/libR.dll.a
+              mv libR.dll.a "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}${R_ARCH}/libR.dll.a"
+              popd # from "${R_HOME}/bin${R_ARCH}"
+            fi
           fi
+
+          echo "whoami: $(whoami)"
 
           #
           # Create and start the cluster before
