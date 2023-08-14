@@ -1394,7 +1394,9 @@ jobs:
             cygserver-config --yes
             #### cp /etc/defaults/etc/cygserver.conf /etc/defaults/etc/cygserver.conf.original
             #### echo kern.ipc.shmmni 32767 >> /etc/defaults/etc/cygserver.conf
+            #### echo kern.ipc.shmmni 262144000 >> /etc/defaults/etc/cygserver.conf
             #### echo kern.ipc.shmseg 32767 >> /etc/defaults/etc/cygserver.conf
+            #### echo kern.ipc.shmseg 524288000 >> /etc/defaults/etc/cygserver.conf
             #
             # CUT [1580] FATAL:  could not create shared memory segment: Function not implemented
             #
@@ -1403,7 +1405,14 @@ jobs:
             # Since the maximum shared memory segment Progress can access is 128 MB, 
             # the minimum recommended value for SHMMAX would be 134217728.
             # https://community.progress.com/s/article/P47970
+            # shared_buffers + (temp_buffers + work_mem) * max_connections
+            # https://stackoverflow.com/questions/28844170/how-to-limit-the-memory-that-is-available-for-postgresql-server
+            # https://community.progress.com/s/article/P18482#:~:text=SHMSEG%3A%20Maximum%20number%20of%20shared,memory%20that%20can%20be%20used.
             #### echo kern.ipc.shmmax 134217728 >> /etc/defaults/etc/cygserver.conf
+            #### echo kern.ipc.shmmax 524288000 >> /etc/defaults/etc/cygserver.conf
+            echo kern.ipc.shmall 134217728 >> /etc/defaults/etc/cygserver.conf
+            echo kern.ipc.shmmax 134217728 >> /etc/defaults/etc/cygserver.conf
+
             # start
             cygrunsrv -S cygserver
           fi
