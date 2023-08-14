@@ -1392,9 +1392,9 @@ jobs:
             cygrunsrv -R cygserver || true
             # install
             cygserver-config --yes
-            cp /etc/defaults/etc/cygserver.conf /etc/defaults/etc/cygserver.conf.original
-            echo kern.ipc.shmmni 32767 >> /etc/defaults/etc/cygserver.conf
-            echo kern.ipc.shmseg 32767 >> /etc/defaults/etc/cygserver.conf
+            #### cp /etc/defaults/etc/cygserver.conf /etc/defaults/etc/cygserver.conf.original
+            #### echo kern.ipc.shmmni 32767 >> /etc/defaults/etc/cygserver.conf
+            #### echo kern.ipc.shmseg 32767 >> /etc/defaults/etc/cygserver.conf
             #
             # CUT [1580] FATAL:  could not create shared memory segment: Function not implemented
             #
@@ -1403,7 +1403,7 @@ jobs:
             # Since the maximum shared memory segment Progress can access is 128 MB, 
             # the minimum recommended value for SHMMAX would be 134217728.
             # https://community.progress.com/s/article/P47970
-            echo kern.ipc.shmmax 134217728 >> /etc/defaults/etc/cygserver.conf
+            #### echo kern.ipc.shmmax 134217728 >> /etc/defaults/etc/cygserver.conf
             # start
             cygrunsrv -S cygserver
           fi
