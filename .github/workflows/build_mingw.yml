@@ -1399,7 +1399,7 @@ jobs:
             # uninstall previous
             #### cygrunsrv -R cygserver || true
             # install
-            #### cygserver-config --yes
+            cygserver-config --yes
             #### cp /etc/defaults/etc/cygserver.conf /etc/defaults/etc/cygserver.conf.original
             #### echo kern.ipc.shmmni 32767 >> /etc/defaults/etc/cygserver.conf
             #### echo kern.ipc.shmmni 262144000 >> /etc/defaults/etc/cygserver.conf
@@ -1422,8 +1422,12 @@ jobs:
             #### echo kern.ipc.shmmax 4294967296 >> /etc/defaults/etc/cygserver.conf
             #### echo kern.ipc.shmall 4294967296 >> /etc/defaults/etc/cygserver.conf
 
+            echo kern.ipc.shmmax 16777216 >> /etc/defaults/etc/cygserver.conf
+            echo kern.ipc.shmall 4096 >>     /etc/defaults/etc/cygserver.conf
+            # https://stackoverflow.com/questions/6861945/postgresql-failing-with-below-error-on-lion-os-x#:~:text=Failed%20system%20call%20was%20shmget,the%20kernel%20with%20larger%20SHMMAX.
+
             # start
-            #### cygrunsrv -S cygserver
+            cygrunsrv -S cygserver
           fi
 
           echo "whoami: $(whoami)"
@@ -1528,7 +1532,7 @@ jobs:
           then
             echo "cygrunsrv STOP"
             # shutdown current
-            #### cygrunsrv -E cygserver
+            cygrunsrv -E cygserver
             # uninstall previous
             #### cygrunsrv -R cygserver
           fi
