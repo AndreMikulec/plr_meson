@@ -857,45 +857,45 @@ jobs:
              libpq-devel
              R  R-debuginfo
 
-      # help from
-      # https://github.com/egor-tensin/setup-cygwin/tree/v3.0.1
-      - name: Run Cygwin
-        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'cygwin' }}
-        env:
-          # Cygwin OS variables
-          SHELLOPTS: igncr
-          CHERE_INVOKING: 1
-        run: |
-          echo "Run Cygwin"
-          set -x -v -e
-          if [ "${OperatingSystem}" == "" ]; then export OperatingSystem=$(uname -o); fi
-          echo "OperatingSystem: ${OperatingSystem}"
-          if [ "${OperatingSystem}" == "Cygwin" ]
-          then
-            # because I set CHERE_INVOKING to be 1
-            export PATH=/usr/local/bin:/usr/bin:/usr/lib/lapack:/bin:/usr/sbin:/sbin
-          fi
-          uname -a
-          echo "compilerEnv: ${{ env.compilerEnv }}"
-          echo "bash: $(which bash)"
-          echo "Present Working Directory: $(pwd)"
-          #
-          # bash mini
-          #
-          # shutdown current
-          cygrunsrv -E cygserver || true
-          # uninstall previous
-          cygrunsrv -R cygserver || true
-          # install
-          cygserver-config --yes
-          cp /etc/defaults/etc/cygserver.conf /etc/defaults/etc/cygserver.conf.original
-          echo kern.ipc.shmmni 32767 >> /etc/defaults/etc/cygserver.conf
-          echo kern.ipc.shmseg 32767 >> /etc/defaults/etc/cygserver.conf
-          # start
-          cygrunsrv -S cygserver
-          #
-          # bash mini
-          #
+#     # help from
+#     # https://github.com/egor-tensin/setup-cygwin/tree/v3.0.1
+#     - name: Run Cygwin
+#       if: ${{ env.os == 'windows-latest' && env.compilerClass == 'cygwin' }}
+#       env:
+#         # Cygwin OS variables
+#         SHELLOPTS: igncr
+#         CHERE_INVOKING: 1
+#       run: |
+#         echo "Run Cygwin"
+#         set -x -v -e
+#         if [ "${OperatingSystem}" == "" ]; then export OperatingSystem=$(uname -o); fi
+#         echo "OperatingSystem: ${OperatingSystem}"
+#         if [ "${OperatingSystem}" == "Cygwin" ]
+#         then
+#           # because I set CHERE_INVOKING to be 1
+#           export PATH=/usr/local/bin:/usr/bin:/usr/lib/lapack:/bin:/usr/sbin:/sbin
+#         fi
+#         uname -a
+#         echo "compilerEnv: ${{ env.compilerEnv }}"
+#         echo "bash: $(which bash)"
+#         echo "Present Working Directory: $(pwd)"
+#         #
+#         # bash mini
+#         #
+#         # shutdown current
+#         cygrunsrv -E cygserver || true
+#         # uninstall previous
+#         cygrunsrv -R cygserver || true
+#         # install
+#         cygserver-config --yes
+#         cp /etc/defaults/etc/cygserver.conf /etc/defaults/etc/cygserver.conf.original
+#         echo kern.ipc.shmmni 32767 >> /etc/defaults/etc/cygserver.conf
+#         echo kern.ipc.shmseg 32767 >> /etc/defaults/etc/cygserver.conf
+#         # start
+#         cygrunsrv -S cygserver
+#         #
+#         # bash mini
+#         #
 
       # FUTURE - if the PostgreSQL version is 16 or greater, I could compile PG using meson
       - name: Compile PG using pgSRCversion and PG_SOURCE and Install to here PG_HOME
@@ -1351,35 +1351,7 @@ jobs:
             mkdir   "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}${R_ARCH}"
           fi
 
-          # Create and Move, or, Copy, the R static library,
-          # to the target location - "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}${R_ARCH}/libR.dll.a"
-          if [ ! -f "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}${R_ARCH}/libR.dll.a" ]
-          then
-            #
-            # These should? be exclusive cases.
-            #
-            # Cygwin Repository R install case.
-            # Do I need to do this at all?
-            # If I am not given the R.dll, then THEY must provide the static library libR.dll.a.
-            if [ -f         "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}/R/lib/libR.dll.a" ]
-            then
-              pushd         "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}/R/lib"
-              cp libR.dll.a "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}${R_ARCH}/libR.dll.a"
-              popd
-            fi
-            # Msys case using "R for Windows" from CRAN
-            # If I am given the R.dll, then I can myself, create the static library libR.dll.a.
-            if [ -f "${R_HOME}/bin${R_ARCH}/R.dll" ]
-            then
-              pushd "${R_HOME}/bin${R_ARCH}"
-              gendef  -         R.dll >     R.def
-              dlltool --dllname R.dll --def R.def --output-lib libR.dll.a
-              #
-              # Put libR.dll.a into the general library location {...ORIG}${R_ARCH}/libR.dll.a
-              mv libR.dll.a "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}${R_ARCH}/libR.dll.a"
-              popd # from "${R_HOME}/bin${R_ARCH}"
-            fi
-          fi
+          # HERE 1
 
           echo "whoami: $(whoami)"
 
@@ -1479,6 +1451,8 @@ jobs:
           #
           pg_ctl -D PGDATA -l logfile stop
 
+          # HERE2
+
           #
           # save artifact plr.dll
           #
@@ -1539,31 +1513,31 @@ jobs:
           fi
 
 
-      - name: Cleanup Cygwin
-        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'cygwin' }}
-        env:
-          # Cygwin OS variables
-          SHELLOPTS: igncr
-          CHERE_INVOKING: 1
-        run: |
-          echo "Cleanup Cygwin"
-          set -x -v -e
-          if [ "${OperatingSystem}" == "" ]; then export OperatingSystem=$(uname -o); fi
-          echo "OperatingSystem: ${OperatingSystem}"
-          if [ "${OperatingSystem}" == "Cygwin" ]
-          then
-            # because I set CHERE_INVOKING to be 1
-            export PATH=/usr/local/bin:/usr/bin:/usr/lib/lapack:/bin:/usr/sbin:/sbin
-          fi
-          uname -a
-          echo "compilerEnv: ${{ env.compilerEnv }}"
-          echo "bash: $(which bash)"
-          echo "Present Working Directory: $(pwd)"
-          #
-          # shutdown current
-          cygrunsrv -E cygserver
-          # uninstall previous
-          cygrunsrv -R cygserver
+#     - name: Cleanup Cygwin
+#       if: ${{ env.os == 'windows-latest' && env.compilerClass == 'cygwin' }}
+#       env:
+#         # Cygwin OS variables
+#         SHELLOPTS: igncr
+#         CHERE_INVOKING: 1
+#       run: |
+#         echo "Cleanup Cygwin"
+#         set -x -v -e
+#         if [ "${OperatingSystem}" == "" ]; then export OperatingSystem=$(uname -o); fi
+#         echo "OperatingSystem: ${OperatingSystem}"
+#         if [ "${OperatingSystem}" == "Cygwin" ]
+#         then
+#           # because I set CHERE_INVOKING to be 1
+#           export PATH=/usr/local/bin:/usr/bin:/usr/lib/lapack:/bin:/usr/sbin:/sbin
+#         fi
+#         uname -a
+#         echo "compilerEnv: ${{ env.compilerEnv }}"
+#         echo "bash: $(which bash)"
+#         echo "Present Working Directory: $(pwd)"
+#         #
+#         # shutdown current
+#         cygrunsrv -E cygserver
+#         # uninstall previous
+#         cygrunsrv -R cygserver
 
       - name: Upload artifacts plr.dll and plr.dll.a for export for LOCAL testing
         if: ${{ env.os == 'windows-latest' &&  env.compilerClass == 'MSYS2' }}
