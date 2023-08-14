@@ -1085,6 +1085,65 @@ jobs:
           fi
 
           # HERE 0
+          # Pipes have been known to fail in Msys
+          # when piping from a non-Msys program. E.g "R for Windows".
+          #
+          if [ ! "${OperatingSystem}" == "Msys" ]
+          then
+            # determine rversion xor verify user supplied rversion
+            #
+            # For artifact naming, match and verify the Compiler Supplied rversion.
+            #
+            export rversion_supplied=${rversion}
+            echo "rversion_supplied: ${rversion_supplied}"
+            if [ "${rversion_supplied}" == "notset" ] || [  "${rversion_supplied}" == "" ]
+            then
+              # For artifact naming, determine the Compiler Supplied rversion.
+              #
+              # OLD_R_HOME part - OperatingSystem "Cygwin"
+              #
+              export OLD_R_HOME=${R_HOME}
+              unset               R_HOME
+              export  rversion=$(Rscript --version | grep -oP "\d+[.]\d+[.]\d+")
+              echo   "rversion: ${rversion}"
+              echo   "rversion=${rversion}" >> ${GITHUB_ENV}
+              echo   "R --version: ${rversion}"
+              export R_HOME=${OLD_R_HOME}
+              unset OLD_R_HOME
+            fi
+            # Fail if the user supplied rversion does not match the true rversion
+            #
+            if [ ! "${rversion_supplied}" == "notset" ] && [ ! "${rversion_supplied}" == "" ]
+            then
+              if [ ! "${rversion_supplied}" == "${rversion}" ]
+              then
+                #
+                # Skip the "user provided R version" validation test.
+                # Do not bother to compare. Just TAKE the Compiler provided "rversion".
+                #
+                # R 4.2.3
+                #
+                # R-4.2.3\bin\x64\Rscript" --version
+                # Rscript (R) version 4.2.3 (2023-03-15)
+                #
+                # R 4.3.1patched
+                #
+                # R-4.3.1patched\bin\x64\Rscript" --version
+                # Rscript (R) version 4.3.1 Patched (2023-08-12 r84939)
+                #
+                # R devel
+                #
+                # R-devel\bin\x64\Rscript" --version
+                # Rscript (R) version 4.4.0 Under development (unstable) (2023-08-12 r84939)
+                #
+              fi
+            fi
+          fi
+          if [ "${rversion}" == "notset" ] || [  "${rversion}" == "" ]
+          then
+            echo ERROR - No user supplied rversion and no determined rversion - ${rversion}
+            exit 1
+          fi
 
           #
           # verify user supplied R_ARCH or determine the R_ARCH
