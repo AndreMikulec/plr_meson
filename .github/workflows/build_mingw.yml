@@ -1624,7 +1624,7 @@ jobs:
 #         cygrunsrv -R cygserver
 
       - name: Upload artifacts plr.dll and plr.dll.a for export for LOCAL testing
-        if: ${{ env.os == 'windows-latest' &&  env.compilerClass == 'MSYS2' }}
+        if: ${{ always() && env.os == 'windows-latest' && ( env.compilerClass == 'MSYS2' || env.compilerClass == 'cygwin' ) }}
         uses: actions/upload-artifact@v3
         with:
           name: plr-${{ env.HEAD8_GITHUB_SHA }}-${{ env.os }}-${{ env.compilerEnv }}-${{ env.Platform }}-R${{ env.rversion }}-PG${{ env.pgversion }}
@@ -1705,7 +1705,7 @@ jobs:
           if "%Platform%"=="notset" (echo Platform is not set, therefore no net stop happens.)
 
       - name: Windows Prep PL/R Artifact for Release
-        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' }}
+        if: ${{ always() && env.os == 'windows-latest' && ( env.compilerClass == 'MSYS2' || env.compilerClass == 'cygwin' ) }}
         env:
           PGVER2: ${{ env.PGVER2 }}
           Platform: ${{ env.Platform }}
