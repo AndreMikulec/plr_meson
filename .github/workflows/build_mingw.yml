@@ -1318,6 +1318,8 @@ jobs:
           if [ ! -f "${PG_HOME}/lib/pkgconfig/libpostgres.pc" ]
           then
             cat "${PG_HOME}/lib/pkgconfig/libpq.pc" | sed "s/libpq/libpostgres/g" | sed "s/-lpq/-lpostgres/" > "${PG_HOME}/lib/pkgconfig/libpostgres.pc"
+            echo cat "${PG_HOME}/lib/pkgconfig/libpostgres.pc"
+            cat      "${PG_HOME}/lib/pkgconfig/libpostgres.pc"
           fi
 
           # This is Part 2 of 2 of a hack to make "meson" think that "libpostgres" is a library
@@ -1344,6 +1346,9 @@ jobs:
             # Uses the provided template file "libR.pc"
             # This template file is "based" off of the "R for Cygwin" file /lib/pkgconfig/libR.pc.
             cat "libR.pc" | sed "s|R_HOME|${R_HOME}|" | sed "s|R_ARCH|${R_ARCH}|" | sed "s/rversion/${rversion}/" > "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}/pkgconfig/libR.pc"
+
+            echo cat "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}/pkgconfig/libR.pc"
+            cat      "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}/pkgconfig/libR.pc"
           fi
 
           # Cygwin already has the file /usr/lib/R/lib/libR.dll.a
@@ -1455,6 +1460,10 @@ jobs:
           rm  -f "${SHAREDIR}/extension/plr.control"
           rm  -f  ${SHAREDIR}/extension/plr--*.sql
 
+          # OS variables before the build
+          echo "PATH: ${PATH}"
+          echo "R_HOME: ${R_HOME}
+
           #
           # build(create) artifacts (A "started" database is not required.)
           #
@@ -1545,6 +1554,10 @@ jobs:
           #
           cp plr--*.sql  "${SHAREDIR}/extension"
           ls -alrt        ${SHAREDIR}/extension/plr--*.sql
+
+          # OS variables before the test
+          echo "PATH: ${PATH}"
+          echo "R_HOME: ${R_HOME}
 
           #
           # non-setup regression test
