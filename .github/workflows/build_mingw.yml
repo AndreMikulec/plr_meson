@@ -1597,7 +1597,7 @@ jobs:
           fi
 
       - name: Windows Prep PL/R Artifact for Release
-        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' }}
+        if: ${{ env.os == 'windows-latest' && ( env.compilerClass == 'MSYS2' || env.compilerClass == 'cygwin' ) }}
         env:
           PGVER2: ${{ env.PGVER2 }}
           Platform: ${{ env.Platform }}
