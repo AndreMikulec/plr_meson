@@ -1596,6 +1596,16 @@ jobs:
             #### cygrunsrv -R cygserver
           fi
 
+      - name: Windows Prep PL/R Artifact for Release
+        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' }}
+        env:
+          PGVER2: ${{ env.PGVER2 }}
+          Platform: ${{ env.Platform }}
+        shell: cmd
+        run: |
+          echo on
+          copy plr-artifact.zip plr-${{ env.HEAD8_GITHUB_SHA }}-${{ env.os }}-${{ env.compilerEnv }}-${{ env.Platform }}-R${{ env.rversion }}-PG${{ env.pgversion }}.zip
+          dir                   plr-${{ env.HEAD8_GITHUB_SHA }}-${{ env.os }}-${{ env.compilerEnv }}-${{ env.Platform }}-R${{ env.rversion }}-PG${{ env.pgversion }}.zip
 
 
       - name: Upload artifacts plr.dll and plr.dll.a for export for LOCAL testing
@@ -1704,17 +1714,6 @@ jobs:
           if "%Platform%"=="x64" (net stop postgresql-x64-%PGVER2%)
           if "%Platform%"=="x86" (net stop postgresql-%PGVER2%)
           if "%Platform%"=="notset" (echo Platform is not set, therefore no net stop happens.)
-
-      - name: Windows Prep PL/R Artifact for Release
-        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' }}
-        env:
-          PGVER2: ${{ env.PGVER2 }}
-          Platform: ${{ env.Platform }}
-        shell: cmd
-        run: |
-          echo on
-          copy plr-artifact.zip plr-${{ env.HEAD8_GITHUB_SHA }}-${{ env.os }}-${{ env.compilerEnv }}-${{ env.Platform }}-R${{ env.rversion }}-PG${{ env.pgversion }}.zip
-          dir                   plr-${{ env.HEAD8_GITHUB_SHA }}-${{ env.os }}-${{ env.compilerEnv }}-${{ env.Platform }}-R${{ env.rversion }}-PG${{ env.pgversion }}.zip
 
       - name: PL/R Artifact for Release
         if: github.ref_type == 'tag'
