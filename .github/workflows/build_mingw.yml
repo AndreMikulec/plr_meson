@@ -1443,10 +1443,6 @@ jobs:
           #
           initdb -D PGDATA
 
-          # OS variables before the database startup, before the build, before the test
-          echo "PATH: ${PATH}"
-          echo "R_HOME: ${R_HOME}
-
           pg_ctl -D PGDATA -l logfile start
 
           # Create the contribplr directory parallel to contrib.
