@@ -1407,8 +1407,8 @@ jobs:
             cygserver-config --yes
             #### cp /etc/defaults/etc/cygserver.conf /etc/defaults/etc/cygserver.conf.original
             #### echo kern.ipc.shmmni 32767 >> /etc/defaults/etc/cygserver.conf
-            #### echo kern.ipc.shmmni 262144000 >> /etc/defaults/etc/cygserver.conf
             #### echo kern.ipc.shmseg 32767 >> /etc/defaults/etc/cygserver.conf
+            #### echo kern.ipc.shmmni 262144000 >> /etc/defaults/etc/cygserver.conf
             #### echo kern.ipc.shmseg 524288000 >> /etc/defaults/etc/cygserver.conf
             #
             # CUT [1580] FATAL:  could not create shared memory segment: Function not implemented
@@ -1442,6 +1442,11 @@ jobs:
           # the non-setup regression test (see FAR below).
           #
           initdb -D PGDATA
+
+          # OS variables before the database startup, before the build, before the test
+          echo "PATH: ${PATH}"
+          echo "R_HOME: ${R_HOME}
+
           pg_ctl -D PGDATA -l logfile start
 
           # Create the contribplr directory parallel to contrib.
@@ -1460,11 +1465,7 @@ jobs:
           rm  -f "${SHAREDIR}/extension/plr.control"
           rm  -f  ${SHAREDIR}/extension/plr--*.sql
 
-          # OS variables before the build
-          echo "PATH: ${PATH}"
-          echo "R_HOME: ${R_HOME}
 
-          #
           # build(create) artifacts (A "started" database is not required.)
           #
           # Note, from my "bad" memory,
@@ -1555,10 +1556,6 @@ jobs:
           cp plr--*.sql  "${SHAREDIR}/extension"
           ls -alrt        ${SHAREDIR}/extension/plr--*.sql
 
-          # OS variables before the test
-          echo "PATH: ${PATH}"
-          echo "R_HOME: ${R_HOME}
-
           #
           # non-setup regression test
           # Directories of testing "sql" and testing "expected" results exist here
@@ -1584,7 +1581,6 @@ jobs:
             # uninstall previous
             #### cygrunsrv -R cygserver
           fi
-
 
           #
           # if "PostgreSQL for Windows" exists, then
