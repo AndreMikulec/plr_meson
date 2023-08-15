@@ -1512,32 +1512,6 @@ jobs:
           ls -alrt        ${SHAREDIR}/extension/plr--*.sql
 
           #
-          # non-setup regression test
-          # Directories of testing "sql" and testing "expected" results exist here
-          #
-          # Some environments require it
-          export PGUSER=$(whoami)
-          "${PKGLIBDIR}/pgxs/src/test/regress/pg_regress" --bindir="${PG_HOME}/bin" --dbname=pl_regression plr bad_fun opt_window do out_args plr_transaction opt_window_frame || (cat regression.diffs && false)
-
-          popd # from "${PG_HOME}/contribplr"
-
-          #
-          # Stop the cluster after
-          # the non-setup regression test (see FAR above).
-          #
-          pg_ctl -D PGDATA -l logfile stop
-
-          # HERE2
-          if [ "${OperatingSystem}" == "Cygwin" ]
-          then
-            echo "cygrunsrv STOP"
-            # shutdown current
-            cygrunsrv -E cygserver
-            # uninstall previous
-            #### cygrunsrv -R cygserver
-          fi
-
-          #
           # save artifact plr.dll
           #
           if [ -f "${PG_HOME}/contrib/plr/plr.dll" ]
@@ -1595,6 +1569,33 @@ jobs:
               fi
             fi
           fi
+
+          #
+          # non-setup regression test
+          # Directories of testing "sql" and testing "expected" results exist here
+          #
+          # Some environments require it
+          export PGUSER=$(whoami)
+          "${PKGLIBDIR}/pgxs/src/test/regress/pg_regress" --bindir="${PG_HOME}/bin" --dbname=pl_regression plr bad_fun opt_window do out_args plr_transaction opt_window_frame || (cat regression.diffs && false)
+
+          popd # from "${PG_HOME}/contribplr"
+
+          #
+          # Stop the cluster after
+          # the non-setup regression test (see FAR above).
+          #
+          pg_ctl -D PGDATA -l logfile stop
+
+          # HERE2
+          if [ "${OperatingSystem}" == "Cygwin" ]
+          then
+            echo "cygrunsrv STOP"
+            # shutdown current
+            cygrunsrv -E cygserver
+            # uninstall previous
+            #### cygrunsrv -R cygserver
+          fi
+
 
 
       - name: Upload artifacts plr.dll and plr.dll.a for export for LOCAL testing
