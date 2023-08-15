@@ -1484,7 +1484,40 @@ jobs:
           # "-Wl,--end-group"
           #
 
-          # install artifacts
+          #
+          # save artifact plr.dll
+          #
+          if [ -f "${PG_HOME}/contrib/plr/plr.dll" ]
+          then
+            echo "Save plr.dll to be an artifact."
+            mkdir -p                                ${GITHUB_WORKSPACE}/tmp/lib
+            cp    LICENSE                           ${GITHUB_WORKSPACE}/tmp/PLR_LICENSE
+            cp    "${PG_HOME}/contrib/plr/plr.dll"  ${GITHUB_WORKSPACE}/tmp/lib
+            ls -alrt                                ${GITHUB_WORKSPACE}/tmp/lib/plr.dll
+            mkdir -p                                ${GITHUB_WORKSPACE}/tmp/share/extension
+            cp    *.control                         ${GITHUB_WORKSPACE}/tmp/share/extension
+            cp    *.sql                             ${GITHUB_WORKSPACE}/tmp/share/extension
+          fi
+
+          #
+          # save artifact plr.dll.a
+          #
+          if [ -f "${PG_HOME}/contrib/plr/plr.dll.a" ]
+          then
+            echo "Save plr.dll.a to be an artifact."
+            mkdir -p                                  ${GITHUB_WORKSPACE}/tmp/lib
+            cp    "${PG_HOME}/contrib/plr/plr.dll.a"  ${GITHUB_WORKSPACE}/tmp/lib
+            ls -alrt                                  ${GITHUB_WORKSPACE}/tmp/lib/plr.dll.a
+          fi
+
+          # 7z PL/R Artifact for LATER Release
+          if [ -f "${GITHUB_WORKSPACE}/tmp/PLR_LICENSE" ]
+          then
+            echo "Create PL/R Artifact .zip for future Release"
+            7z a -r ${GITHUB_WORKSPACE}/plr-artifact.zip  ${GITHUB_WORKSPACE}/tmp/*
+          fi
+
+          # install artifacts into NIX PG plr.dll and plr.dlla.
           #
           if [ -f "../contrib/plr/plr.dll" ]
           then
@@ -1500,13 +1533,13 @@ jobs:
           fi
 
           #
-          # install artifacts support file - plr.control
+          # install artifacts into NIX PG - support file - plr.control
           #
           cp plr.control "${SHAREDIR}/extension"
           ls -alrt       "${SHAREDIR}/extension/plr.control"
 
           #
-          # install artifacts SQL support files - versioning "sql"
+          # install artifacts  into NIX PG - SQL support files - versioning "sql"
           #
           cp plr--*.sql  "${SHAREDIR}/extension"
           ls -alrt        ${SHAREDIR}/extension/plr--*.sql
@@ -1537,38 +1570,6 @@ jobs:
             #### cygrunsrv -R cygserver
           fi
 
-          #
-          # save artifact plr.dll
-          #
-          if [ -f "${PG_HOME}/contrib/plr/plr.dll" ]
-          then
-            echo "Save plr.dll to be an artifact."
-            mkdir -p                                tmp/lib
-            cp    LICENSE                           tmp/PLR_LICENSE
-            cp    "${PG_HOME}/contrib/plr/plr.dll"  tmp/lib
-            ls -alrt                                tmp/lib/plr.dll
-            mkdir -p                                tmp/share/extension
-            cp    *.control                         tmp/share/extension
-            cp    *.sql                             tmp/share/extension
-          fi
-
-          #
-          # save artifact plr.dll.a
-          #
-          if [ -f "${PG_HOME}/contrib/plr/plr.dll.a" ]
-          then
-            echo "Save plr.dll.a to be an artifact."
-            mkdir -p                                  tmp/lib
-            cp    "${PG_HOME}/contrib/plr/plr.dll.a"  tmp/lib
-            ls -alrt                                  tmp/lib/plr.dll.a
-          fi
-
-          # 7z PL/R Artifact for Release
-          if [ -f "tmp/PLR_LICENSE" ]
-          then
-            echo "Create PL/R Artifact .zip for future Release"
-            7z a -r plr-artifact.zip ./tmp/*
-          fi
 
           #
           # if "PostgreSQL for Windows" exists, then
@@ -1624,7 +1625,7 @@ jobs:
 #         cygrunsrv -R cygserver
 
       - name: Upload artifacts plr.dll and plr.dll.a for export for LOCAL testing
-        if: ${{ always() && env.os == 'windows-latest' && ( env.compilerClass == 'MSYS2' || env.compilerClass == 'cygwin' ) }}
+        if: ${{ always() }}
         uses: actions/upload-artifact@v3
         with:
           name: plr-${{ env.HEAD8_GITHUB_SHA }}-${{ env.os }}-${{ env.compilerEnv }}-${{ env.Platform }}-R${{ env.rversion }}-PG${{ env.pgversion }}
@@ -1705,7 +1706,7 @@ jobs:
           if "%Platform%"=="notset" (echo Platform is not set, therefore no net stop happens.)
 
       - name: Windows Prep PL/R Artifact for Release
-        if: ${{ always() && env.os == 'windows-latest' && ( env.compilerClass == 'MSYS2' || env.compilerClass == 'cygwin' ) }}
+        if: ${{ env.os == 'windows-latest' && ( env.compilerClass == 'MSYS2' || env.compilerClass == 'cygwin' ) }}
         env:
           PGVER2: ${{ env.PGVER2 }}
           Platform: ${{ env.Platform }}
