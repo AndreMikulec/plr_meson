@@ -1597,6 +1597,15 @@ jobs:
           fi
 
 
+      - name: Upload artifacts plr.dll and plr.dll.a for export for LOCAL testing
+        if: ${{ env.os == 'windows-latest' &&  env.compilerClass == 'MSYS2' }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: plr-${{ env.HEAD8_GITHUB_SHA }}-${{ env.os }}-${{ env.compilerEnv }}-${{ env.Platform }}-R${{ env.rversion }}-PG${{ env.pgversion }}
+          path: |
+            tmp\*\*
+            tmp\PLR_LICENSE
+
 #     - name: Cleanup Cygwin
 #       if: ${{ env.os == 'windows-latest' && env.compilerClass == 'cygwin' }}
 #       env:
@@ -1622,15 +1631,6 @@ jobs:
 #         cygrunsrv -E cygserver
 #         # uninstall previous
 #         cygrunsrv -R cygserver
-
-      - name: Upload artifacts plr.dll and plr.dll.a for export for LOCAL testing
-        if: ${{ env.os == 'windows-latest' &&  env.compilerClass == 'MSYS2' }}
-        uses: actions/upload-artifact@v3
-        with:
-          name: plr-${{ env.HEAD8_GITHUB_SHA }}-${{ env.os }}-${{ env.compilerEnv }}-${{ env.Platform }}-R${{ env.rversion }}-PG${{ env.pgversion }}
-          path: |
-            tmp\*\*
-            tmp\PLR_LICENSE
 
       - name: Set R_HOME and PG PATH, Start PG(read OS variables), Test on PostgreSQL for Windows
         if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testonpgWIN == 'true' }}
