@@ -1318,8 +1318,6 @@ jobs:
           if [ ! -f "${PG_HOME}/lib/pkgconfig/libpostgres.pc" ]
           then
             cat "${PG_HOME}/lib/pkgconfig/libpq.pc" | sed "s/libpq/libpostgres/g" | sed "s/-lpq/-lpostgres/" > "${PG_HOME}/lib/pkgconfig/libpostgres.pc"
-            echo cat "${PG_HOME}/lib/pkgconfig/libpostgres.pc"
-            cat      "${PG_HOME}/lib/pkgconfig/libpostgres.pc"
           fi
 
           # This is Part 2 of 2 of a hack to make "meson" think that "libpostgres" is a library
@@ -1346,9 +1344,6 @@ jobs:
             # Uses the provided template file "libR.pc"
             # This template file is "based" off of the "R for Cygwin" file /lib/pkgconfig/libR.pc.
             cat "libR.pc" | sed "s|R_HOME|${R_HOME}|" | sed "s|R_ARCH|${R_ARCH}|" | sed "s/rversion/${rversion}/" > "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}/pkgconfig/libR.pc"
-
-            echo cat "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}/pkgconfig/libR.pc"
-            cat      "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}/pkgconfig/libR.pc"
           fi
 
           # Cygwin already has the file /usr/lib/R/lib/libR.dll.a
@@ -1407,8 +1402,8 @@ jobs:
             cygserver-config --yes
             #### cp /etc/defaults/etc/cygserver.conf /etc/defaults/etc/cygserver.conf.original
             #### echo kern.ipc.shmmni 32767 >> /etc/defaults/etc/cygserver.conf
-            #### echo kern.ipc.shmseg 32767 >> /etc/defaults/etc/cygserver.conf
             #### echo kern.ipc.shmmni 262144000 >> /etc/defaults/etc/cygserver.conf
+            #### echo kern.ipc.shmseg 32767 >> /etc/defaults/etc/cygserver.conf
             #### echo kern.ipc.shmseg 524288000 >> /etc/defaults/etc/cygserver.conf
             #
             # CUT [1580] FATAL:  could not create shared memory segment: Function not implemented
@@ -1442,7 +1437,6 @@ jobs:
           # the non-setup regression test (see FAR below).
           #
           initdb -D PGDATA
-
           pg_ctl -D PGDATA -l logfile start
 
           # Create the contribplr directory parallel to contrib.
@@ -1461,7 +1455,7 @@ jobs:
           rm  -f "${SHAREDIR}/extension/plr.control"
           rm  -f  ${SHAREDIR}/extension/plr--*.sql
 
-
+          #
           # build(create) artifacts (A "started" database is not required.)
           #
           # Note, from my "bad" memory,
@@ -1577,6 +1571,7 @@ jobs:
             # uninstall previous
             #### cygrunsrv -R cygserver
           fi
+
 
           #
           # if "PostgreSQL for Windows" exists, then
