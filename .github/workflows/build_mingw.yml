@@ -1053,7 +1053,7 @@ jobs:
           echo "PG_HOME: ${PG_HOME}"
           echo "PGROOT2: ${PGROOT2}"
 
-          export WORKSPACE=$(pwd)
+          export WORKSPACE=$(cygpath $(cygpath -wl "$(pwd)"))
 
           #
           # Trying smartly and hard to find the R_HOME
