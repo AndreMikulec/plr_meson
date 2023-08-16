@@ -654,6 +654,16 @@ jobs:
         env:
           SEGMENT_DOWNLOAD_TIMEOUT_MINS: 1
 
+      - name: Cache pkgconfiglite for ______
+        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'msvc' }}
+        uses: actions/cache@v3
+        id: cachePkgConfigLiteZip
+        with:
+          path: pkg-config-lite-0.28-1_bin-win32.zip
+          key:  pkg-config-lite-0.28-1_bin-win32.zip
+        env:
+          SEGMENT_DOWNLOAD_TIMEOUT_MINS: 1
+
       # Notice
       # Path R-2.11.1-x64
       # Download Name -R-2.11.1-win64.exe
@@ -703,6 +713,18 @@ jobs:
           retry-times: 1
         # url: https://github.com/AndreMikulec/plr_meson/releases/download/0.0.0.0.0.GITHUBCACHE/diffutils-2.8.7-1-bin.zip
           url: https://zenlayer.dl.sourceforge.net/project/gnuwin32/diffutils/2.8.7-1/diffutils-2.8.7-1-bin.zip
+
+      - name: Download pkgconfiglite for ____________
+        if: >-
+          ${{ env.os == 'windows-latest' && env.compilerClass == 'msvc' &&
+          steps.cachePkgConfigLiteZip.outputs.cache-hit != 'true'
+          }}
+        uses: suisei-cn/actions-download-file@v1.3.0
+        id: downloadPkgConfigLiteZip
+        with:
+          retry-times: 1
+          url: http://downloads.sourceforge.net/project/pkgconfiglite/0.28-1/pkg-config-lite-0.28-1_bin-win32.zip
+
 
       - name: Install R for Windows R-x.y.z R-rmajor.rminor.rpatch
         if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' }}
@@ -788,6 +810,7 @@ jobs:
 
       # https://wiki.postgresql.org/wiki/Meson
       #   NOTE - diffutils - times out - doing a custom install instead (see OTHER step)
+      #   NOTE - pkgconfiglite - times out - doing a custom install instead (see OTHER step)
       - name: Choco Install support software about PL/R compiling using msvc for Windows
         if: ${{ env.os == 'windows-latest' && env.compilerClass == 'msvc' }}
         # Keep v2.  v2.2.0 may have connection to Sourceforge problems
@@ -795,7 +818,7 @@ jobs:
         with:
           args: >-
             install winflexbison sed gzip strawberryperl
-            meson pkgconfiglite grep
+            meson grep
 
       # Choco Install GNU diffutils
       # BUT the "crazy-max/ghaction-chocolatey@v2" "install diffutils" file download often times-out
@@ -811,6 +834,21 @@ jobs:
           dir                                  "C:\OTHERBIN\diffutils"
           rem - man7.org/linux/man-pages/man1/printf.1.html
           printf                               "C:\\OTHERBIN\\diffutils\\bin" >> %GITHUB_PATH%
+
+      # Choco Install pkgconfiglite
+      # BUT the "crazy-max/ghaction-chocolatey@v2" "install pkgconfiglite" file download often times-out
+      - name: Extract pkgconfiglite and add pkgconfiglite bin directory to the PATH for _________
+        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'msvc' }}
+        shell: cmd
+        run: |
+          rem MKDIR creates any intermediate directories in the path, if needed.
+          mkdir                                           "C:\OTHERBIN\pkgconfiglite"
+          rem 7z is provided by Github Actions
+          7z x  pkg-config-lite-0.28-1_bin-win32.zip    -o"C:\OTHERBIN\pkgconfiglite"
+          copy  pkg-config-lite-0.28-1_bin-win32.zip      "C:\OTHERBIN\pkgconfiglite"
+          dir                                             "C:\OTHERBIN\pkgconfiglite"
+          rem - man7.org/linux/man-pages/man1/printf.1.html
+          printf                                          "C:\\OTHERBIN\\pkgconfiglite\\pkg-config-lite-0.28-1\\bin" >> %GITHUB_PATH%
 
       # 34 seconds with zero packages
       # 2 minutes and seven(7) seconds with everything
