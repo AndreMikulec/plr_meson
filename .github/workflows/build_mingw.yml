@@ -1018,7 +1018,7 @@ jobs:
           # Msys shell variable
           msystem: ${{ env.compilerEnv }}
           #
-          R_HOME: ${{ env.R_HOME }}
+          # TEMP # R_HOME: ${{ env.R_HOME }}
           Platform: ${{ env.Platform }}
           R_ARCH: ${{ env.R_ARCH }}
           rversion: ${{ env.rversion }}
