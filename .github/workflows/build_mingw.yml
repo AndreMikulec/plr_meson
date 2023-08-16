@@ -1009,6 +1009,27 @@ jobs:
           path: |
             pg-${{ env.os }}-${{ env.compilerEnv }}-${{ env.Platform }}-PG${{ env.pgversion }}.7z
 
+
+      #
+      # Skip the "user provided R version" validation test.
+      # Do not bother to compare. Just TAKE the Compiler provided "rversion".
+      #
+      # R 4.2.3
+      #
+      # R-4.2.3\bin\x64\Rscript" --version
+      # Rscript (R) version 4.2.3 (2023-03-15)
+      #
+      # R 4.3.1patched
+      #
+      # R-4.3.1patched\bin\x64\Rscript" --version
+      # Rscript (R) version 4.3.1 Patched (2023-08-12 r84939)
+      #
+      # R devel
+      #
+      # R-devel\bin\x64\Rscript" --version
+      # Rscript (R) version 4.4.0 Under development (unstable) (2023-08-12 r84939)
+      #
+      # The workflow is not valid. Exceeded max expression length 21000
       - name: Meson PL/R Setup Compile and Non-Meson Manual Test
         if: ${{ env.os == 'windows-latest' && ( env.compilerClass == 'MSYS2' || env.compilerClass == 'cygwin' ) }}
         env:
@@ -1133,25 +1154,6 @@ jobs:
               if [ ! "${rversion_supplied}" == "${rversion}" ]
               then
                 echo "WARNING rversion_supplied ${rversion_supplied} != rversion ${rversion}"
-                #
-                # Skip the "user provided R version" validation test.
-                # Do not bother to compare. Just TAKE the Compiler provided "rversion".
-                #
-                # R 4.2.3
-                #
-                # R-4.2.3\bin\x64\Rscript" --version
-                # Rscript (R) version 4.2.3 (2023-03-15)
-                #
-                # R 4.3.1patched
-                #
-                # R-4.3.1patched\bin\x64\Rscript" --version
-                # Rscript (R) version 4.3.1 Patched (2023-08-12 r84939)
-                #
-                # R devel
-                #
-                # R-devel\bin\x64\Rscript" --version
-                # Rscript (R) version 4.4.0 Under development (unstable) (2023-08-12 r84939)
-                #
               fi
             fi
           fi
