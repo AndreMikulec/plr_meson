@@ -1088,23 +1088,7 @@ jobs:
             #
             # Temporary workaround
             #
-            if [ "${OperatingSystem}" == "Cygwin" ]
-            then
-              # dangerously assumes that 
-              # 1. R is installed and 2. R is installed in the DEFAULT location
-              export R_HOME=/usr/lib/R
-            fi
-            # MOVING ON . . .
-
-            # R for Windows SUFFICIENT
-            if [ "${OperatingSystem}" == "Msys" ]
-            then
-              # ONLY "R for Windows"
-              # dangerously assumes that 
-              # 1. R is installed and 2. R is in the PATH
-              export R_HOME=$(dirname $(dirname "$(which R)"))
-            fi
-            # MOVING ON . . .
+            export R_HOME=/usr/lib/R
 
             # determined variable
             echo "dirname which R R_HOME: ${R_HOME}"
