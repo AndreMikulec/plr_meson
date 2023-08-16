@@ -1244,6 +1244,7 @@ jobs:
           if [ "${PG_HOME}" == "notset" ] || [ "${PG_HOME}" == "" ]
           then
             export PG_HOME=$(dirname "${BINDIR}")
+            echo "PG_HOME=${PG_HOME}" >> ${GITHUB_ENV}
 
             # found variable
             echo "pg_config PG_HOME: ${PG_HOME}"
