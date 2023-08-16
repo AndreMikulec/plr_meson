@@ -1123,7 +1123,7 @@ jobs:
               export R_HOME=${OLD_R_HOME}
               unset OLD_R_HOME
             fi
-            # Fail if the user supplied rversion does not match the true rversion
+            # Warn if the user supplied rversion does not match the true rversion
             #
             if [ ! "${rversion_supplied}" == "notset" ] && [ ! "${rversion_supplied}" == "" ]
             then
@@ -1415,7 +1415,7 @@ jobs:
             #
             # How to change SHMMAX / SHMSEG kernel variables on LINUX ?
             # The SHMMAX is by default set to 33554432 (32 MB)
-            # Since the maximum shared memory segment Progress can access is 128 MB, 
+            # Since the maximum shared memory segment Progress can access is 128 MB,
             # the minimum recommended value for SHMMAX would be 134217728.
             # https://community.progress.com/s/article/P47970
             # shared_buffers + (temp_buffers + work_mem) * max_connections
@@ -1423,7 +1423,7 @@ jobs:
             # https://community.progress.com/s/article/P18482#:~:text=SHMSEG%3A%20Maximum%20number%20of%20shared,memory%20that%20can%20be%20used.
             #### echo kern.ipc.shmmax 134217728 >> /etc/defaults/etc/cygserver.conf
             #### echo kern.ipc.shmmax 524288000 >> /etc/defaults/etc/cygserver.conf
-            
+
             #### echo kern.ipc.shmmax 4294967296 >> /etc/defaults/etc/cygserver.conf
             #### echo kern.ipc.shmall 4294967296 >> /etc/defaults/etc/cygserver.conf
 
