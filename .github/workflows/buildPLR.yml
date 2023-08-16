@@ -1118,42 +1118,15 @@ jobs:
           fi
 
           export ERRORLEVEL=0
-          which R || export ERRORLEVEL=$?
+          which Rscript || export ERRORLEVEL=$?
           if [ ! "${ERRORLEVEL}" == "0" ]; then echo ERROR - No R found in the PATH - ${PATH}; exit 1;fi
 
           if [ "${R_HOME}" == "notset" ] || [ "${R_HOME}" == "" ]
           then
-            # I CAN NOT FIGURE OUT HOW TO extract the R_HOME into an
-            # Environment Variable on Github Actions
-            #
-            # THIS DOES NOT EXTRACT
-            # Rscript . . . cat(Sys.getenv("R_HOME")
-
-            # Temporary workarounds
-
-            if [ "${OperatingSystem}" == "Cygwin" ]
-            then
-              # dangerously assumes that 
-              # 1. R is installed and 2. R is installed in the DEFAULT location
-              export R_HOME=/usr/lib/R
-            fi
-
-            # MOVING ON . . .
-
-            # R for Windows SUFFICIENT
-            if [ "${OperatingSystem}" == "Msys" ]
-            then
-              # ONLY "R for Windows"
-              # dangerously assumes that 
-              # 1. R is installed and 2. R is in the PATH
-              export R_HOME=$(dirname $(dirname "$(which R)"))
-              # determined variable
-              echo "dirname which R R_HOME: ${R_HOME}"
-            fi
-
-            # MOVING ON . . .
-
-
+            Rscript -e "writeLines(Sys.getenv(\"R_HOME\"), \"R_HOME.out\")"
+            export R_HOME=$(cygpath $(cygpath -wl $(cat R_HOME.out)))
+            # determined variable
+            echo "cygpath cygpath Sys.getenv R_HOME: ${R_HOME}"
 
             # PATHs are needed for the proper compile and runtime
             # find "libraries"
