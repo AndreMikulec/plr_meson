@@ -1080,7 +1080,33 @@ jobs:
 
           if [ "${R_HOME}" == "notset" ] || [ "${R_HOME}" == "" ]
           then
-            export R_HOME=$(dirname $(dirname "$(which R)"))
+            # I CAN NOT FIGURE OUT HOW TO extract the R_HOME into an
+            # Environment Variable on Github Actions
+            #
+            # THESE DO NOT EXTRACT
+            # export R_HOME=$(Rscript -e "cat(Sys.getenv(\"R_HOME\"))")
+            # export R_HOME=$(Rscript -e "cat(cat(Sys.getenv('R_HOME')))")
+            # export R_HOME=$(cygpath $(cygpath -wl $(Rscript -e "cat(paste0(Sys.getenv(\"R_HOME\"),\"\n\"))")))
+            #
+            # Temporary workaround
+            #
+            if [ "${OperatingSystem}" == "Cygwin" ]
+            then
+              # dangerously assumes that 
+              # 1. R is installed and 2. R is installed in the DEFAULT location
+              export R_HOME=/usr/lib/R
+            fi
+            # MOVING ON . . .
+
+            # R for Windows SUFFICIENT
+            if [ "${OperatingSystem}" == "Msys" ]
+            then
+              # ONLY "R for Windows"
+              # dangerously assumes that 
+              # 1. R is installed and 2. R is in the PATH
+              export R_HOME=$(dirname $(dirname "$(which R)"))
+            fi
+            # MOVING ON . . .
 
             # determined variable
             echo "dirname which R R_HOME: ${R_HOME}"
