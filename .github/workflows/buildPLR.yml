@@ -572,7 +572,7 @@ jobs:
       # `x64` for 64-bit x86 machines, `x86` for 32-bit x86 machines.
       # https://github.com/bus1/cabuild/blob/8c91ebf06b7a5f8405cf93c89a6928e4c76967e0/action/msdevshell/action.yml
       - name: Prepare Github Actions, MSVC, and Meson
-        if: ${{ env.os == 'windows-latest' && env.compilerEnv == 'msvc' }}
+        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'msvc' }}
         uses: bus1/cabuild/action/msdevshell@v1
         with:
           # msvc ARCHITECTURE
@@ -645,7 +645,7 @@ jobs:
           SEGMENT_DOWNLOAD_TIMEOUT_MINS: 10
 
       - name: Cache GNU diffutils for Test on PostgreSQL for Windows
-        if: ${{ env.os == 'windows-latest' &&  env.compilerClass == 'MSYS2' && env.testonpgWIN == 'true' }}
+        if: ${{ env.os == 'windows-latest' && ( env.compilerClass == 'MSYS2' || env.compilerClass == 'msvc' ) && env.testonpgWIN == 'true' }}
         uses: actions/cache@v3
         id: cacheDiffutilsZip
         with:
@@ -694,7 +694,7 @@ jobs:
 
       - name: Download GNU diffutils for Test on PostgreSQL for Windows
         if: >-
-          ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testonpgWIN == 'true' &&
+          ${{ env.os == 'windows-latest' && ( env.compilerClass == 'MSYS2' || env.compilerClass == 'msvc' ) && env.testonpgWIN == 'true' &&
           steps.cacheDiffutilsZip.outputs.cache-hit != 'true'
           }}
         uses: suisei-cn/actions-download-file@v1.3.0
@@ -786,19 +786,21 @@ jobs:
           if "%Platform%"=="notset" (echo Platform is not set, therefore no net stop happens.)
           dir "%PGROOT2%"
 
-      - name: Choco Install GNU diffutils for Test on PostgreSQL for Windows
+      # https://wiki.postgresql.org/wiki/Meson
+      #   NOTE - diffutils - times out - doing a custom install instead (see OTHER step)
+      - name: Choco Install support software about PL/R compiling using msvc for Windows
         if: ${{ env.os == 'windows-latest' && env.compilerClass == 'msvc' }}
         # Keep v2.  v2.2.0 may have connection to Sourceforge problems
         uses: crazy-max/ghaction-chocolatey@v2
         with:
           args: >-
-            install winflexbison sed gzip strawberryperl diffutils
+            install winflexbison sed gzip strawberryperl
             meson pkgconfiglite grep
 
       # Choco Install GNU diffutils
       # BUT the "crazy-max/ghaction-chocolatey@v2" "install diffutils" file download often times-out
       - name: Extract Diffuntils and add Diffuntils bin directory to the PATH for Test on PostgreSQL for Windows
-        if: ${{ env.os == 'windows-latest' &&  env.compilerClass == 'MSYS2' && env.testonpgWIN == 'true' }}
+        if: ${{ env.os == 'windows-latest' && ( env.compilerClass == 'MSYS2' || env.compilerClass == 'msvc' ) && env.testonpgWIN == 'true' }}
         shell: cmd
         run: |
           rem MKDIR creates any intermediate directories in the path, if needed.
@@ -1059,7 +1061,7 @@ jobs:
       #
       # How to change SHMMAX / SHMSEG kernel variables on LINUX ?
       # The SHMMAX is by default set to 33554432 (32 MB)
-      # Since the maximum shared memory segment Progress can access is 128 MB, 
+      # Since the maximum shared memory segment Progress can access is 128 MB,
       # the minimum recommended value for SHMMAX would be 134217728.
       # https://community.progress.com/s/article/P47970
       # shared_buffers + (temp_buffers + work_mem) * max_connections
@@ -1148,7 +1150,7 @@ jobs:
 
             if [ "${OperatingSystem}" == "Cygwin" ]
             then
-              # dangerously assumes that 
+              # dangerously assumes that
               # 1. R is installed and 2. R is installed in the DEFAULT location
               export R_HOME=/usr/lib/R
             fi
@@ -1159,7 +1161,7 @@ jobs:
             if [ "${OperatingSystem}" == "Msys" ]
             then
               # ONLY "R for Windows"
-              # dangerously assumes that 
+              # dangerously assumes that
               # 1. R is installed and 2. R is in the PATH
               export R_HOME=$(dirname $(dirname "$(which R)"))
               # determined variable
