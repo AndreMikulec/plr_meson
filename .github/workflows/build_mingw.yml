@@ -1030,6 +1030,28 @@ jobs:
       # Rscript (R) version 4.4.0 Under development (unstable) (2023-08-12 r84939)
       #
       # The workflow is not valid. Exceeded max expression length 21000
+
+      # NOT WORKING Cygwin limits on x86 (NOTHING on x86 WORKS)
+      #
+      #### echo kern.ipc.shmmni 262144000 >> /etc/defaults/etc/cygserver.conf
+      #### echo kern.ipc.shmseg 524288000 >> /etc/defaults/etc/cygserver.conf
+      #
+      # CUT [1580] FATAL:  could not create shared memory segment: Function not implemented
+      #
+      # How to change SHMMAX / SHMSEG kernel variables on LINUX ?
+      # The SHMMAX is by default set to 33554432 (32 MB)
+      # Since the maximum shared memory segment Progress can access is 128 MB, 
+      # the minimum recommended value for SHMMAX would be 134217728.
+      # https://community.progress.com/s/article/P47970
+      # shared_buffers + (temp_buffers + work_mem) * max_connections
+      # https://stackoverflow.com/questions/28844170/how-to-limit-the-memory-that-is-available-for-postgresql-server
+      # https://community.progress.com/s/article/P18482#:~:text=SHMSEG%3A%20Maximum%20number%20of%20shared,memory%20that%20can%20be%20used.
+      #### echo kern.ipc.shmmax 134217728 >> /etc/defaults/etc/cygserver.conf
+      #### echo kern.ipc.shmmax 524288000 >> /etc/defaults/etc/cygserver.conf
+      #
+      #### echo kern.ipc.shmmax 4294967296 >> /etc/defaults/etc/cygserver.conf
+      #### echo kern.ipc.shmall 4294967296 >> /etc/defaults/etc/cygserver.conf
+      #
       - name: Meson PL/R Setup Compile and Non-Meson Manual Test
         if: ${{ env.os == 'windows-latest' && ( env.compilerClass == 'MSYS2' || env.compilerClass == 'cygwin' ) }}
         env:
@@ -1106,13 +1128,32 @@ jobs:
             #
             # THIS DOES NOT EXTRACT
             # Rscript . . . cat(Sys.getenv("R_HOME")
-            #
-            # Temporary workaround
-            #
-            export R_HOME=/usr/lib/R
 
-            # determined variable
-            echo "dirname which R R_HOME: ${R_HOME}"
+            # Temporary workarounds
+
+            if [ "${OperatingSystem}" == "Cygwin" ]
+            then
+              # dangerously assumes that 
+              # 1. R is installed and 2. R is installed in the DEFAULT location
+              export R_HOME=/usr/lib/R
+            fi
+
+            # MOVING ON . . .
+
+            # R for Windows SUFFICIENT
+            if [ "${OperatingSystem}" == "Msys" ]
+            then
+              # ONLY "R for Windows"
+              # dangerously assumes that 
+              # 1. R is installed and 2. R is in the PATH
+              export R_HOME=$(dirname $(dirname "$(which R)"))
+              # determined variable
+              echo "dirname which R R_HOME: ${R_HOME}"
+            fi
+
+            # MOVING ON . . .
+
+
 
             # PATHs are needed for the proper compile and runtime
             # find "libraries"
@@ -1412,27 +1453,8 @@ jobs:
             cygserver-config --yes
             #### cp /etc/defaults/etc/cygserver.conf /etc/defaults/etc/cygserver.conf.original
             #### echo kern.ipc.shmmni 32767 >> /etc/defaults/etc/cygserver.conf
-            #### echo kern.ipc.shmmni 262144000 >> /etc/defaults/etc/cygserver.conf
             #### echo kern.ipc.shmseg 32767 >> /etc/defaults/etc/cygserver.conf
-            #### echo kern.ipc.shmseg 524288000 >> /etc/defaults/etc/cygserver.conf
-            #
-            # CUT [1580] FATAL:  could not create shared memory segment: Function not implemented
-            #
-            # How to change SHMMAX / SHMSEG kernel variables on LINUX ?
-            # The SHMMAX is by default set to 33554432 (32 MB)
-            # Since the maximum shared memory segment Progress can access is 128 MB, 
-            # the minimum recommended value for SHMMAX would be 134217728.
-            # https://community.progress.com/s/article/P47970
-            # shared_buffers + (temp_buffers + work_mem) * max_connections
-            # https://stackoverflow.com/questions/28844170/how-to-limit-the-memory-that-is-available-for-postgresql-server
-            # https://community.progress.com/s/article/P18482#:~:text=SHMSEG%3A%20Maximum%20number%20of%20shared,memory%20that%20can%20be%20used.
-            #### echo kern.ipc.shmmax 134217728 >> /etc/defaults/etc/cygserver.conf
-            #### echo kern.ipc.shmmax 524288000 >> /etc/defaults/etc/cygserver.conf
-            
-            #### echo kern.ipc.shmmax 4294967296 >> /etc/defaults/etc/cygserver.conf
-            #### echo kern.ipc.shmall 4294967296 >> /etc/defaults/etc/cygserver.conf
-
-            echo kern.ipc.shmmax 16777216 >> /etc/defaults/etc/cygserver.conf
+           echo kern.ipc.shmmax 16777216 >> /etc/defaults/etc/cygserver.conf
             echo kern.ipc.shmall 4096 >>     /etc/defaults/etc/cygserver.conf
             # https://stackoverflow.com/questions/6861945/postgresql-failing-with-below-error-on-lion-os-x#:~:text=Failed%20system%20call%20was%20shmget,the%20kernel%20with%20larger%20SHMMAX.
 
