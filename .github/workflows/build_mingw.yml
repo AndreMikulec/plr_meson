@@ -1083,10 +1083,8 @@ jobs:
             # I CAN NOT FIGURE OUT HOW TO extract the R_HOME into an
             # Environment Variable on Github Actions
             #
-            # THESE DO NOT EXTRACT
-            # export R_HOME=$(Rscript -e "cat(Sys.getenv(\"R_HOME\"))")
-            # export R_HOME=$(Rscript -e "cat(cat(Sys.getenv('R_HOME')))")
-            # export R_HOME=$(cygpath $(cygpath -wl $(Rscript -e "cat(paste0(Sys.getenv(\"R_HOME\"),\"\n\"))")))
+            # THIS DOES NOT EXTRACT
+            # Rscript . . . cat(Sys.getenv("R_HOME")
             #
             # Temporary workaround
             #
