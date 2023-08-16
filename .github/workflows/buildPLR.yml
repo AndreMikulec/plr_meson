@@ -69,6 +69,10 @@ jobs:
           # # https://github.com/actions/runner-images
           #
 
+          - os: windows-latest
+            compilerEnv: msvc
+            Platform: x64
+
 #         # Repository R and Repository postgresql
           - os: windows-latest
             compilerEnv: cygwin
@@ -353,9 +357,13 @@ jobs:
           if("${env:compilerEnv}" -eq "cygwin") {
             ${env:compilerClass} = "cygwin"
           }
+          if("${env:compilerEnv}" -eq "msvc") {
+            ${env:compilerClass} = "msvc"
+          }
           Set-EnvVar "compilerClass=${env:compilerClass}"
 
           echo "compilerClass: ${env:compilerClass}"
+
 
           ${env:compilerExe} = "${{ matrix.compilerExe }}"
           if("${env:compilerExe}" -eq ""){${env:compilerExe} = "notset"}
@@ -556,6 +564,21 @@ jobs:
       - name: Checkout Code of This Repository
         uses: actions/checkout@v3
 
+      # running Meson on GitHub Actions will end up using GCC rather than MSVC
+      #
+      # His fix .
+      # https://dvdhrm.github.io/2021/04/21/meson-msvc-github-actions/
+      #
+      # `x64` for 64-bit x86 machines, `x86` for 32-bit x86 machines.
+      # https://github.com/bus1/cabuild/blob/8c91ebf06b7a5f8405cf93c89a6928e4c76967e0/action/msdevshell/action.yml
+      - name: Prepare Github Actions, MSVC, and Meson
+        if: ${{ env.os == 'windows-latest' && env.compilerEnv == 'msvc' }}
+        uses: bus1/cabuild/action/msdevshell@v1
+        with:
+          # msvc ARCHITECTURE
+          architecture: x64
+
+
       - name: Checkout PostgreSQL Code
         if: ${{ env.pgSRCversion != 'notset' }}
         uses: actions/checkout@v3
@@ -589,19 +612,6 @@ jobs:
         run: |
           Move-Item -Path PGSOURCE -Destination ${{ env.PG_SOURCE }}
           Get-ChildItem                         ${{ env.PG_SOURCE }}
-
-#     # running Meson on GitHub Actions will end up using GCC rather than MSVC
-#     #
-#     # His fix .
-#     # https://dvdhrm.github.io/2021/04/21/meson-msvc-github-actions/
-#     #
-#     # `x64` for 64-bit x86 machines, `x86` for 32-bit x86 machines.
-#     # https://github.com/bus1/cabuild/blob/8c91ebf06b7a5f8405cf93c89a6928e4c76967e0/action/msdevshell/action.yml
-#     - name: Prepare Github Actions, MSVC, and Meson
-#       if: ${{ env.os == 'windows-latest' && env.compilerEnv == 'msvc' }}
-#       uses: bus1/cabuild/action/msdevshell@v1
-#       with:
-#         architecture: ${{ env.msvc_architecture }}
 
       # Currently will cache *patched* and *devel* and I do not want to cache these.
       #
@@ -775,6 +785,15 @@ jobs:
           if "%Platform%"=="x86" (net stop postgresql-%PGVER2%)
           if "%Platform%"=="notset" (echo Platform is not set, therefore no net stop happens.)
           dir "%PGROOT2%"
+
+      - name: Choco Install GNU diffutils for Test on PostgreSQL for Windows
+        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'msvc' }}
+        # Keep v2.  v2.2.0 may have connection to Sourceforge problems
+        uses: crazy-max/ghaction-chocolatey@v2
+        with:
+          args: >-
+            install winflexbison sed gzip strawberryperl diffutils
+            meson pkgconfiglite grep
 
       # Choco Install GNU diffutils
       # BUT the "crazy-max/ghaction-chocolatey@v2" "install diffutils" file download often times-out
