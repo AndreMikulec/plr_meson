@@ -1086,7 +1086,8 @@ jobs:
           if [ "${R_HOME}" == "notset" ] || [ "${R_HOME}" == "" ]
           then
             unset  R_HOME
-            export R_HOME=$(cygpath $(cygpath -wl $(Rscript -e "cat(Sys.getenv('R_HOME'))")))
+            export R_HOME=$(cygpath $(cygpath -wl $(Rscript -e "cat(paste0(Sys.getenv(\"R_HOME\"),\"\n\"))")))
+
             echo "R_HOME=$(cygpath -w "${R_HOME}")" >> ${GITHUB_ENV}
 
             # determined variable
