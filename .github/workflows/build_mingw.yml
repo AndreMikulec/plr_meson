@@ -1061,9 +1061,10 @@ jobs:
           if [ ! "${R_HOME}" == "notset" ] && [ ! "${R_HOME}" == "" ]
           then
             export R_HOME=$(cygpath $(cygpath -wl "${R_HOME}"))
+            echo "R_HOME=$(cygpath -w "${R_HOME}")" >> ${GITHUB_ENV}
 
             # user supplied variable
-            echo "cygpath R_HOME: ${R_HOME}"
+            echo "cygpath cygpath R_HOME: ${R_HOME}"
 
             export ERRORLEVEL=0
             ls -alrt "${R_HOME}/bin/R" || export ERRORLEVEL=$?
@@ -1082,7 +1083,9 @@ jobs:
 
           if [ "${R_HOME}" == "notset" ] || [ "${R_HOME}" == "" ]
           then
+            unset  R_HOME
             export R_HOME=$(cygpath $(cygpath -wl $(Rscript -e "cat(Sys.getenv('R_HOME'))")))
+            echo "R_HOME=$(cygpath -w "${R_HOME}")" >> ${GITHUB_ENV}
 
             # determined variable
             echo "Rscript Sys.getenv('R_HOME'): ${R_HOME}"
