@@ -10,13 +10,6 @@ run-name: Meson Builds PL/R
 # Yonatan Kra
 #
 # https://yonatankra.com/7-github-actions-tricks-i-wish-i-knew-before-i-started/
-#
-# TODO
-# STILL install from chocolatey diff
-# BUT CACHE IT
-#
-# C:\ProgramData\chocolatey\bin\diff.exe
-#
 
 on: [push, pull_request, workflow_dispatch]
 jobs:
@@ -576,8 +569,7 @@ jobs:
         uses: bus1/cabuild/action/msdevshell@v1
         with:
           # msvc ARCHITECTURE
-          architecture: x64
-
+          architecture: ${{ env.Platform }}
 
       - name: Checkout PostgreSQL Code
         if: ${{ env.pgSRCversion != 'notset' }}
