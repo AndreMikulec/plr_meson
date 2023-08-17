@@ -782,10 +782,6 @@ jobs:
           rem Component "notset" is ignored
           "${{ env.rversionlong }}.exe" /VERYSILENT /COMPONENTS=main,%R_ARCHplat% /DIR=%R_HOME% /NOICONS /TASKS=
           dir "%R_HOME%"
-          rem
-          rem This worked when I did this manually, from the Powershell Prompt
-          rem Invoke-Expression ".\R-4.3.1patched-win.exe /VERYSILENT /COMPONENTS=main,x64 /DIR=C:\RINSTALLSPECIAL /NOICONS /TASKS="
-          rem
 
       # Github Actions provided PostgreSQL x64-14 (as of AUGUST 2023)
       #
@@ -917,12 +913,11 @@ jobs:
       # BUT the "crazy-max/ghaction-chocolatey@v2" "install meson" msiexec.exe Exit code was '3010'.
       - name: Install meson and add meson directory to the PATH for Compile using msvc and meson
         if: ${{ env.os == 'windows-latest' && env.compilerClass == 'msvc' }}
-        shell: powershell
+        shell: cmd
         run: |
-          function Add-ToEnvPATH {param($X)     Add-Content -Path ${env:GITHUB_PATH} -Value "$X"}
-          Invoke-Expression "msiexec.exe /i meson-1.2.1-64.msi /qn /norestart /l*v meson.1.2.1.MsiInstall.log"
-          Add-ToEnvPATH "C:\Program Files\Meson"
-          Get-Content meson.1.2.1.MsiInstall.log
+          msiexec.exe /i meson-1.2.1-64.msi /qn /norestart /l*v meson.1.2.1.MsiInstall.log
+          printf "C:\Program Files\Meson" >> %GITHUB_PATH%
+          type meson.1.2.1.MsiInstall.log
 
       # 34 seconds with zero packages
       # 2 minutes and seven(7) seconds with everything
