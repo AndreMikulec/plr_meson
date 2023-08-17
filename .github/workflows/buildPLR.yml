@@ -844,7 +844,7 @@ jobs:
         with:
           args: >-
             install winflexbison sed gzip strawberryperl 
-            grep
+            grep 7zip.install
 
       # Choco Install GNU diffutils
       # BUT the "crazy-max/ghaction-chocolatey@v2" "install diffutils" file download often times-out
