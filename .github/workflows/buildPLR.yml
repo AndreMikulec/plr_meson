@@ -689,7 +689,7 @@ jobs:
           ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' &&
           steps.cacheRWindowsInstallerExe.outputs.cache-hit != 'true'
           }}
-        uses: suisei-cn/actions-download-file@v1.3.0
+        uses: suisei-cn/actions-download-file@v1.4.0
         id: downloadfileRforWindows
         with:
           url: ${{ env.CRAN_R_DOWNLOAD_URL }}
@@ -700,7 +700,7 @@ jobs:
           (( env.PGVER2 == '14' && env.Platform == 'x86' ) || ( env.PGVER2 != '14' )) &&
           steps.cachePGWindowsInstallerExe.outputs.cache-hit != 'true'
           }}
-        uses: suisei-cn/actions-download-file@v1.3.0
+        uses: suisei-cn/actions-download-file@v1.4.0
         id: downloadfilePGforWindows
         with:
           url: ${{ env.ENTDB_PG_DOWNLOAD_URL }}
@@ -718,7 +718,7 @@ jobs:
           ${{ env.os == 'windows-latest' && ( env.compilerClass == 'MSYS2' || env.compilerClass == 'msvc' ) && env.testonpgWIN == 'true' &&
           steps.cacheDiffutilsZip.outputs.cache-hit != 'true'
           }}
-        uses: suisei-cn/actions-download-file@v1.3.0
+        uses: suisei-cn/actions-download-file@v1.4.0
         id: downloadDiffutilsZip
         with:
           retry-times: 1
@@ -730,7 +730,7 @@ jobs:
           ${{ env.os == 'windows-latest' && env.compilerClass == 'msvc' &&
           steps.cachePkgConfigLiteZip.outputs.cache-hit != 'true'
           }}
-        uses: suisei-cn/actions-download-file@v1.3.0
+        uses: suisei-cn/actions-download-file@v1.4.0
         id: downloadPkgConfigLiteZip
         with:
           retry-times: 1
@@ -741,7 +741,7 @@ jobs:
           ${{ env.os == 'windows-latest' && env.compilerClass == 'msvc' &&
           steps.cacheMesonMsi.outputs.cache-hit != 'true'
           }}
-        uses: suisei-cn/actions-download-file@v1.3.0
+        uses: suisei-cn/actions-download-file@v1.4.0
         id: downloadMesonMsi
         with:
           retry-times: 1
