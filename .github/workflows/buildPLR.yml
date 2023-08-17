@@ -664,6 +664,16 @@ jobs:
         env:
           SEGMENT_DOWNLOAD_TIMEOUT_MINS: 1
 
+      - name: Cache winflexbison for Compile using msvc
+        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'msvc' }}
+        uses: actions/cache@v3
+        id: cacheWinFlexBisonZip
+        with:
+          path: win_flex_bison-2.5.24.zip
+          key:  win_flex_bison-2.5.24.zip
+        env:
+          SEGMENT_DOWNLOAD_TIMEOUT_MINS: 1
+
       - name: Cache meson for Compile using msvc and meson
         if: ${{ env.os == 'windows-latest' && env.compilerClass == 'msvc' }}
         uses: actions/cache@v3
@@ -733,6 +743,18 @@ jobs:
         with:
           retry-times: 1
           url: http://downloads.sourceforge.net/project/pkgconfiglite/0.28-1/pkg-config-lite-0.28-1_bin-win32.zip
+
+      - name: Download winflexbison for Compile using msvc
+        if: >-
+          ${{ env.os == 'windows-latest' && env.compilerClass == 'msvc' &&
+          steps.cacheWinFlexBisonZip.outputs.cache-hit != 'true'
+          }}
+        uses: suisei-cn/actions-download-file@v1.4.0
+        id: downloadWinFlexBisonZip
+        with:
+          retry-times: 1
+          url: https://sourceforge.net/projects/winflexbison/files/win_flex_bison-2.5.24.zip
+
 
       - name: Download meson for Compile using msvc and meson
         if: >-
@@ -832,9 +854,11 @@ jobs:
           dir "%PGROOT2%"
 
       # https://wiki.postgresql.org/wiki/Meson
-      #   NOTE - diffutils - times out - doing a custom install instead (see OTHER step)
-      #   NOTE - pkgconfiglite - times out - doing a custom install instead (see OTHER step)
+      #   NOTE - (for PostgreSQL) winflexbison - fails with a general error. (see OTHER step)
+      #   NOTE - (for testing) diffutils - times out - doing a custom install instead (see OTHER step)
+      #   NOTE - (for meson) pkgconfiglite - times out - doing a custom install instead (see OTHER step)
       #   NOTE - meson - fails with msiexec.exe Exit code was '3010' (see OTHER step)
+      #   NOTE - 7z is provided by Github Actions
       - name: Choco Install support software about PL/R compiling using msvc for Windows
         if: ${{ env.os == 'windows-latest' && env.compilerClass == 'msvc' }}
         # Keep v2.  v2.2.0 may have connection to Sourceforge problems
@@ -842,7 +866,7 @@ jobs:
         with:
           args: >-
             install sed gzip strawberryperl
-            grep 7zip.install
+            grep
 
       # Choco Install GNU diffutils
       # BUT the "crazy-max/ghaction-chocolatey@v2" "install diffutils" file download often times-out
@@ -873,6 +897,21 @@ jobs:
           dir                                             "C:\OTHERBIN\pkgconfiglite"
           rem - man7.org/linux/man-pages/man1/printf.1.html
           printf                                          "C:\\OTHERBIN\\pkgconfiglite\\pkg-config-lite-0.28-1\\bin" >> %GITHUB_PATH%
+
+      # Choco Install winflexbison
+      # BUT the "crazy-max/ghaction-chocolatey@v2" "install pkgconfiglite" file download often times-out
+      - name: Extract winflexbison and add the winflexbison directory to the PATH for Compile using msvc
+        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'msvc' }}
+        shell: cmd
+        run: |
+          rem MKDIR creates any intermediate directories in the path, if needed.
+          mkdir                                           "C:\OTHERBIN\winflexbison"
+          rem 7z is provided by Github Actions
+          7z x  win_flex_bison-2.5.24.zip               -o"C:\OTHERBIN\winflexbison"
+          copy  win_flex_bison-2.5.24.zip                 "C:\OTHERBIN\winflexbison"
+          dir                                             "C:\OTHERBIN\winflexbison"
+          rem - man7.org/linux/man-pages/man1/printf.1.html
+          printf                                          "C:\\OTHERBIN\\winflexbison" >> %GITHUB_PATH%
 
       # Choco Install meson
       # BUT the "crazy-max/ghaction-chocolatey@v2" "install meson" msiexec.exe Exit code was '3010'.
