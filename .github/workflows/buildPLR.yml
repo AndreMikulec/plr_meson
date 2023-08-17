@@ -645,7 +645,7 @@ jobs:
           SEGMENT_DOWNLOAD_TIMEOUT_MINS: 10
 
       - name: Cache GNU diffutils for Test on PostgreSQL for Windows
-        if: ${{ env.os == 'windows-latest' && ( env.compilerClass == 'MSYS2' || env.compilerClass == 'msvc' ) && env.testonpgWIN == 'true' }}
+        if: ${{ ( env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testonpgWIN == 'true' ) || ( env.os == 'windows-latest' env.compilerClass == 'msvc' ) }}
         uses: actions/cache@v3
         id: cacheDiffutilsZip
         with:
@@ -673,7 +673,6 @@ jobs:
           key:  meson-1.2.1-64.msi
         env:
           SEGMENT_DOWNLOAD_TIMEOUT_MINS: 1
-
 
       # Notice
       # Path R-2.11.1-x64
@@ -714,8 +713,7 @@ jobs:
 #         args: install diffutils
 
       - name: Download GNU diffutils for Test on PostgreSQL for Windows
-        if: >-
-          ${{ env.os == 'windows-latest' && ( env.compilerClass == 'MSYS2' || env.compilerClass == 'msvc' ) && env.testonpgWIN == 'true' &&
+        if: ${{ ( ( env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testonpgWIN == 'true' ) || ( env.os == 'windows-latest' env.compilerClass == 'msvc' ) ) &&
           steps.cacheDiffutilsZip.outputs.cache-hit != 'true'
           }}
         uses: suisei-cn/actions-download-file@v1.4.0
@@ -843,13 +841,13 @@ jobs:
         uses: crazy-max/ghaction-chocolatey@v2
         with:
           args: >-
-            install winflexbison sed gzip strawberryperl 
+            install sed gzip strawberryperl
             grep 7zip.install
 
       # Choco Install GNU diffutils
       # BUT the "crazy-max/ghaction-chocolatey@v2" "install diffutils" file download often times-out
       - name: Extract Diffuntils and add Diffuntils bin directory to the PATH for Test on PostgreSQL for Windows
-        if: ${{ env.os == 'windows-latest' && ( env.compilerClass == 'MSYS2' || env.compilerClass == 'msvc' ) && env.testonpgWIN == 'true' }}
+        if: ${{ ( env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testonpgWIN == 'true' ) || ( env.os == 'windows-latest' env.compilerClass == 'msvc' ) }}
         shell: cmd
         run: |
           rem MKDIR creates any intermediate directories in the path, if needed.
