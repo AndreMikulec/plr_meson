@@ -1173,7 +1173,7 @@ jobs:
       #### echo kern.ipc.shmmax 4294967296 >> /etc/defaults/etc/cygserver.conf
       #### echo kern.ipc.shmall 4294967296 >> /etc/defaults/etc/cygserver.conf
       #
-      - name: Meson PL/R Setup Compile and Non-Meson Manual Test
+      - name: Windows non-msvc Meson PL/R Setup Compile and Non-Meson Manual Test
         if: ${{ env.os == 'windows-latest' && ( env.compilerClass == 'MSYS2' || env.compilerClass == 'cygwin' ) }}
         env:
           # Cygwin shell variables
@@ -1778,11 +1778,13 @@ jobs:
 #         # uninstall previous
 #         cygrunsrv -R cygserver
 
-      - name: Upload artifacts plr.dll and plr.dll.a for export for LOCAL testing
+      - name: Try to Upload artifacts plr.dll and plr.dll.a for export for LOCAL testing
         if: ${{ always() }}
         uses: actions/upload-artifact@v3
         with:
           name: plr-${{ env.HEAD8_GITHUB_SHA }}-${{ env.os }}-${{ env.compilerEnv }}-${{ env.Platform }}-R${{ env.rversion }}-PG${{ env.pgversion }}
+          # default
+          if-no-files-found: warn
           path: |
             tmp\*\*
             tmp\PLR_LICENSE
