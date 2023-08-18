@@ -65,6 +65,7 @@ jobs:
           - os: windows-latest
             compilerEnv: msvc
             Platform: x64
+            rversion: 4.2.3
 
 #         # Repository R and Repository postgresql
           - os: windows-latest
