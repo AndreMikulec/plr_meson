@@ -86,7 +86,7 @@ jobs:
 ####            buildpgMSYS2: true
 ####            PG_HOME: 'D:\PGINSTALL'
 ####            #
-####            # no "testonpgWIN: true" because No existing "PG for Windows REL_16_any" exists anywhre
+####            # no "MSYS2testonpgWIN: true" because No existing "PG for Windows REL_16_any" exists anywhre
 ####
 #         # First "R for Windows" 4.3.0 - PL/R can not be compiled using Microsoft Visual Studio
 #         # just a test of a recent PostgreSQL compiled from Source . . .
@@ -102,7 +102,7 @@ jobs:
             # unless I build pgwin from source and "msvc"
             pgWINversion: 15.3-3
             #
-            testonpgWIN: true
+            MSYS2testonpgWIN: true
 ####
 #####         # First "R for Windows" 4.3.0 - PL/R can not be compiled using Microsoft Visual Studio
 #####         # just a test of a recent PostgreSQL compiled from Source . .
@@ -123,7 +123,7 @@ jobs:
 ####            # pgWINversion: "uses pgWINServiceNameHostDefault"
 ####            # PG will not be download from EDB - Github Actions has PostgreSQL 14-x64 Pre Installed
 ####            #
-####            testonpgWIN: true
+####            MSYS2testonpgWIN: true
 ####
 #####         # First "R for Windows" 4.3.0 - PL/R can not be compiled using Microsoft Visual Studio
 #####         # just a test of a recent PostgreSQL compiled from Source . . .
@@ -143,7 +143,7 @@ jobs:
 ####            #
 ####            pgWINversion: 13.11-3
 ####            #
-####            testonpgWIN: true
+####            MSYS2testonpgWIN: true
 
 #         # First "R for Windows" 4.3.0 - PL/R can not be compiled using Microsoft Visual Studio
 #         # MATRIX ITEM NEEDS REVIEW
@@ -157,7 +157,7 @@ jobs:
 #           R_ARCH: /x64
 #           #
 #           pgWINversion: 15.3-3
-#           testonpgWIN: true
+#           MSYS2testonpgWIN: true
 
           # Last "R for Windows" 4.2.3 - Last PL/R that can be compiled using Microsoft Visual Studio
 #         # MATRIX ITEM NEEDS REVIEW
@@ -171,7 +171,7 @@ jobs:
 #           R_ARCH: /x64
 #           #
 #           pgWINversion: 15.3-3
-#           testonpgWIN: true
+#           MSYS2testonpgWIN: true
 
 #         # Last "R for Windows" 4.1.3 - supports x86 and sub-architecture
 #
@@ -208,7 +208,7 @@ jobs:
 #           PG_HOME: 'D:\PGINSTALL'
 #           #
 #           pgWINversion: 10.23-1
-#           testonpgWIN: true
+#           MSYS2testonpgWIN: true
 
 #         # Last "R for Windows" supports x86 and single architecure
 #         - os: windows-latest
@@ -219,7 +219,7 @@ jobs:
 #           R_HOME: 'D:\RINSTALL'
 #           #
 #           pgWINversion: 10.23-1
-#           testonpgWIN: true
+#           MSYS2testonpgWIN: true
 
     defaults:
       run:
@@ -415,11 +415,11 @@ jobs:
 
           echo "PG_HOME: ${env:PG_HOME}"
 
-          ${env:testonpgWIN} = "${{ matrix.testonpgWIN }}"
-          if("${env:testonpgWIN}" -eq ""){${env:testonpgWIN} = "notset"}
-          Set-EnvVar "testonpgWIN=${env:testonpgWIN}"
+          ${env:MSYS2testonpgWIN} = "${{ matrix.MSYS2testonpgWIN }}"
+          if("${env:MSYS2testonpgWIN}" -eq ""){${env:MSYS2testonpgWIN} = "notset"}
+          Set-EnvVar "MSYS2testonpgWIN=${env:MSYS2testonpgWIN}"
 
-          echo "testonpgWIN: ${env:testonpgWIN}"
+          echo "MSYS2testonpgWIN: ${env:MSYS2testonpgWIN}"
 
           ${env:pgWINversion} = "${{ matrix.pgWINversion }}"
           if("${env:pgWINversion}" -eq ""){${env:pgWINversion} = "notset"}
@@ -439,8 +439,8 @@ jobs:
           if("${env:pgWINversion}" -ne "notset") { ${env:pgwinmajor} = ${env:pgWINversion} -replace "[.]\d+-\d+$" }
           if("${env:pgWINversion}" -eq "notset") {
             if("${env:pgWINServiceNameHostDefault}" -match "(\d+[.]{0,1}\d+$)") {
-              # if (1) no entry "pgWINversion: whatever" and yes entry "testonpgWIN: true"
-              # then THIS(14) is the default TESTING(14) "testonpgWIN PostgreSQL"
+              # if (1) no entry "pgWINversion: whatever" and yes entry "MSYS2testonpgWIN: true"
+              # then THIS(14) is the default TESTING(14) "MSYS2testonpgWIN PostgreSQL"
               # 9.6
               # 13
               ${env:pgwinmajor} = $matches[1]; $matches = @()
@@ -637,7 +637,7 @@ jobs:
           SEGMENT_DOWNLOAD_TIMEOUT_MINS: 10
 
       - name: Cache GNU diffutils for Test on PostgreSQL for Windows
-        if: ${{ ( env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testonpgWIN == 'true' ) || ( env.os == 'windows-latest' && env.compilerClass == 'msvc' ) }}
+        if: ${{ ( env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.MSYS2testonpgWIN == 'true' ) || ( env.os == 'windows-latest' && env.compilerClass == 'msvc' ) }}
         uses: actions/cache@v3
         id: cacheDiffutilsZip
         with:
@@ -715,7 +715,7 @@ jobs:
 #         args: install diffutils
 
       - name: Download GNU diffutils for Test on PostgreSQL for Windows
-        if: ${{ ( ( env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testonpgWIN == 'true' ) || ( env.os == 'windows-latest' && env.compilerClass == 'msvc' ) ) &&
+        if: ${{ ( ( env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.MSYS2testonpgWIN == 'true' ) || ( env.os == 'windows-latest' && env.compilerClass == 'msvc' ) ) &&
           steps.cacheDiffutilsZip.outputs.cache-hit != 'true'
           }}
         uses: suisei-cn/actions-download-file@v1.4.0
@@ -795,7 +795,7 @@ jobs:
       #
       - name: From Disabled, Enable PostgreSQL x64-14 for Windows and Start and Stop
         if: >-
-          ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testonpgWIN == 'true' &&
+          ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.MSYS2testonpgWIN == 'true' &&
           env.PGVER2 == '14' && env.Platform == 'x64'
           }}
         shell: cmd
@@ -859,7 +859,7 @@ jobs:
       # Choco Install GNU diffutils
       # BUT the "crazy-max/ghaction-chocolatey@v2" "install diffutils" file download often times-out
       - name: Extract Diffuntils and add Diffuntils bin directory to the PATH for Test on PostgreSQL for Windows
-        if: ${{ ( env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testonpgWIN == 'true' ) || ( env.os == 'windows-latest' && env.compilerClass == 'msvc' ) }}
+        if: ${{ ( env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.MSYS2testonpgWIN == 'true' ) || ( env.os == 'windows-latest' && env.compilerClass == 'msvc' ) }}
         shell: cmd
         run: |
           rem MKDIR creates any intermediate directories in the path, if needed.
@@ -1787,7 +1787,7 @@ jobs:
             tmp\PLR_LICENSE
 
       - name: Set R_HOME and PG PATH, Start PG(read OS variables), Test on PostgreSQL for Windows
-        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testonpgWIN == 'true' }}
+        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.MSYS2testonpgWIN == 'true' }}
         env:
           R_HOME: ${{ env.R_HOME }}
           R_ARCH: ${{ env.R_ARCH }}
@@ -1844,7 +1844,7 @@ jobs:
           if "%ERRORLEVEL%"=="1" exit 1
 
       - name: Stop PostgreSQL for Windows
-        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.testonpgWIN == 'true' }}
+        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.MSYS2testonpgWIN == 'true' }}
         env:
           PGVER2: ${{ env.PGVER2 }}
           Platform: ${{ env.Platform }}
