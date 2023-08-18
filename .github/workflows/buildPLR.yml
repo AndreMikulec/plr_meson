@@ -614,7 +614,7 @@ jobs:
       # https://github.com/actions/cache/blob/main/tips-and-workarounds.md#update-a-cache
       #
       - name: Cache R-x.y.z Windows Installer Exe
-        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' }}
+        if: ${{ env.os == 'windows-latest' && ( env.compilerClass == 'MSYS2' || env.compilerClass == 'msvc' ) }}
         uses: actions/cache@v3
         id: cacheRWindowsInstallerExe
         with:
@@ -625,7 +625,7 @@ jobs:
 
       - name: Cache PostgreSQL for Windows
         if: >-
-          ${{ env.os == 'windows-latest' &&  env.compilerClass == 'MSYS2' && env.pgWINversion != 'notset' &&
+          ${{ env.os == 'windows-latest' && ( env.compilerClass == 'MSYS2' || env.compilerClass == 'msvc' ) && env.pgWINversion != 'notset' &&
           (( env.PGVER2 == '14' && env.Platform == 'x86' ) || ( env.PGVER2 != '14' ))
           }}
         uses: actions/cache@v3
@@ -687,7 +687,7 @@ jobs:
       # five seconds
       - name: Download R for Windows R-x.y.z R-rmajor.rminor.rpatch
         if: >-
-          ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' &&
+          ${{ env.os == 'windows-latest' && ( env.compilerClass == 'MSYS2' || env.compilerClass == 'msvc' ) &&
           steps.cacheRWindowsInstallerExe.outputs.cache-hit != 'true'
           }}
         uses: suisei-cn/actions-download-file@v1.4.0
@@ -697,7 +697,7 @@ jobs:
 
       - name: Download PostgreSQL for Windows
         if: >-
-          ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.pgWINversion != 'notset' &&
+          ${{ env.os == 'windows-latest' && ( env.compilerClass == 'MSYS2' || env.compilerClass == 'msvc' ) && env.pgWINversion != 'notset' &&
           (( env.PGVER2 == '14' && env.Platform == 'x86' ) || ( env.PGVER2 != '14' )) &&
           steps.cachePGWindowsInstallerExe.outputs.cache-hit != 'true'
           }}
@@ -760,7 +760,7 @@ jobs:
           url: https://github.com/mesonbuild/meson/releases/download/1.2.1/meson-1.2.1-64.msi
 
       - name: Install R for Windows R-x.y.z R-rmajor.rminor.rpatch
-        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' }}
+        if: ${{ env.os == 'windows-latest' && ( env.compilerClass == 'MSYS2' || env.compilerClass == 'msvc' ) }}
         env:
           R_HOME: ${{ env.R_HOME }}
           R_ARCHplat: ${{ env.R_ARCHplat }}
