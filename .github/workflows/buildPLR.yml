@@ -1216,6 +1216,9 @@ jobs:
           echo "PG_HOME: ${PG_HOME}"
           echo "PGROOT2: ${PGROOT2}"
 
+          export WORKSPACE=$(pwd)
+          echo "WORKSPACE ${WORKSPACE}"
+
           #
           # Trying smartly and hard to find the R_HOME
           #
@@ -1638,13 +1641,13 @@ jobs:
           if [ -f "${PG_HOME}/contrib/plr/plr.dll" ]
           then
             echo "Save plr.dll to be an artifact."
-            mkdir -p                                $(cygpath ${GITHUB_WORKSPACE})/tmp/lib
-            cp    LICENSE                           $(cygpath ${GITHUB_WORKSPACE})/tmp/PLR_LICENSE
-            cp    "${PG_HOME}/contrib/plr/plr.dll"  $(cygpath ${GITHUB_WORKSPACE})/tmp/lib
-            ls -alrt                                $(cygpath ${GITHUB_WORKSPACE})/tmp/lib/plr.dll
-            mkdir -p                                $(cygpath ${GITHUB_WORKSPACE})/tmp/share/extension
-            cp    *.control                         $(cygpath ${GITHUB_WORKSPACE})/tmp/share/extension
-            cp    *.sql                             $(cygpath ${GITHUB_WORKSPACE})/tmp/share/extension
+            mkdir -p                                ${WORKSPACE}/tmp/lib
+            cp    LICENSE                           ${WORKSPACE}/tmp/PLR_LICENSE
+            cp    "${PG_HOME}/contrib/plr/plr.dll"  ${WORKSPACE}/tmp/lib
+            ls -alrt                                ${WORKSPACE}/tmp/lib/plr.dll
+            mkdir -p                                ${WORKSPACE}/tmp/share/extension
+            cp    *.control                         ${WORKSPACE}/tmp/share/extension
+            cp    *.sql                             ${WORKSPACE}/tmp/share/extension
           fi
 
           #
@@ -1653,18 +1656,18 @@ jobs:
           if [ -f "${PG_HOME}/contrib/plr/plr.dll.a" ]
           then
             echo "Save plr.dll.a to be an artifact."
-            mkdir -p                                  $(cygpath ${GITHUB_WORKSPACE})/tmp/lib
-            cp    "${PG_HOME}/contrib/plr/plr.dll.a"  $(cygpath ${GITHUB_WORKSPACE})/tmp/lib
-            ls -alrt                                  $(cygpath ${GITHUB_WORKSPACE})/tmp/lib/plr.dll.a
+            mkdir -p                                  ${WORKSPACE}/tmp/lib
+            cp    "${PG_HOME}/contrib/plr/plr.dll.a"  ${WORKSPACE}/tmp/lib
+            ls -alrt                                  ${WORKSPACE}/tmp/lib/plr.dll.a
           fi
 
           # 7z GOOD OR BAD PL/R Artifact for LATER Release
           echo "7z: $(which 7z)"
-          echo 7z a -r $(cygpath ${GITHUB_WORKSPACE})/plr-artifact.zip  $(cygpath ${GITHUB_WORKSPACE})/tmp/*
-          if [ -f "$(cygpath ${GITHUB_WORKSPACE})/tmp/PLR_LICENSE" ]
+          echo 7z a -r ${WORKSPACE}/plr-artifact.zip  ${WORKSPACE}/tmp/*
+          if [ -f "${WORKSPACE}/tmp/PLR_LICENSE" ]
           then
             echo "Create PL/R Artifact .zip for future Release"
-            7z a -r $(cygpath ${GITHUB_WORKSPACE})/plr-artifact.zip  $(cygpath ${GITHUB_WORKSPACE})/tmp/*
+            7z a -r ${WORKSPACE}/plr-artifact.zip  ${WORKSPACE}/tmp/*
           fi
 
           # install GOOD OR BAD artifacts into NIX PG plr.dll and plr.dlla.
