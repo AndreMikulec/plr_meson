@@ -1756,7 +1756,7 @@ jobs:
           fi
 
       - name: Windows     msvc Meson PL/R Setup Compile and Non-Meson Manual Test
-        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'msvc'}
+        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'msvc' }}
         env:
           R_HOME: ${{ env.R_HOME}
           Platform: ${{ env.Platform}
