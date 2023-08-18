@@ -1758,19 +1758,19 @@ jobs:
       - name: Windows     msvc Meson PL/R Setup Compile and Non-Meson Manual Test
         if: ${{ env.os == 'windows-latest' && env.compilerClass == 'msvc' }}
         env:
-          R_HOME: ${{ env.R_HOME}
-          Platform: ${{ env.Platform}
-          R_ARCH: ${{ env.R_ARCH}
-          rversion: ${{ env.rversion}
+          R_HOME: ${{ env.R_HOME }}
+          Platform: ${{ env.Platform }}
+          R_ARCH: ${{ env.R_ARCH }}
+          rversion: ${{ env.rversion }}
           PG_HOME: ${{ env.PGROOT2 }} # different
         shell: powershell
         run: |
           ver
           if (Test-Path "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe") {
             ${env:msvcversion}   = $(& "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property catalog_productLineVersion)
-            echo "msvcversion: ${env:msvcversion}
+            echo "msvcversion: ${env:msvcversion}"
             ${env:msvcproductid} = $(& "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property productId)
-            echo "msvcproductid: ${env:msvcproductid}
+            echo "msvcproductid: ${env:msvcproductid}"
           }
 
           echo "R_HOME: ${env:R_HOME}"
@@ -1782,16 +1782,16 @@ jobs:
           ${env:WORKSPACE} = ${env:GITHUB_WORKSPACE}
           echo "WORKSPACE: ${env:WORKSPACE}"
 
-          if( "${env:R_HOME}" -eq ""){
+          if("${env:R_HOME}" -eq ""){
             Write-Error 'R_HOME is missing. Please supply the R_HOME.' -ErrorAction Stop
           }
-          if( "${env:R_ARCH}" -eq ""){
+          if("${env:R_ARCH}" -eq ""){
             Write-Warning 'R_ARCH is missing. Is that the intention? One may supply the R_ARCH.'
           }
-          if( "${env:rversion}" -eq ""){
+          if("${env:rversion}" -eq ""){
             Write-Error 'rversion is missing. Please supply the rversion.' -ErrorAction Stop
           }
-          if( "${env:PG_HOME}" -eq ""){
+          if("${env:PG_HOME}" -eq ""){
             Write-Error 'PG_HOME is missing. Please supply the PG_HOME.' -ErrorAction Stop
           }
 
