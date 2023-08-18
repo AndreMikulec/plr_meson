@@ -1765,7 +1765,7 @@ jobs:
           PG_HOME: ${{ env.PGROOT2 }} # different
         shell: powershell
         run: |
-          ver
+          systeminfo
           if (Test-Path "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe") {
             ${env:msvcversion}   = $(& "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property catalog_productLineVersion)
             echo "msvcversion: ${env:msvcversion}"
