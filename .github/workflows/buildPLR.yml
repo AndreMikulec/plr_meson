@@ -1252,6 +1252,8 @@ jobs:
               # dangerously assumes that
               # 1. R is installed and 2. R is installed in the DEFAULT location
               export R_HOME=/usr/lib/R
+              echo "Cygwin assume R_HOME: ${R_HOME}"
+              echo "R_HOME=$(cygpath -w ${R_HOME})" >> ${GITHUB_ENV}
             fi
 
             # MOVING ON . . .
@@ -1265,11 +1267,10 @@ jobs:
               export R_HOME=$(dirname $(dirname "$(which R)"))
               # determined variable
               echo "dirname which R R_HOME: ${R_HOME}"
+              echo "R_HOME=$(cygpath -w ${R_HOME})" >> ${GITHUB_ENV}
             fi
 
             # MOVING ON . . .
-
-
 
             # PATHs are needed for the proper compile and runtime
             # find "libraries"
@@ -1277,7 +1278,6 @@ jobs:
             export PATH="${R_HOME}/bin:${PATH}"
           fi
 
-          # HERE 0
           # Pipes have been known to fail in Msys
           # when piping from a non-Msys program. E.g "R for Windows".
           #
@@ -1351,21 +1351,19 @@ jobs:
             # FUTURE - The ONE(first) subdirectory name in alphabetical order
             # is in a space separated string.
             # pushd "${R_HOME}/bin"; ls -d */ | grep -oP '^.*[^/]' | xargs; popd
-            #
           fi
 
           if [  "${R_ARCH}" == "notset" ] || [   "${R_ARCH}" == "" ]
           then
-            # The rest of this program uses R_ARCH like this.
             unset R_ARCH
-            echo "user and determined R_ARCH: ${R_ARCH}"
+            echo "The rest of this program uses R_ARCH like this: R_ARCH: ${R_ARCH}"
           fi
 
           # LAST
           if [ ! "${R_ARCH}" == "notset" ] && [ ! "${R_ARCH}" == "" ]
           then
             echo "R_ARCH=${R_ARCH}" >> ${GITHUB_ENV}
-            echo "directory test R_ARCH: ${R_ARCH}"
+            echo "The rest of this program uses R_ARCH like this: R_ARCH: ${R_ARCH}"
             # R    Sub-Architectures
             export PATH="${R_HOME}/bin${R_ARCH}:${PATH}"
           fi
@@ -1406,6 +1404,8 @@ jobs:
           if [ "${PG_HOME}" == "notset" ] || [ "${PG_HOME}" == "" ]
           then
             export PG_HOME=$(dirname "${BINDIR}")
+            echo "determined PG_HOME: ${PG_HOME}"
+            echo "PG_HOME=$(cygpath -w ${PG_HOME})" >> $GITHUB_ENV}
 
             # found variable
             echo "pg_config PG_HOME: ${PG_HOME}"
