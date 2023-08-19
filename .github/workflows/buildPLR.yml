@@ -1801,7 +1801,27 @@ jobs:
             Write-Error 'PGVER2 is missing. Please supply the PGVER2.' -ErrorAction Stop
           }
 
+          # List of Aliases Used in PowerShell
+          # https://ilovepowershell.com/windows-powershell-legacy/list-of-top-powershell-alias/
 
+          echo "PKG_CONFIG_PATH: ${env:PKG_CONFIG_PATH}"
+          echo "PKG_CONFIG_SYSTEM_INCLUDE_PATH: ${env:PKG_CONFIG_SYSTEM_INCLUDE_PATH}"
+          echo "PKG_CONFIG_SYSTEM_LIBRARY_PATH: ${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH}"
+
+          # note Windows msvc has "no defaults"
+          #
+          if ("${env:PKG_CONFIG_PATH}" -eq "") { 
+            mkdir "C:\Users\Public\lib\pkgconfig"
+            ${env:PKG_CONFIG_PATH} = "C:\Users\Public\lib\pkgconfig"
+          }
+          if ("${env:PKG_CONFIG_SYSTEM_INCLUDE_PATH}" -eq "") {
+            mkdir "C:\Users\Public\usr\include"
+            ${env:PKG_CONFIG_SYSTEM_INCLUDE_PATH} = "C:\Users\Public\usr\include"
+          }
+          if ("${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH}" -eq "") {
+            mkdir "C:\Users\Public\usr\lib"
+            ${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH} = "C:\Users\Public\usr\lib"
+          }
 
 
 #     - name: Cleanup Cygwin
