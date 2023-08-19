@@ -1876,9 +1876,13 @@ jobs:
           echo "PKG_CONFIG_SYSTEM_INCLUDE_PATH: ${env:PKG_CONFIG_SYSTEM_INCLUDE_PATH}"
           echo "PKG_CONFIG_SYSTEM_LIBRARY_PATH: ${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH}"
 
+          echo "Get-ChildItem"
           Get-ChildItem
+          echo Get-ChildItem "${env:WORKSPACE}"
           Get-ChildItem "${env:WORKSPACE}"
+          echo Get-ChildItem "${env:PG_HOME}"
           Get-ChildItem "${env:PG_HOME}"
+          echo Get-ChildItem "${PG_HOME}\lib\pkgconfig"
           Get-ChildItem "${PG_HOME}\lib\pkgconfig"
  
           # This is Part 1 of 2 of a hack to make "meson" think that "libpostgres" is a library.
