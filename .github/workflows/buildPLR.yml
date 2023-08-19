@@ -1882,14 +1882,14 @@ jobs:
           Get-ChildItem "${env:WORKSPACE}"
           echo Get-ChildItem "${env:PG_HOME}"
           Get-ChildItem "${env:PG_HOME}"
-          echo Get-ChildItem "${PG_HOME}\lib\pkgconfig"
-          Get-ChildItem "${PG_HOME}\lib\pkgconfig"
+          echo Get-ChildItem "${env:PG_HOME}\lib\pkgconfig"
+          Get-ChildItem "${env:PG_HOME}\lib\pkgconfig"
  
           # This is Part 1 of 2 of a hack to make "meson" think that "libpostgres" is a library.
           # From the libpq.pc file, create a libpostgres.pc file.
-          if(-not (Test-Path "${PG_HOME}\lib\pkgconfig\libpq.pc")) {
+          if(-not (Test-Path "${env:PG_HOME}\lib\pkgconfig\libpq.pc")) {
             # Postgres for Windows does not have the file libpq.pc, therfore use the GITHUB provided one
-            cp "${env:WORKSPACE}\libpq.pc" "${PG_HOME}\lib\pkgconfig\libpq.pc"
+            cp "${env:WORKSPACE}\libpq.pc" "${env:PG_HOME}\lib\pkgconfig\libpq.pc"
           }
 
           if(-not (Test-Path "${env:PG_HOME}\lib\pkgconfig\libpostgres.pc")) {
