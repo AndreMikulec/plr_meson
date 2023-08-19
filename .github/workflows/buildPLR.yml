@@ -1883,7 +1883,10 @@ jobs:
             cp   "${env:WORKSPACE}\libpq.pc" "${PG_HOME}\lib\pkgconfig\libpq.pc"
           }
 
-
+          if(-not (Test-Path "${env:PG_HOME}\lib\pkgconfig\libpostgres.pc")) {
+            ((Get-Content -Path "${env:PG_HOME}\lib\pkgconfig\libpq.pc") -replace "libpq","libpostgres") -replace "-lpq","-lpostgres" | Out-File "${env:PG_HOME}\lib\pkgconfig\libpostgres.pc"
+          }
+          Get-Content -Path "${env:PG_HOME}\lib\pkgconfig\libpostgres.pc
 
 #     - name: Cleanup Cygwin
 #       if: ${{ env.os == 'windows-latest' && env.compilerClass == 'cygwin' }}
