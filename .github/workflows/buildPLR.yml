@@ -1826,7 +1826,7 @@ jobs:
           $matches = @()
           if("${env:PKG_CONFIG_PATH}" -match '(.*)(?=;)') { 
             ${env:PKG_CONFIG_PATH_ORIG} = $matches[1]; $matches = @() 
-          else {
+          } else {
             ${env:PKG_CONFIG_PATH_ORIG} = ${env:PKG_CONFIG_PATH}
           }
           echo "PKG_CONFIG_PATH_ORIG: ${env:PKG_CONFIG_PATH_ORIG}"
