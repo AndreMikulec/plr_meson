@@ -1823,6 +1823,39 @@ jobs:
             ${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH} = "C:\Users\Public\usr\lib"
           }
 
+          $matches = @()
+          if("${env:PKG_CONFIG_PATH}" -match '(.*)(?=;)') { 
+            ${env:PKG_CONFIG_PATH_ORIG} = $matches[1]; $matches = @() 
+          else {
+            ${env:PKG_CONFIG_PATH_ORIG} = ${env:PKG_CONFIG_PATH}
+          }
+          echo "PKG_CONFIG_PATH_ORIG: ${env:PKG_CONFIG_PATH_ORIG}"
+
+          $matches = @()
+          if("${env:PKG_CONFIG_SYSTEM_INCLUDE_PATH}" -match '(.*)(?=;)') { 
+            ${env:PKG_CONFIG_SYSTEM_INCLUDE_PATH_ORIG} = $matches[1]; $matches = @() 
+          } else {
+            ${env:PKG_CONFIG_SYSTEM_INCLUDE_PATH_ORIG} = ${env:PKG_CONFIG_SYSTEM_INCLUDE_PATH}
+          }
+          echo "PKG_CONFIG_SYSTEM_INCLUDE_PATH_ORIG: ${env:PKG_CONFIG_SYSTEM_INCLUDE_PATH_ORIG}"
+
+          # For Windows msvc and R environment variable R_ARCH and Rlib.dll.a.
+          # Need ONE single leftmost headish important library path.
+          $matches = @()
+          if("${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH}" -match '(.*)(?=;)') { 
+            ${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG} = $matches[1]; $matches = @() 
+          } else {
+            ${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG} = ${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH}
+          }
+          # Windows msvc environments
+          # e.g.
+          # export ${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG} = "C:\Users\Public\usr\lib"
+          echo "PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG: ${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}"
+
+          echo "PKG_CONFIG_PATH: ${env:PKG_CONFIG_PATH}"
+          echo "PKG_CONFIG_SYSTEM_INCLUDE_PATH: ${env:PKG_CONFIG_SYSTEM_INCLUDE_PATH}"
+          echo "PKG_CONFIG_SYSTEM_LIBRARY_PATH: ${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH}"
+
 
 #     - name: Cleanup Cygwin
 #       if: ${{ env.os == 'windows-latest' && env.compilerClass == 'cygwin' }}
