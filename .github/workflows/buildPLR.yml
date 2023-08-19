@@ -1762,6 +1762,7 @@ jobs:
           R_ARCH: ${{ env.R_ARCH }}
           rversion: ${{ env.rversion }}
           PG_HOME: ${{ env.PGROOT2 }} # different
+          PGVER2: ${{ env.PGVER2 }}
         shell: powershell
         run: |
           systeminfo
@@ -1777,6 +1778,7 @@ jobs:
           echo "R_ARCH: ${env:R_ARCH}"
           echo "rversion: ${env:rversion}"
           echo "PG_HOME: ${env:PG_HOME}"
+          echo "PGVER2: ${env:PGVER2}"
 
           ${env:WORKSPACE} = ${env:GITHUB_WORKSPACE}
           echo "WORKSPACE: ${env:WORKSPACE}"
@@ -1792,6 +1794,9 @@ jobs:
           }
           if("${env:PG_HOME}" -eq ""){
             Write-Error 'PG_HOME is missing. Please supply the PG_HOME.' -ErrorAction Stop
+          }
+          if("${env:PGVER2}" -eq ""){
+            Write-Error 'PGVER2 is missing. Please supply the PGVER2.' -ErrorAction Stop
           }
 
 
