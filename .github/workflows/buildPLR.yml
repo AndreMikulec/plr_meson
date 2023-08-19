@@ -1462,7 +1462,7 @@ jobs:
           echo "PKG_CONFIG_PATH_ORIG: ${PKG_CONFIG_PATH}"
 
           export PKG_CONFIG_SYSTEM_INCLUDE_PATH_ORIG=$(echo "${PKG_CONFIG_SYSTEM_INCLUDE_PATH}" |  grep -o '^[^:]*')
-          echo "PKG_CONFIG_SYSTEM_INCLUDE_PATH_ORIG: ${PKG_CONFIG_SYSTEM_INCLUDE_PATH}"
+          echo "PKG_CONFIG_SYSTEM_INCLUDE_PATH_ORIG: ${PKG_CONFIG_SYSTEM_INCLUDE_PATH_ORIG}"
 
           # For MSYS(mingw) and R environment variable R_ARCH and Rlib.dll.a.
           # Need ONE single leftmost headish important library path.
