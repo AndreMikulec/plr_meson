@@ -1675,7 +1675,7 @@ jobs:
             7z a -r ${WORKSPACE}/plr-artifact.zip  ${WORKSPACE}/tmp/*
           fi
 
-          # install GOOD OR BAD artifacts into NIX PG plr.dll and plr.dlla.
+          # install GOOD OR BAD artifacts into NIX PG plr.dll and plr.dll.a.
           #
           if [ -f "../contrib/plr/plr.dll" ]
           then
