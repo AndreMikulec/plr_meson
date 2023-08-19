@@ -1804,6 +1804,9 @@ jobs:
           # List of Aliases Used in PowerShell
           # https://ilovepowershell.com/windows-powershell-legacy/list-of-top-powershell-alias/
 
+          # Using aliases
+          # https://learn.microsoft.com/en-us/powershell/scripting/learn/shell/using-aliases?view=powershell-7.3
+
           echo "PKG_CONFIG_PATH: ${env:PKG_CONFIG_PATH}"
           echo "PKG_CONFIG_SYSTEM_INCLUDE_PATH: ${env:PKG_CONFIG_SYSTEM_INCLUDE_PATH}"
           echo "PKG_CONFIG_SYSTEM_LIBRARY_PATH: ${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH}"
@@ -1872,6 +1875,13 @@ jobs:
           echo "PKG_CONFIG_PATH: ${env:PKG_CONFIG_PATH}"
           echo "PKG_CONFIG_SYSTEM_INCLUDE_PATH: ${env:PKG_CONFIG_SYSTEM_INCLUDE_PATH}"
           echo "PKG_CONFIG_SYSTEM_LIBRARY_PATH: ${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH}"
+
+          # This is Part 1 of 2 of a hack to make "meson" think that "libpostgres" is a library.
+          # From the libpq.pc file, create a libpostgres.pc file.
+          if(-not (Test-Path "${PG_HOME}\lib\pkgconfig\libpq.pc")) {
+            # Postgres for Windows does not have the file libpq.pc, therfore use the GITHUB provided one
+            cp   "${env:WORKSPACE}\libpq.pc" "${PG_HOME}\lib\pkgconfig\libpq.pc"
+          }
 
 
 
