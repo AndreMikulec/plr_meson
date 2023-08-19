@@ -1856,6 +1856,24 @@ jobs:
           echo "PKG_CONFIG_SYSTEM_INCLUDE_PATH: ${env:PKG_CONFIG_SYSTEM_INCLUDE_PATH}"
           echo "PKG_CONFIG_SYSTEM_LIBRARY_PATH: ${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH}"
 
+          # Guarantee  to find the PostgreSQL libraries.
+          # Some packages may also install an old "libpq" that is located in the default install location.
+          # We do not want to use that old "libpg" when compiling PL/R.
+          # Therefore, the PostgreSQL pkgconfig goes in front at the head.
+          #
+          # PostgreSQL for windows does not have this directory, therefore I create it.
+          if(-not (Test-Path "${env:PG_HOME}\lib\pkgconfig")) {
+            mkdir "${env:PG_HOME}\lib\pkgconfig"
+          }
+          ${env:PKG_CONFIG_PATH} = "${env:PG_HOME}\lib\pkgconfig;${env:PKG_CONFIG_PATH}"
+          ${env:PKG_CONFIG_SYSTEM_INCLUDE_PATH} = "${env:PG_HOME}\include;${env:PKG_CONFIG_SYSTEM_INCLUDE_PATH}"
+          ${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH} = "${env:PG_HOME}\bin;${env:PG_HOME}\lib;${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH}"
+
+          echo "PKG_CONFIG_PATH: ${env:PKG_CONFIG_PATH}"
+          echo "PKG_CONFIG_SYSTEM_INCLUDE_PATH: ${env:PKG_CONFIG_SYSTEM_INCLUDE_PATH}"
+          echo "PKG_CONFIG_SYSTEM_LIBRARY_PATH: ${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH}"
+
+
 
 #     - name: Cleanup Cygwin
 #       if: ${{ env.os == 'windows-latest' && env.compilerClass == 'cygwin' }}
