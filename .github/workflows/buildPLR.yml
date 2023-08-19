@@ -1686,7 +1686,7 @@ jobs:
           #
           if [ -f "../contrib/plr/plr.dll.a" ]
             echo "plr.dll.a is found"
-            then cp ../contrib/plr/plr.dll.a "${PKGLIBDIR}/plr.dll.a"
+            then cp ../contrib/plr/plr.dll.a "${PKGLIBDIR}"
             ls -alrt                         "${PKGLIBDIR}/plr.dll.a"
           fi
 
