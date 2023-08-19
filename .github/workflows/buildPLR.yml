@@ -72,10 +72,10 @@ jobs:
             # unless I build pgWIN from source and "msvc"
             pgWINversion: 15.3-3
 
-#         # Repository R and Repository postgresql
-          - os: windows-latest
-            compilerEnv: cygwin
-            Platform: x64
+#########         # Repository R and Repository postgresql
+########          - os: windows-latest
+########            compilerEnv: cygwin
+########            Platform: x64
 
 #####         # (bleeding edge R) PL/R can not be compiled using Microsoft Visual Studio
 ####          - os: windows-latest
@@ -94,21 +94,22 @@ jobs:
 ####            #
 ####            # no "MSYS2testonpgWIN: true" because No existing "PG for Windows REL_16_any" exists anywhre
 ####
-#         # First "R for Windows" 4.3.0 - PL/R can not be compiled using Microsoft Visual Studio
-#         # just a test of a recent PostgreSQL compiled from Source . . .
-          - os: windows-latest
-            compilerEnv: UCRT64
-            shellEnv: msys2 {0}
-            compilerExe: gcc
-            Platform: x64
-            rversion: 4.3.1patched
-            R_HOME: 'D:\RINSTALL'
-            R_ARCH: /x64
-            #
-            # unless I build pgWIN from source and "msvc"
-            pgWINversion: 15.3-3
-            #
-            MSYS2testonpgWIN: true
+
+#########         # First "R for Windows" 4.3.0 - PL/R can not be compiled using Microsoft Visual Studio
+#########         # just a test of a recent PostgreSQL compiled from Source . . .
+########          - os: windows-latest
+########            compilerEnv: UCRT64
+########            shellEnv: msys2 {0}
+########            compilerExe: gcc
+########            Platform: x64
+########            rversion: 4.3.1patched
+########            R_HOME: 'D:\RINSTALL'
+########            R_ARCH: /x64
+########            #
+########            # unless I build pgWIN from source and "msvc"
+########            pgWINversion: 15.3-3
+########            #
+########            MSYS2testonpgWIN: true
 ####
 #####         # First "R for Windows" 4.3.0 - PL/R can not be compiled using Microsoft Visual Studio
 #####         # just a test of a recent PostgreSQL compiled from Source . .
@@ -1799,6 +1800,8 @@ jobs:
           if("${env:PGVER2}" -eq ""){
             Write-Error 'PGVER2 is missing. Please supply the PGVER2.' -ErrorAction Stop
           }
+
+
 
 
 #     - name: Cleanup Cygwin
