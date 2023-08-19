@@ -1878,13 +1878,16 @@ jobs:
 
           echo "Get-ChildItem"
           Get-ChildItem
+
           echo Get-ChildItem "${env:WORKSPACE}"
           Get-ChildItem "${env:WORKSPACE}"
+
           echo Get-ChildItem "${env:PG_HOME}"
           Get-ChildItem "${env:PG_HOME}"
+
           echo Get-ChildItem "${env:PG_HOME}\lib\pkgconfig"
           Get-ChildItem "${env:PG_HOME}\lib\pkgconfig"
- 
+
           # This is Part 1 of 2 of a hack to make "meson" think that "libpostgres" is a library.
           # From the libpq.pc file, create a libpostgres.pc file.
           if(-not (Test-Path "${env:PG_HOME}\lib\pkgconfig\libpq.pc")) {
@@ -1895,6 +1898,8 @@ jobs:
           if(-not (Test-Path "${env:PG_HOME}\lib\pkgconfig\libpostgres.pc")) {
             ((Get-Content -Path "${env:PG_HOME}\lib\pkgconfig\libpq.pc") -replace "libpq","libpostgres") -replace "-lpq","-lpostgres" | Out-File "${env:PG_HOME}\lib\pkgconfig\libpostgres.pc"
           }
+
+          echo Get-Content -Path "${env:PG_HOME}\lib\pkgconfig\libpostgres.pc"
           Get-Content -Path "${env:PG_HOME}\lib\pkgconfig\libpostgres.pc"
 
 #     - name: Cleanup Cygwin
