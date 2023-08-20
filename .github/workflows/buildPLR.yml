@@ -1947,6 +1947,20 @@ jobs:
 
           dir "${env:PG_HOME}\lib\libpostgres*"
 
+          # Make R into a library
+          if(-not (Test-Path "${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}\pkgconfig")) {
+            mkdir "${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}\pkgconfig"
+          }
+
+          if(-not (Test-Path "${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}\pkgconfig\libR.pc")) {
+            # Uses the provided template file "libR.pc"
+            # This template file is "based" off of the "R for Cygwin" file /lib/pkgconfig/libR.pc.
+            (((Get-Content -Path "${env:WORKSPACE}\libR.pc") -replace "R_HOME","'${env:R_HOME}'") -replace "R_ARCH",("${env:R_ARCH}" -replace '/','\')) -replace "rversion","${env:rversion}" | Out-File "${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}\pkgconfig\libR.pc"
+          }
+
+          echo "Get-Content -Path `"${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}\pkgconfig\libR.pc`""
+          Get-Content -Path "${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}\pkgconfig\libR.pc"
+
           ### Just after "gendef", "lib", and move/copy
           ##
           ##echo "pkg-config --cflags --libs --msvc-syntax libpq"
