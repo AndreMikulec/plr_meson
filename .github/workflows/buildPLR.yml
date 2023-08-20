@@ -1961,6 +1961,20 @@ jobs:
           echo "Get-Content -Path `"${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}\pkgconfig\libR.pc`""
           Get-Content -Path "${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}\pkgconfig\libR.pc"
 
+          # R for Windows already has the file "C:\Program Files\R\R-x.y.z\bin" + ("${env:R_ARCH}" -replace '/','\') + "\R.dll"
+          # Windows msvc compilers require libR.dll.a.
+          #
+          # Alternately . . .
+          # Note, Windows compilers (e.g. msvc) require R.lib.
+          # To create this file, instead of using the "dlltool" program, use the msvc "lib" program.
+          # Alternately, in the Windows "msvc" compiler case, just rename an archive dll.a to be a .lib,
+          # and that also works.
+          #
+          if(-not (Test-Path "${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH}" + (${env:R_ARCH} -replace '/','\') )) {
+            mkdir            "${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH}" + (${env:R_ARCH} -replace '/','\')
+          }
+
+
           ### Just after "gendef", "lib", and move/copy
           ##
           ##echo "pkg-config --cflags --libs --msvc-syntax libpq"
