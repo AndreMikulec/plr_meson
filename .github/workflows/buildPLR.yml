@@ -1801,6 +1801,31 @@ jobs:
             Write-Error 'PGVER2 is missing. Please supply the PGVER2.' -ErrorAction Stop
           }
 
+          if((-not ("${env:R_HOME}" -eq "notset")) -and (-not ("${env:R_HOME}" -eq ""))){
+            ${env:PATH} = "${env:R_HOME}\bin;${env:PATH}"
+          }
+
+          if(("${env:R_ARCH}" -eq "notset") -or ("${env:R_ARCH}" -eq "")){
+            ${env:R_ARCH} = ""
+          }
+
+          # LAST
+          if((-not ("${env:R_ARCH}" -eq "notset")) -and (-not ("${env:R_ARCH}" -eq ""))){
+            echo "The rest of this program uses R_ARCH like this: R_ARCH: ${env:R_ARCH}"
+            # R    Sub-Architectures
+            ${env:PATH} = "${env:R_HOME}\bin" + (${env:R_ARCH} -replace '/','\') + ";${env:PATH}"
+          }
+
+          if((-not ("${env:PG_HOME}" -eq "notset")) -and (-not ("${env:PG_HOME}" -eq ""))){
+            # can find PG "libraries"
+            ${env:PATH} = "${env:PG_HOME}\lib;${env:PATH}"
+            #
+            # can find PG "libraries"
+            ${env:PATH} = "${env:PG_HOME}\bin;${env:PATH}"
+          }
+
+          echo "PATH: ${env:PATH}"
+
           # List of Aliases Used in PowerShell
           # https://ilovepowershell.com/windows-powershell-legacy/list-of-top-powershell-alias/
 
