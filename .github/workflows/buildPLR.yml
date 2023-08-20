@@ -1973,8 +1973,10 @@ jobs:
           if(-not (Test-Path ("${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH}" + (${env:R_ARCH} -replace '/','\'))  )) {
             # mkdir           (("${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH}" + (${env:R_ARCH} -replace '/','\')))
             # New-Item -Path "${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH}" -Name (${env:R_ARCH} -replace '/','') -ItemType "directory" -ErrorAction Ignore
-            $FolderName =  ${env:R_ARCH} -replace '/',''
-            New-Item -Path "${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH}" -Name $FolderName -ItemType "directory" -ErrorAction Ignore
+            ${env:FolderName} =  ${env:R_ARCH} -replace '/',''
+            echo "FolderName: ${env:FolderName}"
+            echo "PKG_CONFIG_SYSTEM_LIBRARY_PATH: ${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH}"
+            New-Item -Path "${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH}" -Name ${env:FolderName} -ItemType "directory" -ErrorAction Ignore
           }
 
           ### Just after "gendef", "lib", and move/copy
