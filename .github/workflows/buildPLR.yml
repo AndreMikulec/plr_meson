@@ -2159,9 +2159,9 @@ jobs:
           # Some environments require it
           ${env:PGUSER} = (whoami).Split('\')[1]
           echo "PGUSER: ${env:PGUSER}"
-          "${env:PG_HOME}\bin\pg_regress" "--bindir=${env:PG_HOME}\bin" --dbname=pl_regression plr bad_fun opt_window do out_args plr_transaction opt_window_frame
+          pg_regress "--bindir=${env:PG_HOME}\bin" --dbname=pl_regression plr bad_fun opt_window do out_args plr_transaction opt_window_frame
           if($LASTEXITCODE -ne 0) {
-            cat regression.diffs
+            Get-Content -Path "regression.diffs"
             Write-Error "The regresson test failed." -ErrorAction Stop
           }
 
