@@ -1969,22 +1969,11 @@ jobs:
           # Alternately, in the Windows "msvc" compiler case, just rename an archive dll.a to be a .lib,
           # and that also works.
           #
-          
-#         echo TEST mkdir 1
-#         New-Item -Path "C:\Users\Public\lib" -Name ("x64") -ItemType "directory" -ErrorAction Ignore
-#
-#         echo TEST mkdir 2
-#         New-Item -Path "C:\Users\Public\lib" -Name ("x64") -ItemType "directory" -ErrorAction Ignore
-#
-#         echo TEST mkdir 3
-#         New-Item -Path "C:\Users\Public\lib" -Name ("x64") -ItemType "directory" -ErrorAction Ignore
 
           if(-not (Test-Path ("${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH}" + (${env:R_ARCH} -replace '/','\'))  )) {
             # mkdir           (("${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH}" + (${env:R_ARCH} -replace '/','\')))
             New-Item -Path "${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH}" -Name (${env:R_ARCH} -replace '/','') -ItemType "directory" -ErrorAction Ignore
           }
-
-          
 
           ### Just after "gendef", "lib", and move/copy
           ##
