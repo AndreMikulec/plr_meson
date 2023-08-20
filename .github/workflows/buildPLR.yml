@@ -1567,11 +1567,16 @@ jobs:
             fi
           fi
 
-          echo "pkg-config libpq --cflags --libs: (pkg-config libpq --cflags --libs)"
+          # Just after "gendef", "dlltool", and move/copy
 
-          echo "pkg-config libpostgres --cflags --libs: (pkg-config libpostgres --cflags --libs)"
+          echo "pkg-config --cflags --libs  libpq"
+          pkg-config libpq --cflags --libs  libpq
 
-          echo "pkg-config libR --cflags --libs: (pkg-config libR --cflags --libs)"
+          echo "pkg-config --cflags --libs  libpostgres"
+          pkg-config --cflags --libs libpostgres
+
+          echo "pkg-config --cflags --libs  libR"
+          pkg-config --cflags --libs libR
 
           if [ "${OperatingSystem}" == "Cygwin" ]
           then
@@ -1923,6 +1928,17 @@ jobs:
 
           echo "Get-Content -Path `"${env:PG_HOME}\lib\pkgconfig\libpostgres.pc`""
           Get-Content -Path "${env:PG_HOME}\lib\pkgconfig\libpostgres.pc"
+
+          ### Just after "gendef", "lib", and move/copy
+          ##
+          ##echo "pkg-config --cflags --libs --msvc-syntax libpq"
+          ##pkg-config libpq --cflags --libs --msvc-syntax libpq
+          ##
+          ##echo "pkg-config --cflags --libs --msvc-syntax libpostgres"
+          ##pkg-config --cflags --libs --msvc-syntax libpostgres
+          ##
+          ##echo "pkg-config --cflags --libs --msvc-syntax libR"
+          ##pkg-config --cflags --libs --msvc-syntax libR
 
 #     - name: Cleanup Cygwin
 #       if: ${{ env.os == 'windows-latest' && env.compilerClass == 'cygwin' }}
