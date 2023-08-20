@@ -1804,7 +1804,7 @@ jobs:
         shell: powershell
         run: |
           systeminfo
-          Set-PSDebug -Trace 1
+          # Set-PSDebug -Trace 2
           if (Test-Path "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe") {
             ${env:msvcversion}   = $(& "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property catalog_productLineVersion)
             echo "msvcversion: ${env:msvcversion}"
@@ -1813,6 +1813,8 @@ jobs:
           }
 
           # check that MY software is in the PATH
+
+          echo "PATH: ${env:PATH}"
 
           # diff  Compare-Object
           # List of Aliases Used in PowerShell
@@ -2002,7 +2004,7 @@ jobs:
           echo "Get-Content -Path `"${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}\pkgconfig\libR.pc`""
           Get-Content -Path "${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}\pkgconfig\libR.pc"
 
-          # R for Windows already has the file "C:\Program Files\R\R-x.y.z\bin" + ("${env:R_ARCH}" -replace '/','\') + "\R.dll"
+          # R for Windows already has the file "C:\Program Files\R\R-x.y.z\bin" + (${env:R_ARCH} -replace '/','\') + "\R.dll"
           # Windows msvc compilers require libR.dll.a.
           #
           # Alternately . . .
@@ -2081,8 +2083,8 @@ jobs:
           #
           # build(create) artifacts (A "started" database is not required.)
           #
-          meson setup "--backend vs" "--prefix=${env:PG_HOME}\contrib\plr" "-DR_HOME=${env:R_HOME}" "-DPG_HOME=${env:PG_HOME}" "-Db_pie=true" "..\contrib\plr"
-          meson compile "-C" "..\contrib\plr" "-v"
+          meson setup --backend vs --prefix="${env:PG_HOME}\contrib\plr" -DR_HOME="${env:R_HOME}" -DPG_HOME="${env:PG_HOME}" -Db_pie=true "${env:PG_HOME}\contrib\plr"
+          meson compile -C "${env:PG_HOME}\contrib\plr" -v
           #
           # Example output of Windows msvc
           #
@@ -2157,11 +2159,11 @@ jobs:
           # Some environments require it
           ${env:PGUSER} = (whoami).Split('\')[1]
           echo "PGUSER: ${env:PGUSER}"
-          #   "${env:PG_HOME}\bin\pg_regress" "--bindir=${env:PG_HOME}\bin" "--dbname=pl_regression plr bad_fun opt_window do out_args plr_transaction opt_window_frame"
-          #   if($LASTEXITCODE -ne 0) {
-          #     cat regression.diffs
-          #     Write-Error "The regresson test failed." -ErrorAction Stop
-          #   }
+          "${env:PG_HOME}\bin\pg_regress" --bindir="${env:PG_HOME}\bin" --dbname=pl_regression plr bad_fun opt_window do out_args plr_transaction opt_window_frame
+          if($LASTEXITCODE -ne 0) {
+            cat regression.diffs
+            Write-Error "The regresson test failed." -ErrorAction Stop
+          }
 
           popd # from "${env:PG_HOME}\contribplr"
 
