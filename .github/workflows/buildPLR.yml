@@ -1994,16 +1994,142 @@ jobs:
             }
           }
 
-          ### Just after "gendef", "lib", and move/copy
-          ##
-          ##echo "pkg-config --cflags --libs --msvc-syntax libpq"
-          ##pkg-config libpq --cflags --libs --msvc-syntax libpq
-          ##
-          ##echo "pkg-config --cflags --libs --msvc-syntax libpostgres"
-          ##pkg-config --cflags --libs --msvc-syntax libpostgres
-          ##
-          ##echo "pkg-config --cflags --libs --msvc-syntax libR"
-          ##pkg-config --cflags --libs --msvc-syntax libR
+          # Just after "gendef", "lib", and move/copy
+          
+          echo "pkg-config --cflags --libs --msvc-syntax libpq"
+          pkg-config libpq --cflags --libs --msvc-syntax libpq
+          
+          echo "pkg-config --cflags --libs --msvc-syntax libpostgres"
+          pkg-config --cflags --libs --msvc-syntax libpostgres
+          
+          echo "pkg-config --cflags --libs --msvc-syntax libR"
+          pkg-config --cflags --libs --msvc-syntax libR
+
+          echo "whoami: $(whoami)"
+
+          #
+          # Create and start the cluster before
+          # the non-setup regression test (see FAR below).
+          #
+          if("${env:Platform}" -eq "x64") {
+            net start ("postgresql-" + "${env:Platform}" + "-" + "${env:PGVER2}")
+          }
+          if("${env:Platform}" -eq "x86") {
+            net start ("postgresql-"                           + "${env:PGVER2}")
+          }
+
+          # Create the contribplr directory parallel to contrib.
+          # Copy all of the PL/R source code into contribplr.
+          #
+          mkdir                       "${env:PG_HOME}/contrib"
+          #
+          mkdir                       "${env:PG_HOME}/contribplr"
+          cp   -Path "*" -Destination "${env:PG_HOME}/contribplr" -Recurse
+          #
+          pushd                        "${env:PG_HOME}/contribplr"
+
+          # Clean up previous builds.
+          #
+          rm  "..\contrib\plr" -Recurse -Force -ErrorAction Ignore
+          rm  "${env:PG_HOME}\lib\plr.dll.a"   -ErrorAction Ignore
+          rm  "${env:PG_HOME}\lib\plr.dll"     -ErrorAction Ignore
+          rm  "${env:PG_HOME}\share\extension\plr.control" -ErrorAction Ignore
+          rm  "${env:PG_HOME}\share\extension\plr--*.sql"  -ErrorAction Ignore
+
+          #
+          # build(create) artifacts (A "started" database is not required.)
+          #
+          meson setup "--backend vs" "--prefix=${env:PG_HOME}\contrib\plr" "-DR_HOME=${env:R_HOME}" "-DPG_HOME=${env:PG_HOME}" "-Db_pie=true" "..\contrib\plr"
+          meson compile "-C" "..\contrib\plr" "-v"
+          #
+          # Example output of Windows msvc
+          #
+          # [6/6] WHEN I GET THE OUTPUT THEN PLACE IT HERE
+          #
+
+          #
+          # save GOOD OR BAD artifact plr.dll
+          #
+          if(Test-Path "${env:PG_HOME}\contrib\plr\plr.dll") {
+            echo "Save plr.dll to be an artifact."
+            mkdir                                      "${env:WORKSPACE}\tmp\lib"
+            cp    LICENSE                              "${env:WORKSPACE}\tmp\PLR_LICENSE"
+            cp    "${env:PG_HOME}\contrib\plr\plr.dll" "${env:WORKSPACE}\tmp\lib"
+            dir                                        "${env:WORKSPACE}\tmp\lib\plr.dll"
+            mkdir                                      "${env:WORKSPACE}\tmp\share\extension"
+            cp   "*.control"                           "${env:WORKSPACE}\tmp\share\extension"
+            cp   "*.sql"                               "${env:WORKSPACE}\tmp\share\extension"
+          }
+
+          #
+          # save GOOD OR BAD artifact plr.dll.a
+          #
+          if(Test-Path "${env:PG_HOME}\contrib\plr\plr.dll.a") {
+            echo "Save plr.dll.a to be an artifact."
+            mkdir                                        "${env:WORKSPACE}\tmp\lib"
+            cp    "${env:PG_HOME}\contrib\plr\plr.dll.a" "${env:WORKSPACE}\tmp\lib"
+            dir                                          "${env:WORKSPACE}\tmp\lib\plr.dll.a"
+          }
+
+          # 7z GOOD OR BAD PL/R Artifact for LATER Release
+          echo "7z: (which 7z)"
+          echo "7z a -r ${env:WORKSPACE}\plr-artifact.zip  ${env:WORKSPACE}\tmp\*"
+          if(Test-Path "${env:WORKSPACE}\tmp\PLR_LICENSE") {
+            echo "Create PL\R Artifact .zip for future Release"
+            7z "a" "-r" "${env:WORKSPACE}\plr-artifact.zip"  "${env:WORKSPACE}\tmp\*"
+          }
+
+          # install GOOD OR BAD artifacts into Window PG plr.dll.
+          #
+          if(Test-Path "..\contrib\plr\plr.dll") {
+            echo "plr.dll is found"
+            cp "..\contrib\plr\plr.dll"  "${env:PG_HOME}\lib"
+            dir                          "${env:PG_HOME}\lib\plr.dll"
+          }
+          #
+          if(Test-Path "..\contrib\plr\plr.dll.a") {
+            echo "plr.dll.a is found"
+            cp "..\contrib\plr\plr.dll.a" "${env:PG_HOME}\lib"
+            dir                           "${env:PG_HOME}\lib\plr.dll.a"
+          }
+
+          #
+          # install GOOD OR BAD artifacts into Windows PG - support file - plr.control
+          #
+          cp plr.control "${env:PG_HOME}\share\extension"
+          dir            "${env:PG_HOME}\share\extension\plr.control"
+
+          #
+          # install GOOD OR BAD artifacts  into Windows PG - SQL support files - versioning "sql"
+          #
+          cp "plr--*.sql"  "${env:PG_HOME}\share\extension"
+          dir              "${env:PG_HOME}\share\extension\plr--*.sql"
+
+          #
+          # non-setup regression test
+          # Directories of testing "sql" and testing "expected" results exist here
+          #
+          # Some environments require it
+          ${env:PGUSER} = (whoami).Split('\')[1]
+          echo "PGUSER: ${env:PGUSER}"
+          "${env:PG_HOME}\bin\pg_regress" "--bindir=${env:PG_HOME}\bin" "--dbname=pl_regression plr bad_fun opt_window do out_args plr_transaction opt_window_frame"
+          if($LASTEXITCODE -ne 0) {
+            cat regression.diffs
+            Write-Error "The regresson test failed." -ErrorAction Stop
+          }
+
+          popd # from "${env:PG_HOME}\contribplr"
+
+          #
+          # Stop the cluster after
+          # the non-setup regression test (see FAR above).
+          #
+          if("${env:Platform}" -eq "x64") {
+            net stop ("postgresql-" + "${env:Platform}" + "-" + "${env:PGVER2}")
+          }
+          if("${env:Platform}" -eq "x86") {
+            net stop ("postgresql-"                           + "${env:PGVER2}")
+          }
 
 #     - name: Cleanup Cygwin
 #       if: ${{ env.os == 'windows-latest' && env.compilerClass == 'cygwin' }}
