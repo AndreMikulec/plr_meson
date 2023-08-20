@@ -866,7 +866,7 @@ jobs:
 
       # Choco Install GNU diffutils
       # BUT the "crazy-max/ghaction-chocolatey@v2" "install diffutils" file download often times-out
-      - name: Extract Diffuntils and add Diffuntils bin directory to the PATH for Test on PostgreSQL for Windows
+      - name: Extract Diffuntils for Test on PostgreSQL for Windows
         if: ${{ ( env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.MSYS2testonpgWIN == 'true' ) || ( env.os == 'windows-latest' && env.compilerClass == 'msvc' ) }}
         shell: cmd
         run: |
@@ -877,11 +877,17 @@ jobs:
           copy  diffutils-2.8.7-1-bin.zip      "C:\OTHERBIN\diffutils"
           dir                                  "C:\OTHERBIN\diffutils"
           rem - man7.org/linux/man-pages/man1/printf.1.html
-          printf                               "C:\\OTHERBIN\\diffutils\\bin" >> %GITHUB_PATH%
+          rem printf                               "C:\\OTHERBIN\\diffutils\\bin" >> %GITHUB_PATH%
+
+      - name: Add Diffuntils bin directory to the PATH for Test on PostgreSQL for Windows
+        if: ${{ ( env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.MSYS2testonpgWIN == 'true' ) || ( env.os == 'windows-latest' && env.compilerClass == 'msvc' ) }}
+        shell: powershell
+        run: |
+          echo "C:\OTHERBIN\diffutils\bin" | Out-File -FilePath ${env:GITHUB_PATH} -Encoding utf8 -Append
 
       # Choco Install pkgconfiglite
       # BUT the "crazy-max/ghaction-chocolatey@v2" "install pkgconfiglite" file download often times-out
-      - name: Extract pkgconfiglite and add pkgconfiglite bin directory to the PATH for Compile using msvc and meson
+      - name: Extract pkgconfiglite for Compile using msvc and meson
         if: ${{ env.os == 'windows-latest' && env.compilerClass == 'msvc' }}
         shell: cmd
         run: |
@@ -892,11 +898,18 @@ jobs:
           copy  pkg-config-lite-0.28-1_bin-win32.zip      "C:\OTHERBIN\pkgconfiglite"
           dir                                             "C:\OTHERBIN\pkgconfiglite"
           rem - man7.org/linux/man-pages/man1/printf.1.html
-          printf                                          "C:\\OTHERBIN\\pkgconfiglite\\pkg-config-lite-0.28-1\\bin" >> %GITHUB_PATH%
+          rem printf                                          "C:\\OTHERBIN\\pkgconfiglite\\pkg-config-lite-0.28-1\\bin" >> %GITHUB_PATH%
+
+      - name: Add pkgconfiglite bin directory to the PATH for Compile using msvc and meson
+        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'msvc' }}
+        shell: powershell
+        run: |
+          echo "C:\OTHERBIN\pkgconfiglite\pkg-config-lite-0.28-1\bin" | Out-File -FilePath ${env:GITHUB_PATH} -Encoding utf8 -Append
+
 
       # Choco Install winflexbison
       # BUT the "crazy-max/ghaction-chocolatey@v2" "install pkgconfiglite" file download often times-out
-      - name: Extract winflexbison and add the winflexbison directory to the PATH for Compile using msvc
+      - name: Extract winflexbison for Compile using msvc
         if: ${{ env.os == 'windows-latest' && env.compilerClass == 'msvc' }}
         shell: cmd
         run: |
@@ -905,9 +918,17 @@ jobs:
           rem 7z is provided by Github Actions
           7z x  win_flex_bison-2.5.24.zip               -o"C:\OTHERBIN\winflexbison"
           copy  win_flex_bison-2.5.24.zip                 "C:\OTHERBIN\winflexbison"
+          copy "C:\OTHERBIN\winflexbison\win_bison.exe"   "C:\OTHERBIN\winflexbison\bison.exe"
+          copy "C:\OTHERBIN\winflexbison\win_flex.exe"    "C:\OTHERBIN\winflexbison\flex.exe"
           dir                                             "C:\OTHERBIN\winflexbison"
           rem - man7.org/linux/man-pages/man1/printf.1.html
-          printf                                          "C:\\OTHERBIN\\winflexbison" >> %GITHUB_PATH%
+          rem printf                                          "C:\\OTHERBIN\\winflexbison" >> %GITHUB_PATH%
+
+      - name: Add the winflexbison directory to the PATH for Compile using msvc
+        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'msvc' }}
+        shell: powershell
+        run: |
+          echo "C:\OTHERBIN\winflexbison" | Out-File -FilePath ${env:GITHUB_PATH} -Encoding utf8 -Append
 
       # Choco Install meson
       # BUT the "crazy-max/ghaction-chocolatey@v2" "install meson" msiexec.exe Exit code was '3010'.
@@ -1787,6 +1808,19 @@ jobs:
             ${env:msvcproductid} = $(& "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property productId)
             echo "msvcproductid: ${env:msvcproductid}"
           }
+
+          # check that MY software is in the PATH
+
+          echo "which diff: (which diff)"
+          diff --version
+
+          echo "which pkg-config: (which pkg-config)"
+          pkg-config --version
+
+          echo "which bison: (which bison)"
+          bison --version
+          echo "which flex: (which flex)"
+          flex --version
 
           echo "R_HOME: ${env:R_HOME}"
           echo "Platform: ${env:Platform}"
