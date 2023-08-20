@@ -1976,7 +1976,7 @@ jobs:
 
           # Create and Move, or, Copy, the R static library.
           # to the target location - "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}${R_ARCH}/libR.dll.a"
-          if(-not (Test-Path ("${env:{PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}" + (${env:R_ARCH} -replace '/','\') + "\libR.dll.a") )) {
+          if(-not (Test-Path ("${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}" + (${env:R_ARCH} -replace '/','\') + "\libR.dll.a") )) {
             if((Test-Path ("${env:R_HOME}" + (${env:R_ARCH} -replace '/','\') + "\libR.dll.a")) {
               pushd       ("${env:R_HOME}" + (${env:R_ARCH} -replace '/','\'))
               cp   libR.dll.a  ("${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}" + (${env:R_ARCH} -replace '/','\') + "\libR.dll.a")
