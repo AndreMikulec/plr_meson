@@ -1852,6 +1852,7 @@ jobs:
           #
           if ("${env:PKG_CONFIG_PATH}" -eq "") { 
             mkdir "C:\Users\Public\lib\pkgconfig"
+            New-Item -Path "C:\Users\Public" -Name ("MADEDIR5\subpath") -ItemType "directory"
             ${env:PKG_CONFIG_PATH} = "C:\Users\Public\lib\pkgconfig"
           }
           if ("${env:PKG_CONFIG_SYSTEM_INCLUDE_PATH}" -eq "") {
@@ -1970,13 +1971,13 @@ jobs:
           #
           
           echo TEST mkdir 1
-          mkdir DATA
+          New-Item -Path "C:\Users\Public\lib" -Name ("x64") -ItemType "directory" -ErrorAction Ignore
 
           echo TEST mkdir 2
-          mkdir "C:\Users\Public\usr\lib\x64"
+          New-Item -Path "C:\Users\Public\lib" -Name ("x64") -ItemType "directory" -ErrorAction Ignore
 
-          if(-not (Test-Path ("${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH}" + (${env:R_ARCH} -replace '/','\')) )) {
-            mkdir            ("${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH}" + (${env:R_ARCH} -replace '/','\'))
+          if(-not (Test-Path ("${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH}" + (${env:R_ARCH} -replace '/','\'))  )) {
+            mkdir           (("${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH}" + (${env:R_ARCH} -replace '/','\')))
           }
 
 
