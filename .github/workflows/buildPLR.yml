@@ -1811,8 +1811,12 @@ jobs:
 
           # check that MY software is in the PATH
 
-          echo "which diff: (which diff)"
-          diff --version
+          # diff  Compare-Object
+          # List of Aliases Used in PowerShell
+          # https://ilovepowershell.com/windows-powershell-legacy/list-of-top-powershell-alias/
+          # echo "which diff: (which diff)"
+          # diff --version
+          # Compare-Object : Cannot process command because of one or more missing mandatory parameters: DifferenceObject.
 
           echo "which pkg-config: (which pkg-config)"
           pkg-config --version
