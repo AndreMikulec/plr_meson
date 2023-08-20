@@ -1945,8 +1945,6 @@ jobs:
             cp   "${env:PG_HOME}\lib\libpostgres.exe.a" "${env:PG_HOME}\lib\libpostgres.dll.a"
           }
 
-          dir "${env:PG_HOME}\lib\libpostgres*"
-
           # Make R into a library
           if(-not (Test-Path "${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}\pkgconfig")) {
             mkdir "${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}\pkgconfig"
