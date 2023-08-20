@@ -1915,6 +1915,9 @@ jobs:
           echo "Get-Content -Path `"${env:WORKSPACE}\libpq.pc`""
           Get-Content -Path "${env:WORKSPACE}\libpq.pc"
 
+          # Note, PostgreSQL for Windows comes with the archive library
+          # C:\Program Files\PostgreSQL\xy\lib\libpq.lib
+          #
           # This is Part 1 of 2 of a hack to make "meson" think that "libpostgres" is a library.
           # From the libpq.pc file, create a libpostgres.pc file.
           if(-not (Test-Path "${env:PG_HOME}\lib\pkgconfig\libpq.pc")) {
@@ -1928,6 +1931,22 @@ jobs:
 
           echo "Get-Content -Path `"${env:PG_HOME}\lib\pkgconfig\libpostgres.pc`""
           Get-Content -Path "${env:PG_HOME}\lib\pkgconfig\libpostgres.pc"
+
+          # Note, PostgreSQL for Windows comes with the archive library
+          # C:\Program Files\PostgreSQL\xy\lib\postgres.lib
+          #
+          # This is Part 2 of 2 of a hack to make "meson" think that "libpostgres" is a library
+          # libpostgres.exe.a is not recognized as a static library
+          # libpostgres.a     is     recognized as a static library
+          #                         # typical software repository default install
+          if ((-not (Test-Path "${env:PG_HOME}\lib\libpostgres.a" )) -and (-not (Test-Path "${env:PG_HOME}\lib\libpostgres.dll.a" )) -and (Test-Path "${env:PG_HOME}\lib\libpostgres.exe.a" )) {
+            # Note, a "meson built PostgreSQL install" will produce a file called "libpostgres.exe.a".
+            cp   "${env:PG_HOME}\lib\libpostgres.exe.a" "${env:PG_HOME}\lib\libpostgres.dll.a"
+          }
+
+          dir "${env:PG_HOME}\lib\libpostgres*"
+
+
 
           ### Just after "gendef", "lib", and move/copy
           ##
