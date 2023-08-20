@@ -1736,6 +1736,9 @@ jobs:
           cp plr--*.sql  "${SHAREDIR}/extension"
           ls -alrt        ${SHAREDIR}/extension/plr--*.sql
 
+          echo "Show PL/R files before doing the regression test."
+          find "${PG_HOME}" -name 'plr*.*' -type f
+
           #
           # non-setup regression test
           # Directories of testing "sql" and testing "expected" results exist here
@@ -1801,7 +1804,7 @@ jobs:
         shell: powershell
         run: |
           systeminfo
-          Set-PSDebug -Trace 2
+          Set-PSDebug -Trace 1
           if (Test-Path "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe") {
             ${env:msvcversion}   = $(& "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property catalog_productLineVersion)
             echo "msvcversion: ${env:msvcversion}"
@@ -2143,6 +2146,9 @@ jobs:
           #
           cp "plr--*.sql"  "${env:PG_HOME}\share\extension"
           dir              "${env:PG_HOME}\share\extension\plr--*.sql"
+
+          echo "Show PL/R files before doing the regression test."
+          Get-Childitem -Path "${env:PG_HOME}" -Include "plr*.*" -File -Recurse -ErrorAction Ignore
 
           #
           # non-setup regression test
