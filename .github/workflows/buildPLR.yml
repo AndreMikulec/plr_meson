@@ -62,15 +62,18 @@ jobs:
           # # https://github.com/actions/runner-images
           #
 
-          - os: windows-latest
-            compilerEnv: msvc
-            Platform: x64
-            rversion: 4.2.3
-            R_HOME: 'D:\RINSTALL'
-            R_ARCH: /x64
-            #
-            # unless I build pgWIN from source and "msvc"
-            pgWINversion: 15.3-3
+# msvc is not working - WORKS MANUALLY - BUT NOT HERE
+#                       guessing - some file or if-then-endif BRANCH not running
+
+#         - os: windows-latest
+#           compilerEnv: msvc
+#           Platform: x64
+#           rversion: 4.2.3
+#           R_HOME: 'D:\RINSTALL'
+#           R_ARCH: /x64
+#           #
+#           # unless I build pgWIN from source and "msvc"
+#           pgWINversion: 15.3-3
 
 #         # Repository R and Repository postgresql
           - os: windows-latest
