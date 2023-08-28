@@ -971,6 +971,25 @@ jobs:
             ${{ env.MINGW_PACKAGE_PREFIX }}-lz4
             ${{ env.MINGW_PACKAGE_PREFIX }}-postgresql
 
+      - name: MSYS2 download OLD postgres (CURRENTLY HARDCODED)
+        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' }}
+        uses: suisei-cn/actions-download-file@v1.4.0
+        id: downloadfileOldMSYS2Postgres
+        with:
+          url: https://repo.msys2.org/mingw/${{ matrix.compilerEnv }}/mingw-w64-${{ env.mingw_env }}-postgresql-14.5-1-any.pkg.tar.zst
+          filename: old.postgresql.pkg.tar.zst
+
+      - name: MSYS2 install OLD postgres
+        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' }}
+        env:
+          msystem: ${{ env.compilerEnv }}
+        run: |
+          echo "MSYS2 install OLD postgres"
+          set -x -v -e
+          # This is a “remove-then-add” process.
+          # https://man.archlinux.org/man/pacman.8.en
+          pacman -U --noconfirm                              old.postgresql.pkg.tar.zst
+
       - name: Set up Cygwin
         if: ${{ env.os == 'windows-latest' && env.compilerClass == 'cygwin' }}
         uses: cygwin/cygwin-install-action@v4
