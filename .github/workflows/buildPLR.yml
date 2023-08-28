@@ -62,18 +62,15 @@ jobs:
           # # https://github.com/actions/runner-images
           #
 
-# msvc is not working - WORKS MANUALLY - BUT NOT HERE
-#                       guessing - some file or if-then-endif BRANCH not running
-
-#         - os: windows-latest
-#           compilerEnv: msvc
-#           Platform: x64
-#           rversion: 4.2.3
-#           R_HOME: 'D:\RINSTALL'
-#           R_ARCH: /x64
-#           #
-#           # unless I build pgWIN from source and "msvc"
-#           pgWINversion: 15.3-3
+          - os: windows-latest
+            compilerEnv: msvc
+            Platform: x64
+            rversion: 4.2.3
+            R_HOME: 'D:\RINSTALL'
+            R_ARCH: /x64
+            #
+            # unless I build pgWIN from source and "msvc"
+            pgWINversion: 15.3-3
 
 #         # Repository R and Repository postgresql
           - os: windows-latest
@@ -97,7 +94,6 @@ jobs:
 ####            #
 ####            # no "MSYS2testonpgWIN: true" because No existing "PG for Windows REL_16_any" exists anywhre
 ####
-
 #         # First "R for Windows" 4.3.0 - PL/R can not be compiled using Microsoft Visual Studio
 #         # just a test of a recent PostgreSQL compiled from Source . . .
           - os: windows-latest
@@ -113,8 +109,7 @@ jobs:
             pgWINversion: 15.3-3
             #
             MSYS2testonpgWIN: true
-
-
+####
 #####         # First "R for Windows" 4.3.0 - PL/R can not be compiled using Microsoft Visual Studio
 #####         # just a test of a recent PostgreSQL compiled from Source . .
 ####          - os: windows-latest
@@ -869,7 +864,7 @@ jobs:
 
       # Choco Install GNU diffutils
       # BUT the "crazy-max/ghaction-chocolatey@v2" "install diffutils" file download often times-out
-      - name: Extract Diffuntils for Test on PostgreSQL for Windows
+      - name: Extract Diffuntils and add Diffuntils bin directory to the PATH for Test on PostgreSQL for Windows
         if: ${{ ( env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.MSYS2testonpgWIN == 'true' ) || ( env.os == 'windows-latest' && env.compilerClass == 'msvc' ) }}
         shell: cmd
         run: |
@@ -880,17 +875,11 @@ jobs:
           copy  diffutils-2.8.7-1-bin.zip      "C:\OTHERBIN\diffutils"
           dir                                  "C:\OTHERBIN\diffutils"
           rem - man7.org/linux/man-pages/man1/printf.1.html
-          rem printf                               "C:\\OTHERBIN\\diffutils\\bin" >> %GITHUB_PATH%
-
-      - name: Add Diffuntils bin directory to the PATH for Test on PostgreSQL for Windows
-        if: ${{ ( env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.MSYS2testonpgWIN == 'true' ) || ( env.os == 'windows-latest' && env.compilerClass == 'msvc' ) }}
-        shell: powershell
-        run: |
-          echo "C:\OTHERBIN\diffutils\bin" | Out-File -FilePath ${env:GITHUB_PATH} -Encoding utf8 -Append
+          printf                               "C:\\OTHERBIN\\diffutils\\bin" >> %GITHUB_PATH%
 
       # Choco Install pkgconfiglite
       # BUT the "crazy-max/ghaction-chocolatey@v2" "install pkgconfiglite" file download often times-out
-      - name: Extract pkgconfiglite for Compile using msvc and meson
+      - name: Extract pkgconfiglite and add pkgconfiglite bin directory to the PATH for Compile using msvc and meson
         if: ${{ env.os == 'windows-latest' && env.compilerClass == 'msvc' }}
         shell: cmd
         run: |
@@ -901,18 +890,11 @@ jobs:
           copy  pkg-config-lite-0.28-1_bin-win32.zip      "C:\OTHERBIN\pkgconfiglite"
           dir                                             "C:\OTHERBIN\pkgconfiglite"
           rem - man7.org/linux/man-pages/man1/printf.1.html
-          rem printf                                          "C:\\OTHERBIN\\pkgconfiglite\\pkg-config-lite-0.28-1\\bin" >> %GITHUB_PATH%
-
-      - name: Add pkgconfiglite bin directory to the PATH for Compile using msvc and meson
-        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'msvc' }}
-        shell: powershell
-        run: |
-          echo "C:\OTHERBIN\pkgconfiglite\pkg-config-lite-0.28-1\bin" | Out-File -FilePath ${env:GITHUB_PATH} -Encoding utf8 -Append
-
+          printf                                          "C:\\OTHERBIN\\pkgconfiglite\\pkg-config-lite-0.28-1\\bin" >> %GITHUB_PATH%
 
       # Choco Install winflexbison
       # BUT the "crazy-max/ghaction-chocolatey@v2" "install pkgconfiglite" file download often times-out
-      - name: Extract winflexbison for Compile using msvc
+      - name: Extract winflexbison and add the winflexbison directory to the PATH for Compile using msvc
         if: ${{ env.os == 'windows-latest' && env.compilerClass == 'msvc' }}
         shell: cmd
         run: |
@@ -921,17 +903,9 @@ jobs:
           rem 7z is provided by Github Actions
           7z x  win_flex_bison-2.5.24.zip               -o"C:\OTHERBIN\winflexbison"
           copy  win_flex_bison-2.5.24.zip                 "C:\OTHERBIN\winflexbison"
-          copy "C:\OTHERBIN\winflexbison\win_bison.exe"   "C:\OTHERBIN\winflexbison\bison.exe"
-          copy "C:\OTHERBIN\winflexbison\win_flex.exe"    "C:\OTHERBIN\winflexbison\flex.exe"
           dir                                             "C:\OTHERBIN\winflexbison"
           rem - man7.org/linux/man-pages/man1/printf.1.html
-          rem printf                                          "C:\\OTHERBIN\\winflexbison" >> %GITHUB_PATH%
-
-      - name: Add the winflexbison directory to the PATH for Compile using msvc
-        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'msvc' }}
-        shell: powershell
-        run: |
-          echo "C:\OTHERBIN\winflexbison" | Out-File -FilePath ${env:GITHUB_PATH} -Encoding utf8 -Append
+          printf                                          "C:\\OTHERBIN\\winflexbison" >> %GITHUB_PATH%
 
       # Choco Install meson
       # BUT the "crazy-max/ghaction-chocolatey@v2" "install meson" msiexec.exe Exit code was '3010'.
@@ -1592,17 +1566,6 @@ jobs:
             fi
           fi
 
-          # Just after "gendef", "dlltool", and move/copy
-
-          echo "pkg-config --cflags --libs libpq"
-          pkg-config --cflags --libs libpq
-
-          echo "pkg-config --cflags --libs  libpostgres"
-          pkg-config --cflags --libs libpostgres
-
-          echo "pkg-config --cflags --libs  libR"
-          pkg-config --cflags --libs libR
-
           if [ "${OperatingSystem}" == "Cygwin" ]
           then
             echo "cygrunsrv START"
@@ -1739,9 +1702,6 @@ jobs:
           cp plr--*.sql  "${SHAREDIR}/extension"
           ls -alrt        ${SHAREDIR}/extension/plr--*.sql
 
-          echo "Show PL/R files before doing the regression test."
-          find "${PG_HOME}" -name 'plr*.*' -type f
-
           #
           # non-setup regression test
           # Directories of testing "sql" and testing "expected" results exist here
@@ -1807,32 +1767,12 @@ jobs:
         shell: powershell
         run: |
           systeminfo
-          # Set-PSDebug -Trace 2
           if (Test-Path "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe") {
             ${env:msvcversion}   = $(& "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property catalog_productLineVersion)
             echo "msvcversion: ${env:msvcversion}"
             ${env:msvcproductid} = $(& "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property productId)
             echo "msvcproductid: ${env:msvcproductid}"
           }
-
-          # check that MY software is in the PATH
-
-          echo "PATH: ${env:PATH}"
-
-          # diff  Compare-Object
-          # List of Aliases Used in PowerShell
-          # https://ilovepowershell.com/windows-powershell-legacy/list-of-top-powershell-alias/
-          # echo "which diff: (which diff)"
-          # diff --version
-          # Compare-Object : Cannot process command because of one or more missing mandatory parameters: DifferenceObject.
-
-          echo "which pkg-config: (which pkg-config)"
-          pkg-config --version
-
-          echo "which bison: (which bison)"
-          bison --version
-          echo "which flex: (which flex)"
-          flex --version
 
           echo "R_HOME: ${env:R_HOME}"
           echo "Platform: ${env:Platform}"
@@ -1860,334 +1800,6 @@ jobs:
             Write-Error 'PGVER2 is missing. Please supply the PGVER2.' -ErrorAction Stop
           }
 
-          if((-not ("${env:R_HOME}" -eq "notset")) -and (-not ("${env:R_HOME}" -eq ""))){
-            ${env:PATH} = "${env:R_HOME}\bin;${env:PATH}"
-          }
-
-          if(("${env:R_ARCH}" -eq "notset") -or ("${env:R_ARCH}" -eq "")){
-            ${env:R_ARCH} = ""
-          }
-
-          # LAST
-          if((-not ("${env:R_ARCH}" -eq "notset")) -and (-not ("${env:R_ARCH}" -eq ""))){
-            echo "The rest of this program uses R_ARCH like this: R_ARCH: ${env:R_ARCH}"
-            # R    Sub-Architectures
-            ${env:PATH} = "${env:R_HOME}\bin" + (${env:R_ARCH} -replace '/','\') + ";${env:PATH}"
-          }
-
-          if((-not ("${env:PG_HOME}" -eq "notset")) -and (-not ("${env:PG_HOME}" -eq ""))){
-            # can find PG "libraries"
-            ${env:PATH} = "${env:PG_HOME}\lib;${env:PATH}"
-            #
-            # can find PG "libraries"
-            ${env:PATH} = "${env:PG_HOME}\bin;${env:PATH}"
-          }
-
-          echo "PATH: ${env:PATH}"
-
-          # List of Aliases Used in PowerShell
-          # https://ilovepowershell.com/windows-powershell-legacy/list-of-top-powershell-alias/
-
-          # Using aliases
-          # https://learn.microsoft.com/en-us/powershell/scripting/learn/shell/using-aliases?view=powershell-7.3
-
-          echo "PKG_CONFIG_PATH: ${env:PKG_CONFIG_PATH}"
-          echo "PKG_CONFIG_SYSTEM_INCLUDE_PATH: ${env:PKG_CONFIG_SYSTEM_INCLUDE_PATH}"
-          echo "PKG_CONFIG_SYSTEM_LIBRARY_PATH: ${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH}"
-
-          # note Windows msvc has "no defaults"
-          #
-          if ("${env:PKG_CONFIG_PATH}" -eq "") { 
-            mkdir "C:\Users\Public\lib\pkgconfig"
-            New-Item -Path "C:\Users\Public" -Name ("MADEDIR5\subpath") -ItemType "directory"
-            ${env:PKG_CONFIG_PATH} = "C:\Users\Public\lib\pkgconfig"
-          }
-          if ("${env:PKG_CONFIG_SYSTEM_INCLUDE_PATH}" -eq "") {
-            mkdir "C:\Users\Public\usr\include"
-            ${env:PKG_CONFIG_SYSTEM_INCLUDE_PATH} = "C:\Users\Public\usr\include"
-          }
-          if ("${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH}" -eq "") {
-            mkdir "C:\Users\Public\usr\lib"
-            ${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH} = "C:\Users\Public\usr\lib"
-          }
-
-          $matches = @()
-          if("${env:PKG_CONFIG_PATH}" -match '(.*)(?=;)') { 
-            ${env:PKG_CONFIG_PATH_ORIG} = $matches[1]; $matches = @() 
-          } else {
-            ${env:PKG_CONFIG_PATH_ORIG} = ${env:PKG_CONFIG_PATH}
-          }
-          echo "PKG_CONFIG_PATH_ORIG: ${env:PKG_CONFIG_PATH_ORIG}"
-
-          $matches = @()
-          if("${env:PKG_CONFIG_SYSTEM_INCLUDE_PATH}" -match '(.*)(?=;)') { 
-            ${env:PKG_CONFIG_SYSTEM_INCLUDE_PATH_ORIG} = $matches[1]; $matches = @() 
-          } else {
-            ${env:PKG_CONFIG_SYSTEM_INCLUDE_PATH_ORIG} = ${env:PKG_CONFIG_SYSTEM_INCLUDE_PATH}
-          }
-          echo "PKG_CONFIG_SYSTEM_INCLUDE_PATH_ORIG: ${env:PKG_CONFIG_SYSTEM_INCLUDE_PATH_ORIG}"
-
-          # For Windows msvc and R environment variable R_ARCH and Rlib.dll.a.
-          # Need ONE single leftmost headish important library path.
-          $matches = @()
-          if("${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH}" -match '(.*)(?=;)') { 
-            ${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG} = $matches[1]; $matches = @() 
-          } else {
-            ${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG} = ${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH}
-          }
-          # Windows msvc environments
-          # e.g.
-          # export ${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG} = "C:\Users\Public\usr\lib"
-          echo "PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG: ${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}"
-
-          echo "PKG_CONFIG_PATH: ${env:PKG_CONFIG_PATH}"
-          echo "PKG_CONFIG_SYSTEM_INCLUDE_PATH: ${env:PKG_CONFIG_SYSTEM_INCLUDE_PATH}"
-          echo "PKG_CONFIG_SYSTEM_LIBRARY_PATH: ${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH}"
-
-          # Guarantee  to find the PostgreSQL libraries.
-          # Some packages may also install an old "libpq" that is located in the default install location.
-          # We do not want to use that old "libpg" when compiling PL/R.
-          # Therefore, the PostgreSQL pkgconfig goes in front at the head.
-          #
-          # PostgreSQL for windows does not have this directory, therefore I create it.
-          if(-not (Test-Path "${env:PG_HOME}\lib\pkgconfig")) {
-            mkdir "${env:PG_HOME}\lib\pkgconfig"
-          }
-          ${env:PKG_CONFIG_PATH} = "${env:PG_HOME}\lib\pkgconfig;${env:PKG_CONFIG_PATH}"
-          ${env:PKG_CONFIG_SYSTEM_INCLUDE_PATH} = "${env:PG_HOME}\include;${env:PKG_CONFIG_SYSTEM_INCLUDE_PATH}"
-          ${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH} = "${env:PG_HOME}\bin;${env:PG_HOME}\lib;${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH}"
-
-          echo "PKG_CONFIG_PATH: ${env:PKG_CONFIG_PATH}"
-          echo "PKG_CONFIG_SYSTEM_INCLUDE_PATH: ${env:PKG_CONFIG_SYSTEM_INCLUDE_PATH}"
-          echo "PKG_CONFIG_SYSTEM_LIBRARY_PATH: ${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH}"
-
-          echo "Get-Content -Path `"${env:WORKSPACE}\libpq.pc`""
-          Get-Content -Path "${env:WORKSPACE}\libpq.pc"
-
-          # Note, PostgreSQL for Windows comes with the archive library
-          # C:\Program Files\PostgreSQL\xy\lib\libpq.lib
-          #
-          # This is Part 1 of 2 of a hack to make "meson" think that "libpostgres" is a library.
-          # From the libpq.pc file, create a libpostgres.pc file.
-          if(-not (Test-Path "${env:PG_HOME}\lib\pkgconfig\libpq.pc")) {
-            # Postgres for Windows does not have the file libpq.pc, therfore use the GITHUB provided one
-            cp "${env:WORKSPACE}\libpq.pc" "${env:PG_HOME}\lib\pkgconfig\libpq.pc"
-          }
-
-          if(-not (Test-Path "${env:PG_HOME}\lib\pkgconfig\libpostgres.pc")) {
-            ((Get-Content -Path "${env:PG_HOME}\lib\pkgconfig\libpq.pc") -replace "libpq","libpostgres") -replace "-lpq","-lpostgres" | Out-File "${env:PG_HOME}\lib\pkgconfig\libpostgres.pc"
-          }
-
-          echo "Get-Content -Path `"${env:PG_HOME}\lib\pkgconfig\libpostgres.pc`""
-          Get-Content -Path "${env:PG_HOME}\lib\pkgconfig\libpostgres.pc"
-
-          # Note, PostgreSQL for Windows comes with the archive library
-          # C:\Program Files\PostgreSQL\xy\lib\postgres.lib
-          #
-          # This is Part 2 of 2 of a hack to make "meson" think that "libpostgres" is a library
-          # libpostgres.exe.a is not recognized as a static library
-          # libpostgres.a     is     recognized as a static library
-          #                         # typical software repository default install
-          if ((-not (Test-Path "${env:PG_HOME}\lib\libpostgres.a" )) -and (-not (Test-Path "${env:PG_HOME}\lib\libpostgres.dll.a" )) -and (Test-Path "${env:PG_HOME}\lib\libpostgres.exe.a" )) {
-            # Note, a "meson built PostgreSQL install" will produce a file called "libpostgres.exe.a".
-            cp   "${env:PG_HOME}\lib\libpostgres.exe.a" "${env:PG_HOME}\lib\libpostgres.dll.a"
-          }
-
-          # Make R into a library
-          if(-not (Test-Path "${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}\pkgconfig")) {
-            mkdir "${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}\pkgconfig"
-          }
-
-          if(-not (Test-Path "${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}\pkgconfig\libR.pc")) {
-            # Uses the provided template file "libR.pc"
-            # This template file is "based" off of the "R for Cygwin" file /lib/pkgconfig/libR.pc.
-            (((Get-Content -Path "${env:WORKSPACE}\libR.pc") -replace "R_HOME",("'" + (${env:R_HOME} -replace '\\','/' ) + "'")) -replace "R_ARCH","${env:R_ARCH}") -replace "rversion","${env:rversion}" | Out-File "${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}\pkgconfig\libR.pc"
-          }
-
-          echo "Get-Content -Path `"${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}\pkgconfig\libR.pc`""
-          Get-Content -Path "${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}\pkgconfig\libR.pc"
-
-          # R for Windows already has the file "C:\Program Files\R\R-x.y.z\bin" + (${env:R_ARCH} -replace '/','\') + "\R.dll"
-          # Windows msvc compilers require libR.dll.a.
-          #
-          # Alternately . . .
-          # Note, Windows compilers (e.g. msvc) require R.lib.
-          # To create this file, instead of using the "dlltool" program, use the msvc "lib" program.
-          # Alternately, in the Windows "msvc" compiler case, just rename an archive dll.a to be a .lib,
-          # and that also works.
-          #
-
-          if(-not (Test-Path ("${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}" + (${env:R_ARCH} -replace '/','\'))  )) {
-            mkdir            ("${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}" + (${env:R_ARCH} -replace '/','\'))
-          }
-
-          # Create and Move, or, Copy, the R static library.
-          # to the target location - "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}${R_ARCH}/libR.dll.a"
-          if(-not (Test-Path ("${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}" + (${env:R_ARCH} -replace '/','\') + "\libR.dll.a") )) {
-            if((Test-Path ("${env:R_HOME}" + (${env:R_ARCH} -replace '/','\') + "\libR.dll.a")) ) {
-              pushd       ("${env:R_HOME}" + (${env:R_ARCH} -replace '/','\'))
-              cp   libR.dll.a  ("${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}" + (${env:R_ARCH} -replace '/','\') + "\libR.dll.a")
-              popd # from ("${env:R_HOME}" + (${env:R_ARCH} -replace '/','\'))
-            }
-            # "R for Windows" from CRAN
-            # If I am given the R.dll, then I can myself, create an import library R.lib
-            if(Test-Path  ("${env:R_HOME}\bin" + (${env:R_ARCH} -replace '/','\') + "\R.dll") ) {
-              pushd       ("${env:R_HOME}\bin" + (${env:R_ARCH} -replace '/','\'))
-              gendef -          R.dll >      R.def
-              lib                      "/DEF:R.def" "/OUT:R.lib" "/MACHINE:${env:Platform}"
-              # Put R.lib  into the general library location {...ORIG}${R_ARCH}/R.lib
-              mv    R.lib ("${env:PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}" + (${env:R_ARCH} -replace '/','\') + "\R.lib")
-              popd # from ("${env:R_HOME}\bin" + (${env:R_ARCH} -replace '/','\'))
-            }
-          }
-
-          # Just after "gendef", "lib", and move/copy
-          
-          # Package libssl was not found in the pkg-config search path.
-          # Perhaps you should add the directory containing `libssl.pc'
-          # to the PKG_CONFIG_PATH environment variable
-          # Package 'libssl', required by 'libpq', not found
-          #
-          # How can I compile RpostgreSQL with libssl and libpg and SSL activation
-          # 2017
-          # https://stackoverflow.com/questions/46076325/how-can-i-compile-rpostgresql-with-libssl-and-libpg-and-ssl-activation
-          echo "pkg-config --cflags --libs --msvc-syntax libpq"
-          pkg-config libpq --cflags --libs --msvc-syntax libpq
-          
-          echo "pkg-config --cflags --libs --msvc-syntax libpostgres"
-          pkg-config --cflags --libs --msvc-syntax libpostgres
-          
-          echo "pkg-config --cflags --libs --msvc-syntax libR"
-          pkg-config --cflags --libs --msvc-syntax libR
-
-          echo "whoami: $(whoami)"
-
-          #
-          # Create and start the cluster before
-          # the non-setup regression test (see FAR below).
-          #
-          if("${env:Platform}" -eq "x64") {
-            net start ("postgresql-" + "${env:Platform}" + "-" + "${env:PGVER2}")
-          }
-          if("${env:Platform}" -eq "x86") {
-            net start ("postgresql-"                           + "${env:PGVER2}")
-          }
-
-          # Create the contribplr directory parallel to contrib.
-          # Copy all of the PL/R source code into contribplr.
-          #
-          mkdir                       "${env:PG_HOME}/contrib"
-          #
-          mkdir                       "${env:PG_HOME}/contribplr"
-          cp   -Path "*" -Destination "${env:PG_HOME}/contribplr" -Recurse
-          #
-          pushd                        "${env:PG_HOME}/contribplr"
-
-          # Clean up previous builds.
-          #
-          rm  "..\contrib\plr" -Recurse -Force -ErrorAction Ignore
-          rm  "${env:PG_HOME}\lib\plr.dll.a"   -ErrorAction Ignore
-          rm  "${env:PG_HOME}\lib\plr.dll"     -ErrorAction Ignore
-          rm  "${env:PG_HOME}\share\extension\plr.control" -ErrorAction Ignore
-          rm  "${env:PG_HOME}\share\extension\plr--*.sql"  -ErrorAction Ignore
-
-          #
-          # build(create) artifacts (A "started" database is not required.)
-          #
-          meson setup --backend vs --prefix="${env:PG_HOME}\contrib\plr" -DR_HOME="${env:R_HOME}" -DPG_HOME="${env:PG_HOME}" -Db_pie=true "${env:PG_HOME}\contrib\plr"
-          meson compile -C "${env:PG_HOME}\contrib\plr" -v
-          #
-          # Example output of Windows msvc
-          #
-          # [6/6] WHEN I GET THE OUTPUT THEN PLACE IT HERE
-          #
-
-          #
-          # save GOOD OR BAD artifact plr.dll
-          #
-          if(Test-Path "${env:PG_HOME}\contrib\plr\plr.dll") {
-            echo "Save plr.dll to be an artifact."
-            mkdir                                      "${env:WORKSPACE}\tmp\lib"
-            cp    LICENSE                              "${env:WORKSPACE}\tmp\PLR_LICENSE"
-            cp    "${env:PG_HOME}\contrib\plr\plr.dll" "${env:WORKSPACE}\tmp\lib"
-            dir                                        "${env:WORKSPACE}\tmp\lib\plr.dll"
-            mkdir                                      "${env:WORKSPACE}\tmp\share\extension"
-            cp   "*.control"                           "${env:WORKSPACE}\tmp\share\extension"
-            cp   "*.sql"                               "${env:WORKSPACE}\tmp\share\extension"
-          }
-
-          #
-          # save GOOD OR BAD artifact plr.dll.a
-          #
-          if(Test-Path "${env:PG_HOME}\contrib\plr\plr.dll.a") {
-            echo "Save plr.dll.a to be an artifact."
-            mkdir                                        "${env:WORKSPACE}\tmp\lib"
-            cp    "${env:PG_HOME}\contrib\plr\plr.dll.a" "${env:WORKSPACE}\tmp\lib"
-            dir                                          "${env:WORKSPACE}\tmp\lib\plr.dll.a"
-          }
-
-          # 7z GOOD OR BAD PL/R Artifact for LATER Release
-          echo "7z: (which 7z)"
-          echo "7z a -r ${env:WORKSPACE}\plr-artifact.zip  ${env:WORKSPACE}\tmp\*"
-          if(Test-Path "${env:WORKSPACE}\tmp\PLR_LICENSE") {
-            echo "Create PL\R Artifact .zip for future Release"
-            7z "a" "-r" "${env:WORKSPACE}\plr-artifact.zip"  "${env:WORKSPACE}\tmp\*"
-          }
-
-          # install GOOD OR BAD artifacts into Window PG plr.dll.
-          #
-          if(Test-Path "..\contrib\plr\plr.dll") {
-            echo "plr.dll is found"
-            cp "..\contrib\plr\plr.dll"  "${env:PG_HOME}\lib"
-            dir                          "${env:PG_HOME}\lib\plr.dll"
-          }
-          #
-          if(Test-Path "..\contrib\plr\plr.dll.a") {
-            echo "plr.dll.a is found"
-            cp "..\contrib\plr\plr.dll.a" "${env:PG_HOME}\lib"
-            dir                           "${env:PG_HOME}\lib\plr.dll.a"
-          }
-
-          #
-          # install GOOD OR BAD artifacts into Windows PG - support file - plr.control
-          #
-          cp plr.control "${env:PG_HOME}\share\extension"
-          dir            "${env:PG_HOME}\share\extension\plr.control"
-
-          #
-          # install GOOD OR BAD artifacts  into Windows PG - SQL support files - versioning "sql"
-          #
-          cp "plr--*.sql"  "${env:PG_HOME}\share\extension"
-          dir              "${env:PG_HOME}\share\extension\plr--*.sql"
-
-          echo "Show PL/R files before doing the regression test."
-          Get-Childitem -Path "${env:PG_HOME}" -Include "plr*.*" -File -Recurse -ErrorAction Ignore
-
-          #
-          # non-setup regression test
-          # Directories of testing "sql" and testing "expected" results exist here
-          #
-          # Some environments require it
-          ${env:PGUSER} = (whoami).Split('\')[1]
-          echo "PGUSER: ${env:PGUSER}"
-          pg_regress "--bindir=${env:PG_HOME}\bin" --dbname=pl_regression plr bad_fun opt_window do out_args plr_transaction opt_window_frame
-          if($LASTEXITCODE -ne 0) {
-            Get-Content -Path "regression.diffs"
-            Write-Error "The regresson test failed." -ErrorAction Stop
-          }
-
-          popd # from "${env:PG_HOME}\contribplr"
-
-          #
-          # Stop the cluster after
-          # the non-setup regression test (see FAR above).
-          #
-          if("${env:Platform}" -eq "x64") {
-            net stop ("postgresql-" + "${env:Platform}" + "-" + "${env:PGVER2}")
-          }
-          if("${env:Platform}" -eq "x86") {
-            net stop ("postgresql-"                           + "${env:PGVER2}")
-          }
 
 #     - name: Cleanup Cygwin
 #       if: ${{ env.os == 'windows-latest' && env.compilerClass == 'cygwin' }}
