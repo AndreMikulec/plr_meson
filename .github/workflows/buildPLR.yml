@@ -34,11 +34,11 @@ jobs:
             shellEnv: msys2 {0}
             compilerExe: gcc
             Platform: x64
-            rversion:  master
+            rversion:  devel
             R_HOME: 'D:\RINSTALL'
             R_ARCH: /x64
             #
-            pgSRCversion: REL_16_BETA3
+            pgSRCversion: master
             PG_SOURCE: 'D:\PGSOURCE'
             buildpgMSYS2: true
             PG_HOME: 'D:\PGINSTALL'
@@ -80,7 +80,7 @@ jobs:
             # PG_SOURCE: 'D:\PGSOURCE'
             # buildpgMSYS2: true
             #
-            # EnterpriseDB PG for Windows
+            # EnterpriseDB PostgreSQL for Windows
             pgWINversion: 15.3-3
             #
             MSYS2testonpgWIN: true
