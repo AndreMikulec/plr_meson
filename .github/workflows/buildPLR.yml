@@ -64,7 +64,7 @@ jobs:
             shellEnv: msys2 {0}
             compilerExe: gcc
             Platform: x64
-            rversion: 4.3.1patched
+            rversion: 4.3.1
             R_HOME: 'D:\RINSTALL'
             R_ARCH: /x64
             #
