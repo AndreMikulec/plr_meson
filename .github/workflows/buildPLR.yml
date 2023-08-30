@@ -22,45 +22,11 @@ jobs:
       matrix:
         include:
 
-          # R-devel build ("bleeding edge")
-          # https://github.com/wch/r-source (default branch is "trunc")
-          # R-devel build for Windows ("bleeding edge")
-          # https://cran.r-project.org/bin/windows/base/R-devel-win.exe
-          #
-          # Patched build
-          # https://github.com/wch/r-source/tree/R-x-y-branch
-          # Patched build for Windows
-          # https://cran.r-project.org/bin/windows/base/R-x.y.zpatched-win.exe
-          #
-          # [build] (git HEAD is a static commit)
-          # https://github.com/wch/r-source/tree/tags/R-x-y-z
-          # [build] for Windows
-          # https://cran.r-project.org/bin/windows/base/R-x.y.z-win.exe
-
-          # TODO - Install R from Source
-          # Posit Documentation - Posit - Install R from Source
-          # https://docs.posit.co/resources/install-r-source/
-
-          # xx TODO remove R_HOME. I can safely internally HARD CODE that. xx - Please KEEP #
-
-          # Cheat - Look here to find the
-          # MSys "windows", Cygwin "cygwin", Windows "windows"
-          # MacOS, and Ubuntu Linux, repository current "pgversion"s
-          #
-          # https://packages.msys2.org/package/mingw-w64-ucrt-x86_64-postgresql
-          # https://packages.msys2.org/package/mingw-w64-i686-postgresql
-          # https://www.cygwin.com/packages/summary/postgresql.html
-          #
-          # PostgreSQL for Windows
-          # https://github.com/actions/runner-images/blob/main/images/win/Windows2022-Readme.md
-          #
-          # MacOS (Homebrew)
-          # https://github.com/actions/runner-images/blob/main/images/macos/macos-12-Readme.md
-
-          # Ubuntu Linux
-          # https://github.com/actions/runner-images/blob/main/images/linux/Ubuntu2204-Readme.md
-          # # https://github.com/actions/runner-images
-          #
+          # x86 Cygwin Server will not start  Github Actions
+          # Repository R and Repository postgresql
+          - os: windows-latest
+            compilerEnv: cygwin
+            Platform: x64
 
           - os: windows-latest
             compilerEnv: msvc
@@ -72,10 +38,7 @@ jobs:
             # unless I build pgWIN from source and "msvc"
             pgWINversion: 15.3-3
 
-#         # Repository R and Repository postgresql
-          - os: windows-latest
-            compilerEnv: cygwin
-            Platform: x64
+
 
 #####         # (bleeding edge R) PL/R can not be compiled using Microsoft Visual Studio
 ####          - os: windows-latest
