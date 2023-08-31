@@ -22,13 +22,13 @@ jobs:
       matrix:
         include:
 
-          # Note, x86 Cygwin Server will "not start", on Github Actions
-          # Repository R and Repository postgresql
+          # Note, x86 Cygwin Server will "not start" on Github Actions(therfore x86 is not regression testable)
+          # Repository R and Repository Postgresql
           - os: windows-latest
             compilerEnv: cygwin
             Platform: x64
 
-#         # bleeding edge R and bleeding edge PG
+          # bleeding edge R and bleeding edge PostgreSQL
           - os: windows-latest
             compilerEnv: UCRT64
             shellEnv: msys2 {0}
@@ -43,9 +43,9 @@ jobs:
             buildpgFromSRC: true
             PG_HOME: 'D:\PGINSTALL'
             #
-            # not "MSYS2testonpgWIN: true" - because no existing "PostgreSQL for Windows master" exists anywhere
+            # not "MSYS2testonpgWIN: true" - because no existing "PostgreSQL for Windows master" exists anywhere.
 
-#         # bleeding edge R and bleeding edge PostgreSQL
+          # bleeding edge R and next PostgreSQL
           - os: windows-latest
             compilerEnv: UCRT64
             shellEnv: msys2 {0}
@@ -62,7 +62,7 @@ jobs:
             #
             # pgWINversion: 16.future-future
             #
-            # not "MSYS2testonpgWIN: true" - because no existing "PostgreSQL for Windows REL_16_any" exists anywhere
+            # not "MSYS2testonpgWIN: true" - because no existing "PostgreSQL for Windows REL_16_any" exists anywhere.
 
           - os: windows-latest
             compilerEnv: UCRT64
@@ -75,15 +75,42 @@ jobs:
             #
             #
             # September 2023 - MSYS2 PostgreSQL version is 15.3
-            #
+            # #
             # pgSRCversion: REL_15
             # PG_SOURCE: 'D:\PGSOURCE'
             # buildpgFromSRC: true
             #
-            # EnterpriseDB PostgreSQL for Windows
+            # download from EnterpriseDB - PostgreSQL for Windows
             pgWINversion: 15.3-3
             #
             MSYS2testonpgWIN: true
+
+
+          - os: windows-latest
+            compilerEnv: UCRT64
+            shellEnv: msys2 {0}
+            compilerExe: gcc
+            Platform: x64
+            rversion: 4.3.1
+            R_HOME: 'D:\RINSTALL'
+            R_ARCH: /x64
+            #
+            pgSRCversion: REL_14_8
+            PG_SOURCE: 'D:\PGSOURCE'
+            buildpgFromSRC: true
+            #
+            # EnterpriseDB PostgreSQL for Windows
+            # pgWINversion: 14.x-y
+            #
+            # September 2023 - Pre-installed Github Actions PostgreSQL for Windows version is x64-14 
+            # #
+            # ServiceName postgresql-x64-14
+            # Version 14.8
+            # https://github.com/actions/runner-images/blob/main/images/win/Windows2022-Readme.md
+            # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-software
+            #
+            MSYS2testonpgWIN: true
+
 
     defaults:
       run:
