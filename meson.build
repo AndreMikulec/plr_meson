@@ -58,24 +58,23 @@ plr_c_args = []
 #
 #
 
-# DID NOT WORK
 if ((host_machine.system() == 'windows') or (host_machine.system()  == 'cygwin'))
   message('begin -DDLSUFFIX=".dll"')
   dlsuffix = '-DDLSUFFIX=".dll"'
   message('end   -DDLSUFFIX=".dll"')
 endif
 
-if ((host_machine.system() == 'windows') or (host_machine.system()  == 'cygwin'))
-  message('begin DDLSUFFIX=".dll"')
-  dlsuffix = 'DDLSUFFIX=".dll"'
-  message('end   DDLSUFFIX=".dll"')
-endif
-
-if ((host_machine.system() == 'windows') or (host_machine.system()  == 'cygwin'))
-  message('begin DLSUFFIX=".dll"')
-  dlsuffix = 'DLSUFFIX=".dll"'
-  message('end   DLSUFFIX=".dll"')
-endif
+##  if ((host_machine.system() == 'windows') or (host_machine.system()  == 'cygwin'))
+##    message('begin DDLSUFFIX=".dll"')
+##    dlsuffix = 'DDLSUFFIX=".dll"'
+##    message('end   DDLSUFFIX=".dll"')
+##  endif
+##  
+##  if ((host_machine.system() == 'windows') or (host_machine.system()  == 'cygwin'))
+##    message('begin DLSUFFIX=".dll"')
+##    dlsuffix = 'DLSUFFIX=".dll"'
+##    message('end   DLSUFFIX=".dll"')
+##  endif
 
 if host_machine.system() == 'linux'
   dlsuffix = '-DDLSUFFIX=".so"'
