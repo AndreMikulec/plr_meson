@@ -848,46 +848,6 @@ jobs:
              libpq-devel
              R  R-debuginfo
 
-#     # help from
-#     # https://github.com/egor-tensin/setup-cygwin/tree/v3.0.1
-#     - name: Run Cygwin
-#       if: ${{ env.os == 'windows-latest' && env.compilerClass == 'cygwin' }}
-#       env:
-#         # Cygwin OS variables
-#         SHELLOPTS: igncr
-#         CHERE_INVOKING: 1
-#       run: |
-#         echo "Run Cygwin"
-#         set -x -v -e
-#         if [ "${OperatingSystem}" == "" ]; then export OperatingSystem=$(uname -o); fi
-#         echo "OperatingSystem: ${OperatingSystem}"
-#         if [ "${OperatingSystem}" == "Cygwin" ]
-#         then
-#           # because I set CHERE_INVOKING to be 1
-#           export PATH=/usr/local/bin:/usr/bin:/usr/lib/lapack:/bin:/usr/sbin:/sbin
-#         fi
-#         uname -a
-#         echo "compilerEnv: ${{ env.compilerEnv }}"
-#         echo "bash: $(which bash)"
-#         echo "Present Working Directory: $(pwd)"
-#         #
-#         # bash mini
-#         #
-#         # shutdown current
-#         cygrunsrv -E cygserver || true
-#         # uninstall previous
-#         cygrunsrv -R cygserver || true
-#         # install
-#         cygserver-config --yes
-#         cp /etc/defaults/etc/cygserver.conf /etc/defaults/etc/cygserver.conf.original
-#         echo kern.ipc.shmmni 32767 >> /etc/defaults/etc/cygserver.conf
-#         echo kern.ipc.shmseg 32767 >> /etc/defaults/etc/cygserver.conf
-#         # start
-#         cygrunsrv -S cygserver
-#         #
-#         # bash mini
-#         #
-
       # FUTURE - if the PostgreSQL version is 16 or greater, I could compile PG using meson
       - name: Compile PG using pgSRCversion and PG_SOURCE and Install to here PG_HOME
         if: ${{ env.os == 'windows-latest' && ( env.compilerClass == 'MSYS2' || env.compilerClass == 'cygwin' ) && env.buildpgMSYS2 == 'true' }}
