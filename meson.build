@@ -48,6 +48,7 @@ plr_incdir += pg_incdir3
 # https://github.com/postgres-plr/plr/issues/4 
 #
 plr_cpp_args = []
+plr_c_args = []
 #
 # Detect MinGW host #8776
 # https://github.com/mesonbuild/meson/issues/8776
@@ -58,11 +59,17 @@ plr_cpp_args = []
 #
 
 # DID NOT WORK
-# if ((host_machine.system() == 'windows') or (host_machine.system()  == 'cygwin'))
-#   message('begin -DDLSUFFIX=".dll"')
-#   dlsuffix = '-DDLSUFFIX=".dll"'
-#   message('end   -DDLSUFFIX=".dll"')
-# endif
+if ((host_machine.system() == 'windows') or (host_machine.system()  == 'cygwin'))
+  message('begin -DDLSUFFIX=".dll"')
+  dlsuffix = '-DDLSUFFIX=".dll"'
+  message('end   -DDLSUFFIX=".dll"')
+endif
+
+if ((host_machine.system() == 'windows') or (host_machine.system()  == 'cygwin'))
+  message('begin DDLSUFFIX=".dll"')
+  dlsuffix = 'DDLSUFFIX=".dll"'
+  message('end   DDLSUFFIX=".dll"')
+endif
 
 if ((host_machine.system() == 'windows') or (host_machine.system()  == 'cygwin'))
   message('begin DLSUFFIX=".dll"')
@@ -77,9 +84,11 @@ if host_machine.system() == 'darwin'
   dlsuffix = '-DDLSUFFIX=".dylib"'
 endif
 plr_cpp_args += dlsuffix
+plr_c_args += dlsuffix
 
 plr = shared_module('plr',
   plr_sources,
+  c_args: plr_c_args,
   cpp_args: plr_cpp_args,
   name_prefix : '',
   include_directories: plr_incdir,
