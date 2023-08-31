@@ -57,7 +57,9 @@ plr_cpp_args = []
 #
 #
 if ((host_machine.system() == 'windows') or (host_machine.system()  == 'cygwin'))
+  message('begin -DDLSUFFIX=".dll"')
   dlsuffix = '-DDLSUFFIX=".dll"'
+  message('end   -DDLSUFFIX=".dll"')
 endif
 if host_machine.system() == 'linux'
   dlsuffix = '-DDLSUFFIX=".so"'
