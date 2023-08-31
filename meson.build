@@ -55,15 +55,14 @@ plr_cpp_args = []
 # Operating system names
 # https://mesonbuild.com/Reference-tables.html#operating-system-names
 #
-host_machine = host_machine.system()
 #
-if ((host_machine == 'windows') or (host_machine  == 'cygwin'))
+if ((host_machine.system() == 'windows') or (host_machine.system()  == 'cygwin'))
   dlsuffix = '-DDLSUFFIX=".dll"'
 endif
-if host_machine == 'linux'
+if host_machine.system() == 'linux'
   dlsuffix = '-DDLSUFFIX=".so"'
 endif
-if host_machine == 'darwin'
+if host_machine.system() == 'darwin'
   dlsuffix = '-DDLSUFFIX=".dylib"'
 endif
 plr_cpp_args += dlsuffix
