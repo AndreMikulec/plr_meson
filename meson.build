@@ -38,8 +38,39 @@ plr_incdir += pg_incdir2
 pg_incdir3 = include_directories(pg_home / 'include' / 'postgresql' / 'server' / 'port' / 'win32' )
 plr_incdir += pg_incdir3
 
+
+#
+# Less than PostgreSQL 15
+# Refactor DLSUFFIX handling
+# https://github.com/postgres/postgres/commit/23119d51a14c046dae35ae5e6ad9e35982d044fd
+#
+# USE_PGXS=1 make CPPFLAGS=-DDLSUFFIX=\".so\"
+# https://github.com/postgres-plr/plr/issues/4 
+#
+plr_cpp_args = []
+#
+# Detect MinGW host #8776
+# https://github.com/mesonbuild/meson/issues/8776
+#
+# Operating system names
+# https://mesonbuild.com/Reference-tables.html#operating-system-names
+#
+host_machine = host_machine.system()
+#
+if ((host_machine == 'windows') or (host_machine  == 'cygwin'))
+  dlsuffix = '-DDLSUFFIX=".dll"'
+endif
+if host_machine == 'linux'
+  dlsuffix = '-DDLSUFFIX=".so"'
+endif
+if host_machine == 'darwin'
+  dlsuffix = '-DDLSUFFIX=".dylib"'
+endif
+plr_cpp_args += dlsuffix
+
 plr = shared_module('plr',
   plr_sources,
+  cpp_args: plr_cpp_args,
   name_prefix : '',
   include_directories: plr_incdir,
   dependencies: plr_deps,
