@@ -79,6 +79,7 @@ jobs:
             # pgSRCversion: REL_15
             # PG_SOURCE: 'D:\PGSOURCE'
             # buildpgFromSRC: true
+            # PG_HOME: 'D:\PGINSTALL'
             #
             # download from EnterpriseDB - PostgreSQL for Windows
             pgWINversion: 15.3-3
@@ -98,6 +99,7 @@ jobs:
             pgSRCversion: REL_14_8
             PG_SOURCE: 'D:\PGSOURCE'
             buildpgFromSRC: true
+            PG_HOME: 'D:\PGINSTALL'
             #
             # EnterpriseDB PostgreSQL for Windows
             # pgWINversion: 14.x-y
