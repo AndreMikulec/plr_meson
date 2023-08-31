@@ -40,7 +40,7 @@ jobs:
             #
             pgSRCversion: master
             PG_SOURCE: 'D:\PGSOURCE'
-            buildpgMSYS2: true
+            buildpgFromSRC: true
             PG_HOME: 'D:\PGINSTALL'
             #
             # not "MSYS2testonpgWIN: true" - because no existing "PostgreSQL for Windows master" exists anywhere
@@ -57,7 +57,7 @@ jobs:
             #
             pgSRCversion: REL_16_BETA3
             PG_SOURCE: 'D:\PGSOURCE'
-            buildpgMSYS2: true
+            buildpgFromSRC: true
             PG_HOME: 'D:\PGINSTALL'
             #
             # pgWINversion: 16.future-future
@@ -78,7 +78,7 @@ jobs:
             #
             # pgSRCversion: REL_15
             # PG_SOURCE: 'D:\PGSOURCE'
-            # buildpgMSYS2: true
+            # buildpgFromSRC: true
             #
             # EnterpriseDB PostgreSQL for Windows
             pgWINversion: 15.3-3
@@ -267,11 +267,11 @@ jobs:
 
           echo "PG_SOURCE: ${env:PG_SOURCE}"
 
-          ${env:buildpgMSYS2} = "${{ matrix.buildpgMSYS2 }}"
-          if("${env:buildpgMSYS2}" -eq ""){${env:buildpgMSYS2} = "notset"}
-          Set-EnvVar "buildpgMSYS2=${env:buildpgMSYS2}"
+          ${env:buildpgFromSRC} = "${{ matrix.buildpgFromSRC }}"
+          if("${env:buildpgFromSRC}" -eq ""){${env:buildpgFromSRC} = "notset"}
+          Set-EnvVar "buildpgFromSRC=${env:buildpgFromSRC}"
 
-          echo "buildpgMSYS2: ${env:buildpgMSYS2}"
+          echo "buildpgFromSRC: ${env:buildpgFromSRC}"
 
           ${env:PG_HOME} = "${{ matrix.PG_HOME }}"
           if("${env:PG_HOME}" -eq ""){${env:PG_HOME} = "notset"}
@@ -830,7 +830,7 @@ jobs:
             ${{ env.MINGW_PACKAGE_PREFIX }}-postgresql
 
       - name: Install Windows mingw Software Repository PostgreSQL
-        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.buildpgMSYS2 != 'true' }}
+        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.buildpgFromSRC != 'true' }}
         env:
           # Msys OS variable
           msystem: ${{ env.compilerEnv }}
@@ -860,7 +860,7 @@ jobs:
 
       # FUTURE - if the PostgreSQL version is 16 or greater, I could compile PG using meson
       - name: Compile PG using pgSRCversion and PG_SOURCE and Install to here PG_HOME
-        if: ${{ env.os == 'windows-latest' && ( env.compilerClass == 'MSYS2' || env.compilerClass == 'cygwin' ) && env.buildpgMSYS2 == 'true' }}
+        if: ${{ env.os == 'windows-latest' && ( env.compilerClass == 'MSYS2' || env.compilerClass == 'cygwin' ) && env.buildpgFromSRC == 'true' }}
         env:
           # Cygwin OS variables
           SHELLOPTS: igncr
@@ -951,7 +951,7 @@ jobs:
           fi
 
       - name: Windows Prep PG Artifact
-        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.buildpgMSYS2 == 'true' }}
+        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.buildpgFromSRC == 'true' }}
         env:
           PGVER2: ${{ env.PGVER2 }}
           Platform: ${{ env.Platform }}
@@ -962,7 +962,7 @@ jobs:
           if exist pg-artifact.7z dir                 pg-${{ env.os }}-${{ env.compilerEnv }}-${{ env.Platform }}-PG${{ env.pgversion }}.7z
 
       - name: Upload artifact PG for export for LOCAL testing
-        if: ${{ env.os == 'windows-latest' &&  env.compilerClass == 'MSYS2' && env.buildpgMSYS2 == 'true' }}
+        if: ${{ env.os == 'windows-latest' &&  env.compilerClass == 'MSYS2' && env.buildpgFromSRC == 'true' }}
         uses: actions/upload-artifact@v3
         with:
           name: pg-${{ env.os }}-${{ env.compilerEnv }}-${{ env.Platform }}-PG${{ env.pgversion }}
