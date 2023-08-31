@@ -854,7 +854,6 @@ jobs:
             ${{ env.MINGW_PACKAGE_PREFIX }}-libxml2
             ${{ env.MINGW_PACKAGE_PREFIX }}-libxslt
             ${{ env.MINGW_PACKAGE_PREFIX }}-lz4
-            ${{ env.MINGW_PACKAGE_PREFIX }}-postgresql
 
       - name: Install Windows mingw Software Repository PostgreSQL
         if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.buildpgFromSRC != 'true' }}
