@@ -954,15 +954,21 @@ jobs:
           pushd "${PG_SOURCE}"
 
           echo "BEGIN PostgreSQL CONFIGURE"
+          set +x +v +e
           ./configure --enable-depend --disable-rpath --without-icu --prefix="${PG_HOME}"
+          set -x -v -e
           echo "END   PostgreSQL CONFIGURE"
 
           echo "BEGIN PostgreSQL BUILD"
+          set +x +v +e
           make
+          set -x -v -e
           echo "END   PostgreSQL BUILD"
 
           echo "BEGIN PostgreSQL INSTALL to ${PG_HOME}"
+          set +x +v +e
           make install
+          set -x -v -e
           echo "END   PostgreSQL INSTALL to ${PG_HOME}"
 
           popd # from "${PG_SOURCE}"
