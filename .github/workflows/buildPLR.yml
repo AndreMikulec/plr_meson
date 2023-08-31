@@ -829,6 +829,16 @@ jobs:
             ${{ env.MINGW_PACKAGE_PREFIX }}-lz4
             ${{ env.MINGW_PACKAGE_PREFIX }}-postgresql
 
+      - name: Install Windows mingw Software Repository PostgreSQL
+        if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && env.buildpgMSYS2 != 'true' }}
+        env:
+          # Msys OS variable
+          msystem: ${{ env.compilerEnv }}
+        run: |
+          echo "Install Windows mingw Software Repository PostgreSQL"
+          set -x -v -e
+          pacman -S --needed --noconfirm ${{ env.MINGW_PACKAGE_PREFIX }}-postgresql
+
       - name: Set up Cygwin
         if: ${{ env.os == 'windows-latest' && env.compilerClass == 'cygwin' }}
         uses: cygwin/cygwin-install-action@v4
