@@ -38,7 +38,6 @@ plr_incdir += pg_incdir2
 pg_incdir3 = include_directories(pg_home / 'include' / 'postgresql' / 'server' / 'port' / 'win32' )
 plr_incdir += pg_incdir3
 
-
 #
 # Less than PostgreSQL 15
 # Refactor DLSUFFIX handling
@@ -57,24 +56,11 @@ plr_c_args = []
 # https://mesonbuild.com/Reference-tables.html#operating-system-names
 #
 #
-
 if ((host_machine.system() == 'windows') or (host_machine.system()  == 'cygwin'))
   message('begin -DDLSUFFIX=".dll"')
   dlsuffix = '-DDLSUFFIX=".dll"'
   message('end   -DDLSUFFIX=".dll"')
 endif
-
-##  if ((host_machine.system() == 'windows') or (host_machine.system()  == 'cygwin'))
-##    message('begin DDLSUFFIX=".dll"')
-##    dlsuffix = 'DDLSUFFIX=".dll"'
-##    message('end   DDLSUFFIX=".dll"')
-##  endif
-##  
-##  if ((host_machine.system() == 'windows') or (host_machine.system()  == 'cygwin'))
-##    message('begin DLSUFFIX=".dll"')
-##    dlsuffix = 'DLSUFFIX=".dll"'
-##    message('end   DLSUFFIX=".dll"')
-##  endif
 
 if host_machine.system() == 'linux'
   dlsuffix = '-DDLSUFFIX=".so"'

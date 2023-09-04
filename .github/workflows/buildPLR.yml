@@ -1,16 +1,6 @@
 name: Create PL/R using meson
 run-name: Meson Builds PL/R
 
-# workflow_dispatch - Allows you to run this workflow manually from the Actions tab
-# https://github.com/lzh-mb-mod/RTSCamera/blob/bffdf99e9ec301b28b06d7807bc2b75bb99d8531/.github/workflows/Build.yml#L158
-#
-# TODO - simplify some of my convolution
-# 7 GITHUB ACTIONS TRICKS I WISH I KNEW BEFORE I STARTED
-# December 3, 2021
-# Yonatan Kra
-#
-# https://yonatankra.com/7-github-actions-tricks-i-wish-i-knew-before-i-started/
-
 on: [push, pull_request, workflow_dispatch]
 jobs:
   build_test_install:
@@ -22,7 +12,7 @@ jobs:
       matrix:
         include:
 
-          # Note, x86 Cygwin Server will "not start" on Github Actions(therfore x86 is not regression testable)
+          # Note, the x86 Cygwin Server will "not start" on Github Actions(therfore x86 is not PostgreSQL regression testable)
           # Repository R and Repository Postgresql
           - os: windows-latest
             compilerEnv: cygwin
@@ -44,6 +34,9 @@ jobs:
             PG_HOME: 'D:\PGINSTALL'
             #
             # not "MSYS2testonpgWIN: true" - because no existing "PostgreSQL for Windows master" exists anywhere.
+
+          # [to PostgreSQL 16 itself] Add meson build system (Andres Freund, Nazir Bilal Yavuz, Peter Eisentraut)
+          # https://www.postgresql.org/docs/16/release-16.html
 
           # bleeding edge R and next PostgreSQL
           - os: windows-latest
@@ -75,7 +68,10 @@ jobs:
             #
             #
             # September 2023 - MSYS2 PostgreSQL version is 15.3
-            # #
+            #
+            # See the UCRT repository postgreSQL version
+            # https://packages.msys2.org/package/mingw-w64-ucrt-x86_64-postgresql
+            #
             # pgSRCversion: REL_15
             # PG_SOURCE: 'D:\PGSOURCE'
             # buildpgFromSRC: true
@@ -92,6 +88,11 @@ jobs:
             shellEnv: msys2 {0}
             compilerExe: gcc
             Platform: x64
+
+            # plr for "R for Windows 4.3.0 and later" can not be compiled with Microsoft Visual Studio
+            # Bug 18544 - private_data_c Visual Studio 2022 R-4.3.0 Complex.h(81,21): syntax error: missing ';' before identifier 'private_data_c'
+            # Status: CLOSED WONTFIX
+            # https://bugs.r-project.org/show_bug.cgi?id=18544
             rversion: 4.3.1
             R_HOME: 'D:\RINSTALL'
             R_ARCH: /x64
@@ -105,7 +106,6 @@ jobs:
             # pgWINversion: 14.x-y
             #
             # September 2023 - Pre-installed Github Actions PostgreSQL for Windows version is x64-14 
-            # #
             # ServiceName postgresql-x64-14
             # Version 14.8
             # https://github.com/actions/runner-images/blob/main/images/win/Windows2022-Readme.md
@@ -1598,33 +1598,6 @@ jobs:
           if("${env:PGVER2}" -eq ""){
             Write-Error 'PGVER2 is missing. Please supply the PGVER2.' -ErrorAction Stop
           }
-
-
-#     - name: Cleanup Cygwin
-#       if: ${{ env.os == 'windows-latest' && env.compilerClass == 'cygwin' }}
-#       env:
-#         # Cygwin OS variables
-#         SHELLOPTS: igncr
-#         CHERE_INVOKING: 1
-#       run: |
-#         echo "Cleanup Cygwin"
-#         set -x -v -e
-#         if [ "${OperatingSystem}" == "" ]; then export OperatingSystem=$(uname -o); fi
-#         echo "OperatingSystem: ${OperatingSystem}"
-#         if [ "${OperatingSystem}" == "Cygwin" ]
-#         then
-#           # because I set CHERE_INVOKING to be 1
-#           export PATH=/usr/local/bin:/usr/bin:/usr/lib/lapack:/bin:/usr/sbin:/sbin
-#         fi
-#         uname -a
-#         echo "compilerEnv: ${{ env.compilerEnv }}"
-#         echo "bash: $(which bash)"
-#         echo "Present Working Directory: $(pwd)"
-#         #
-#         # shutdown current
-#         cygrunsrv -E cygserver
-#         # uninstall previous
-#         cygrunsrv -R cygserver
 
       - name: Try to Upload artifacts plr.dll and plr.dll.a for export for LOCAL testing
         if: ${{ always() }}
