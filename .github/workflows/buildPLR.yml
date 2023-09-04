@@ -31,6 +31,7 @@ jobs:
             pgSRCversion: master
             PG_SOURCE: 'D:\PGSOURCE'
             buildpgFromSRC: true
+            buildpgFromSRCmethod: make
             PG_HOME: 'D:\PGINSTALL'
             #
             # not "MSYS2testonpgWIN: true" - because no existing "PostgreSQL for Windows master" exists anywhere.
@@ -51,6 +52,7 @@ jobs:
             pgSRCversion: REL_16_RC1
             PG_SOURCE: 'D:\PGSOURCE'
             buildpgFromSRC: true
+            buildpgFromSRCmethod: meson
             PG_HOME: 'D:\PGINSTALL'
             #
             # pgWINversion: 16.future-future
@@ -75,6 +77,7 @@ jobs:
             # pgSRCversion: REL_15
             # PG_SOURCE: 'D:\PGSOURCE'
             # buildpgFromSRC: true
+            # buildpgFromSRCmethod: make
             # PG_HOME: 'D:\PGINSTALL'
             #
             # download from EnterpriseDB - PostgreSQL for Windows
@@ -100,12 +103,13 @@ jobs:
             pgSRCversion: REL_14_8
             PG_SOURCE: 'D:\PGSOURCE'
             buildpgFromSRC: true
+            buildpgFromSRCmethod: make
             PG_HOME: 'D:\PGINSTALL'
             #
             # EnterpriseDB PostgreSQL for Windows
             # pgWINversion: 14.x-y
             #
-            # September 2023 - Pre-installed Github Actions PostgreSQL for Windows version is x64-14 
+            # September 2023 - Pre-installed Github Actions PostgreSQL for Windows version is x64-14
             # ServiceName postgresql-x64-14
             # Version 14.8
             # https://github.com/actions/runner-images/blob/main/images/win/Windows2022-Readme.md
@@ -301,6 +305,12 @@ jobs:
           Set-EnvVar "buildpgFromSRC=${env:buildpgFromSRC}"
 
           echo "buildpgFromSRC: ${env:buildpgFromSRC}"
+
+          ${env:buildpgFromSRCmethod} = "${{ matrix.buildpgFromSRCmethod }}"
+          if("${env:buildpgFromSRCmethod}" -eq ""){${env:buildpgFromSRCmethod} = "notset"}
+          Set-EnvVar "buildpgFromSRCmethod=${env:buildpgFromSRCmethod}"
+
+          echo "buildpgFromSRCmethod: ${env:buildpgFromSRCmethod}"
 
           ${env:PG_HOME} = "${{ matrix.PG_HOME }}"
           if("${env:PG_HOME}" -eq ""){${env:PG_HOME} = "notset"}
@@ -898,6 +908,7 @@ jobs:
           #
           PG_SOURCE: ${{ env.PG_SOURCE }}
           PG_HOME: ${{ env.PG_HOME }}
+          buildpgFromSRCmethod: ${{ env.buildpgFromSRCmethod }}
         run: |
           echo "Compile PG using pgSRCversion and PG_SOURCE and Install to here PG_HOME"
           set -x -v -e
@@ -949,27 +960,63 @@ jobs:
           export PG_HOME=$(cygpath "${PG_HOME}")
           echo  "cygpath   PG_HOME: ${PG_HOME}"
 
-          pushd "${PG_SOURCE}"
+          if [ "${buildpgFromSRCmethod}" == "notset" ] || [ "${buildpgFromSRCmethod}" == "" ]
+          then
+            echo "One must set buildpgFromSRCmethod=value"
+            exit 1
+          fi
 
-          echo "BEGIN PostgreSQL CONFIGURE"
-          set +x +v +e
-          ./configure --enable-depend --disable-rpath --without-icu --prefix="${PG_HOME}"
-          set -x -v -e
-          echo "END   PostgreSQL CONFIGURE"
+          if [ "${buildpgFromSRCmethod}" == "make" ]
+          then
+            pushd "${PG_SOURCE}"
 
-          echo "BEGIN PostgreSQL BUILD"
-          set +x +v +e
-          make
-          set -x -v -e
-          echo "END   PostgreSQL BUILD"
+            echo "BEGIN PostgreSQL make CONFIGURE"
+            set +x +v +e
+            ./configure --enable-depend --disable-rpath --without-icu --prefix="${PG_HOME}"
+            set -x -v -e
+            echo "END   PostgreSQL make CONFIGURE"
 
-          echo "BEGIN PostgreSQL INSTALL to ${PG_HOME}"
-          set +x +v +e
-          make install
-          set -x -v -e
-          echo "END   PostgreSQL INSTALL to ${PG_HOME}"
+            echo "BEGIN PostgreSQL make BUILD"
+            set +x +v +e
+            make
+            set -x -v -e
+            echo "END   PostgreSQL make BUILD"
 
-          popd # from "${PG_SOURCE}"
+            echo "BEGIN PostgreSQL make INSTALL to ${PG_HOME}"
+            set +x +v +e
+            make install
+            set -x -v -e
+            echo "END   PostgreSQL make INSTALL to ${PG_HOME}"
+
+            popd # from "${PG_SOURCE}"
+          fi
+
+          if [ "${buildpgFromSRCmethod}" == "meson" ]
+          then
+            pushd "${PG_SOURCE}"
+
+            rm -Rf build
+
+            echo "BEGIN PostgreSQL meson CONFIGURE"
+            set +x +v +e
+            meson setup --prefix "${PG_HOME}" -Dbuildtype=release -Db_pie=true -Dnls=disabled -Dplperl=disabled -Dplpython=disabled -Dpltcl=disabled -Dicu=disabled -Dllvm=disabled -Dlz4=disabled -Dzstd=disabled -Dgssapi=disabled -Dldap=disabled -Dpam=disabled -Dbsd_auth=disabled -Dsystemd=disabled -Dbonjour=disabled -Dlibxml=disabled -Dlibxslt=disabled -Dreadline=enabled -Dzlib=disabled -Ddocs=disabled -Ddocs_pdf=disabled -Dcassert=false -Dtap_tests=disabled -Db_coverage=false -Ddtrace=disabled build
+            set -x -v -e
+            echo "END   PostgreSQL meson CONFIGURE"
+
+            echo "BEGIN PostgreSQL meson BUILD"
+            set +x +v +e
+            meson compile -C build -v
+            set -x -v -e
+            echo "END   PostgreSQL meson BUILD"
+
+            echo "BEGIN PostgreSQL meson INSTALL to ${PG_HOME}"
+            set +x +v +e
+            meson install -C build
+            set -x -v -e
+            echo "END   PostgreSQL meson INSTALL to ${PG_HOME}"
+
+            popd # from "${PG_SOURCE}"
+          fi
 
           if [ -d "${PG_HOME}" ]
           then
