@@ -1164,8 +1164,6 @@ jobs:
               echo "R_HOME=$(cygpath -w ${R_HOME})" >> ${GITHUB_ENV}
             fi
 
-            # MOVING ON . . .
-
             # R for Windows SUFFICIENT
             if [ "${OperatingSystem}" == "Msys" ]
             then
@@ -1177,8 +1175,6 @@ jobs:
               echo "dirname which R R_HOME: ${R_HOME}"
               echo "R_HOME=$(cygpath -w ${R_HOME})" >> ${GITHUB_ENV}
             fi
-
-            # MOVING ON . . .
 
             # PATHs are needed for the proper compile and runtime
             # find "libraries"
