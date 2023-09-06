@@ -1057,7 +1057,7 @@ jobs:
 
 
       - name: Windows non-msvc Meson PL/R Setup Compile and Non-Meson Manual Test
-        if: ${{ env.os == 'windows-latest' && ( env.compilerClass == 'MSYS2' || env.compilerClass == 'cygwin' ) }}
+        if: ${{ env.os == 'windows-latest' && ( env.compilerClass == 'MSYS2' || env.compilerClass == 'cygwin' ) && env.buildpgANDplrInSRCcontrib != 'true' }}
         env:
           # Cygwin shell variables
           SHELLOPTS: igncr
