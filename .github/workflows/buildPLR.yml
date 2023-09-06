@@ -1475,13 +1475,6 @@ jobs:
           #
           pushd     "${PG_HOME}/contribplr"
 
-          # Clean up previous builds.
-          #
-          rm -Rf ../contrib/plr; rm -f "${PKGLIBDIR}/plr.dll.a" ;rm -f "${PKGLIBDIR}/plr.dll"
-          rm  -f "${SHAREDIR}/extension/plr.control"
-          rm  -f  ${SHAREDIR}/extension/plr--*.sql
-
-          #
           # build(create) artifacts (A "started" database is not required.)
           #
           # Note, from my "bad" memory,
