@@ -1399,11 +1399,17 @@ jobs:
 
           #### BEGIN BUILD PG AND PLR AND TEST PLR ####
 
+          # from WORKSPACE
           pushd "${PG_SOURCE}"
 
           meson setup --prefix "${PG_HOME}" -DR_HOME=${R_HOME} -Dbuildtype=release -Db_pie=true -Dnls=disabled -Dplperl=disabled -Dplpython=disabled -Dpltcl=disabled -Dicu=disabled -Dllvm=disabled -Dlz4=disabled -Dzstd=disabled -Dgssapi=disabled -Dldap=disabled -Dpam=disabled -Dbsd_auth=disabled -Dsystemd=disabled -Dbonjour=disabled -Dlibxml=disabled -Dlibxslt=disabled -Dreadline=enabled -Dzlib=disabled -Ddocs=disabled -Ddocs_pdf=disabled -Dcassert=false -Dtap_tests=disabled -Db_coverage=false -Ddtrace=disabled build
 
           meson compile -C build -v
+
+          export pgversion=$("${PG_SOURCE}/build/src/bin/pg_config" | grep "^VERSION" | sed "s/ = /=/" | sed "s/^.*=//" | grep -oP '[ ].*$' | grep -oP '\d.*$')
+          # potential override
+          echo "pgversion=${pgversion}" >> ${GITHUB_ENV}
+          echo "pg_config VERSION pgversion: ${pgversion}"
 
           if [ "${OperatingSystem}" == "Cygwin" ]
           then
@@ -1438,8 +1444,11 @@ jobs:
             #### cygrunsrv -R cygserver
           fi
 
-          pushd "${PG_SOURCE}/build/contrib/plr" # from ${PG_SOURCE}"
- 
+          popd # from "${PG_SOURCE}"
+          # back in WORKSPACE
+
+          #### END BUILD PG AND PLR AND TEST PLR ####
+
           # save GOOD artifact plr.dll
           #
           if [ -f "${PG_SOURCE}/build/contrib/plr/plr.dll" ]
@@ -1473,16 +1482,6 @@ jobs:
             echo "Create PL/R Artifact .zip for future Release"
             7z a -r ${WORKSPACE}/plr-artifact.zip  ${WORKSPACE}/tmp/*
           fi
-
-          export pgversion=$("${PG_SOURCE}/build/src/bin/pg_config" | grep "^VERSION" | sed "s/ = /=/" | sed "s/^.*=//" | grep -oP '[ ].*$' | grep -oP '\d.*$')
-          # potential override
-          echo "pgversion=${pgversion}" >> ${GITHUB_ENV}
-          echo "pg_config VERSION pgversion: ${pgversion}"
-
-          popd # from "${PG_SOURCE}/build/contrib/plr"
-          popd # from ${PG_SOURCE}"
-
-          #### END BUILD PG AND PLR AND TEST PLR ####
 
           # if "PostgreSQL for Windows" exists, then
           # copy "Msys artifacts into "PostgreSQL for Windows" for future testing if env.MSYS2testonpgWIN == 'true'.
@@ -1989,6 +1988,9 @@ jobs:
             #### cygrunsrv -R cygserver
           fi
 
+          popd # from "${PG_HOME}/contribplr"
+          # back into WORKSPACE
+
           # save GOOD artifact plr.dll
           #
           if [ -f "${PG_HOME}/contrib/plr/plr.dll" ]
@@ -2022,8 +2024,6 @@ jobs:
             echo "Create PL/R Artifact .zip for future Release"
             7z a -r ${WORKSPACE}/plr-artifact.zip  ${WORKSPACE}/tmp/*
           fi
-
-          popd # from "${PG_HOME}/contribplr"
 
           # if "PostgreSQL for Windows" exists, then
           # copy "Msys artifacts into "PostgreSQL for Windows" for future testing if env.MSYS2testonpgWIN == 'true'.
