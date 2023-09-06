@@ -1379,7 +1379,7 @@ jobs:
 
           #### BEGIN SETUP MESON.BUILD FILES AND OPTIONS ####
 
-          cat _meson_options.txt_postgres_root_additional_plr_option.txt >>         ${PG_SOURCE}/meson.build
+          cat _meson_options.txt_postgres_root_additional_plr_option.txt >>         ${PG_SOURCE}/meson_options.txt
           echo 'subdir('"'"'plr'"'"')'                                   >> ${PG_SOURCE}/contrib/meson.build
 
           mv  meson.build meson.build.STANDALONE.HIDDEN
