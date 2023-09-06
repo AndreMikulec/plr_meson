@@ -33,7 +33,7 @@ jobs:
             R_HOME: 'D:\RINSTALL'
             R_ARCH: /x64
             #
-            pgSRCversion: REL_16_BETA3
+            pgSRCversion: REL_16_RC1
             PG_SOURCE: 'D:\PGSOURCE'
             #
             # buildpgFromSRC: true
@@ -1423,6 +1423,8 @@ jobs:
             cygrunsrv -S cygserver
           fi
 
+          # meson has no "test" pre-req system.  So this "ordered" implentation is a kind of "hack".
+          # sometimes the "plr" regression test fails if an "easier" regression test did not come before it.
           meson test -C build --num-processes 1 -v --suite setup --suite cube
 
           meson test -C build --num-processes 1 -v --suite setup --suite plr
@@ -1436,29 +1438,31 @@ jobs:
             #### cygrunsrv -R cygserver
           fi
 
+          pushd "${PG_SOURCE}/build/contrib/plr" # from ${PG_SOURCE}"
+ 
           # save GOOD artifact plr.dll
           #
-          if [ -f "build/contrib/plr/plr.dll" ]
+          if [ -f "${PG_SOURCE}/build/contrib/plr/plr.dll" ]
           then
             echo "Save plr.dll to be an artifact."
-            mkdir -p                                ${WORKSPACE}/tmp/lib
-            cp    LICENSE                           ${WORKSPACE}/tmp/PLR_LICENSE
-            cp    "build/contrib/plr/plr.dll"       ${WORKSPACE}/tmp/lib
-            ls -alrt                                ${WORKSPACE}/tmp/lib/plr.dll
-            mkdir -p                                ${WORKSPACE}/tmp/share/extension
-            cp    *.control                         ${WORKSPACE}/tmp/share/extension
-            cp    *.sql                             ${WORKSPACE}/tmp/share/extension
+            mkdir -p                                             ${WORKSPACE}/tmp/lib
+            cp    LICENSE                                        ${WORKSPACE}/tmp/PLR_LICENSE
+            cp    "${PG_SOURCE}/build/contrib/plr/plr.dll"       ${WORKSPACE}/tmp/lib
+            ls -alrt                                             ${WORKSPACE}/tmp/lib/plr.dll
+            mkdir -p                                             ${WORKSPACE}/tmp/share/extension
+            cp    *.control                                      ${WORKSPACE}/tmp/share/extension
+            cp    *.sql                                          ${WORKSPACE}/tmp/share/extension
           fi
 
           #
           # save GOOD artifact plr.dll.a
           #
-          if [ -f "build/contrib/plr/plr.dll.a" ]
+          if [ -f "${PG_SOURCE}/build/contrib/plr/plr.dll.a" ]
           then
             echo "Save plr.dll.a to be an artifact."
-            mkdir -p                                  ${WORKSPACE}/tmp/lib
-            cp    "build/contrib/plr/plr.dll.a"       ${WORKSPACE}/tmp/lib
-            ls -alrt                                  ${WORKSPACE}/tmp/lib/plr.dll.a
+            mkdir -p                                               ${WORKSPACE}/tmp/lib
+            cp    "${PG_SOURCE}/build/contrib/plr/plr.dll.a"       ${WORKSPACE}/tmp/lib
+            ls -alrt                                               ${WORKSPACE}/tmp/lib/plr.dll.a
           fi
 
           # 7z GOOD PL/R Artifact for LATER Release
@@ -1470,11 +1474,12 @@ jobs:
             7z a -r ${WORKSPACE}/plr-artifact.zip  ${WORKSPACE}/tmp/*
           fi
 
-          export pgversion=$(./build/src/bin/pg_config | grep "^VERSION" | sed "s/ = /=/" | sed "s/^.*=//" | grep -oP '[ ].*$' | grep -oP '\d.*$')
+          export pgversion=$("${PG_SOURCE}/build/src/bin/pg_config" | grep "^VERSION" | sed "s/ = /=/" | sed "s/^.*=//" | grep -oP '[ ].*$' | grep -oP '\d.*$')
           # potential override
           echo "pgversion=${pgversion}" >> ${GITHUB_ENV}
           echo "pg_config VERSION pgversion: ${pgversion}"
 
+          popd # from "${PG_SOURCE}/build/contrib/plr"
           popd # from ${PG_SOURCE}"
 
           #### END BUILD PG AND PLR AND TEST PLR ####
