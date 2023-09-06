@@ -35,9 +35,12 @@ jobs:
             #
             pgSRCversion: master
             PG_SOURCE: 'D:\PGSOURCE'
+            #
             # buildpgFromSRC: true
             # buildpgFromSRCmethod: make
+            # xor
             buildpgANDplrInSRCcontrib: true
+            #
             PG_HOME: 'D:\PGINSTALL'
             #
             # not "MSYS2testonpgWIN: true" - because no existing "PostgreSQL for Windows master" exists anywhere.
