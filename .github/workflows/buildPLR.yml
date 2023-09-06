@@ -14,6 +14,11 @@ jobs:
 
           # Note, the x86 Cygwin Server will "not start" on Github Actions(therfore x86 is not PostgreSQL regression testable)
           # Repository R and Repository Postgresql
+          #
+          # Package: R
+          # https://www.cygwin.com/packages/summary/R.html
+          # Package: postgresql
+          # https://www.cygwin.com/packages/summary/postgresql.html
           - os: windows-latest
             compilerEnv: cygwin
             Platform: x64
