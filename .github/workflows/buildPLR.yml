@@ -1079,6 +1079,184 @@ jobs:
         run: |
           echo "Windows non-msvc Meson PG and Meson PL/R Setup Compile and Meson Test"
           set -x -v -e
+          echo "Windows non-msvc Meson PL/R Setup Compile and Non-Meson Manual Test"
+          set -x -v -e
+          if [ "${OperatingSystem}" == "" ]; then export OperatingSystem=$(uname -o); fi
+          echo "OperatingSystem: ${OperatingSystem}"
+          if [ "${OperatingSystem}" == "Cygwin" ]
+          then
+            # because I set CHERE_INVOKING to be 1
+            export PATH=/usr/local/bin:/usr/bin:/usr/lib/lapack:/bin:/usr/sbin:/sbin
+          fi
+          uname -a
+          echo "compilerEnv: ${{ env.compilerEnv }}"
+          echo "bash: $(which bash)"
+          echo "Present Working Directory: $(pwd)"
+          #
+          if [ "${OperatingSystem}" == "Msys" ]
+          then
+            echo "msystem: ${msystem}"
+            export | grep MINGW
+            export | grep MSYSTEM
+          fi
+          #
+          echo "R_HOME: ${R_HOME}"
+          echo "Platform: ${Platform}"
+          echo "R_ARCH: ${R_ARCH}"
+          echo "rversion: ${rversion}"
+          echo "PG_SOURCE: ${PG_SOURCE}"
+          echo "PGROOT2: ${PGROOT2}"
+
+          export WORKSPACE=$(pwd)
+          echo "WORKSPACE ${WORKSPACE}"
+
+          #
+          # Trying smartly and hard to find the R_HOME
+          #
+          if [ ! "${R_HOME}" == "notset" ] && [ ! "${R_HOME}" == "" ]
+          then
+            export R_HOME=$(cygpath "${R_HOME}")
+
+            # user supplied variable
+            echo "cygpath R_HOME: ${R_HOME}"
+
+            # PATHs are needed for the proper compile and runtime
+            # find "libraries"
+            # R Non-Sub-Architectures
+            export PATH="${R_HOME}/bin:${PATH}"
+
+          fi
+
+          export ERRORLEVEL=0
+          which R || export ERRORLEVEL=$?
+          if [ ! "${ERRORLEVEL}" == "0" ]; then echo ERROR - No R found in the PATH - ${PATH}; exit 1;fi
+
+          if [ "${R_HOME}" == "notset" ] || [ "${R_HOME}" == "" ]
+          then
+            # I CAN NOT FIGURE OUT HOW TO extract the R_HOME into an
+            # Environment Variable on Github Actions
+            #
+            # THIS DOES NOT EXTRACT
+            # Rscript . . . cat(Sys.getenv("R_HOME")
+
+            # Temporary workarounds
+
+            if [ "${OperatingSystem}" == "Cygwin" ]
+            then
+              # dangerously assumes that
+              # 1. R is installed and 2. R is installed in the DEFAULT location
+              export R_HOME=/usr/lib/R
+              echo "Cygwin assume R_HOME: ${R_HOME}"
+              echo "R_HOME=$(cygpath -w ${R_HOME})" >> ${GITHUB_ENV}
+            fi
+
+            # R for Windows SUFFICIENT
+            if [ "${OperatingSystem}" == "Msys" ]
+            then
+              # ONLY "R for Windows"
+              # dangerously assumes that
+              # 1. R is installed and 2. R is in the PATH
+              export R_HOME=$(dirname $(dirname "$(which R)"))
+              # determined variable
+              echo "dirname which R R_HOME: ${R_HOME}"
+              echo "R_HOME=$(cygpath -w ${R_HOME})" >> ${GITHUB_ENV}
+            fi
+
+            # PATHs are needed for the proper compile and runtime
+            # find "libraries"
+            # R Non-Sub-Architectures
+            export PATH="${R_HOME}/bin:${PATH}"
+          fi
+
+          # Pipes have been known to fail in Msys
+          # when piping from a non-Msys program. E.g "R for Windows".
+          #
+          if [ ! "${OperatingSystem}" == "Msys" ]
+          then
+            # determine rversion xor verify user supplied rversion
+            #
+            # For artifact naming, match and verify the Compiler Supplied rversion.
+            #
+            export rversion_supplied=${rversion}
+            echo "rversion_supplied: ${rversion_supplied}"
+            if [ "${rversion_supplied}" == "notset" ] || [  "${rversion_supplied}" == "" ]
+            then
+              # For artifact naming, determine the Compiler Supplied rversion.
+              #
+              # OLD_R_HOME part - OperatingSystem "Cygwin"
+              #
+              export OLD_R_HOME=${R_HOME}
+              unset               R_HOME
+              export  rversion=$(Rscript --version | grep -oP "\d+[.]\d+[.]\d+")
+              echo   "rversion: ${rversion}"
+              echo   "rversion=${rversion}" >> ${GITHUB_ENV}
+              echo   "R --version: ${rversion}"
+              export R_HOME=${OLD_R_HOME}
+              unset OLD_R_HOME
+            fi
+            # Fail if the user supplied rversion does not match the true rversion
+            #
+            if [ ! "${rversion_supplied}" == "notset" ] && [ ! "${rversion_supplied}" == "" ]
+            then
+              if [ ! "${rversion_supplied}" == "${rversion}" ]
+              then
+                echo "WARNING rversion_supplied ${rversion_supplied} != rversion ${rversion}"
+              fi
+            fi
+          fi
+          if [ "${rversion}" == "notset" ] || [ "${rversion}" == "" ]
+          then
+            echo ERROR - No user supplied rversion and no determined rversion - ${rversion}
+            exit 1
+          fi
+
+          #
+          # verify user supplied R_ARCH or determine the R_ARCH
+          #
+          if [ ! "${R_ARCH}" == "notset" ] && [ ! "${R_ARCH}" == "" ]
+          then
+            if [ ! -d "${R_HOME}/bin${R_ARCH}" ]
+            then
+               echo ERROR - No user supplied R_ARCH found in - ${R_HOME}/bin${R_ARCH}
+               exit 1
+            fi
+          fi
+
+          # Note on Windows, one can compile /i386 on x64.
+          # But that scenario is too complex to support that here.
+          #
+          if [  "${R_ARCH}" == "notset" ] || [ "${R_ARCH}" == "" ]
+          then
+            if [ "${Platform}" == "x64" ] && [ -d "${R_HOME}/bin/x64" ]
+            then
+              export R_ARCH="/x64"
+              echo "user and determined R_ARCH: ${R_ARCH}"
+            fi
+            if [ "${Platform}" == "x86" ] && [ -d "${R_HOME}/bin/i386" ]
+            then
+              export R_ARCH="/i386"
+              echo "user and determined R_ARCH: ${R_ARCH}"
+            fi
+            #
+            # FUTURE - The ONE(first) subdirectory name in alphabetical order
+            # is in a space separated string.
+            # pushd "${R_HOME}/bin"; ls -d */ | grep -oP '^.*[^/]' | xargs; popd
+          fi
+
+          if [  "${R_ARCH}" == "notset" ] || [   "${R_ARCH}" == "" ]
+          then
+            unset R_ARCH
+            echo "The rest of this program uses R_ARCH like this: R_ARCH: ${R_ARCH}"
+          fi
+
+          # LAST
+          if [ ! "${R_ARCH}" == "notset" ] && [ ! "${R_ARCH}" == "" ]
+          then
+            echo "R_ARCH=${R_ARCH}" >> ${GITHUB_ENV}
+            echo "The rest of this program uses R_ARCH like this: R_ARCH: ${R_ARCH}"
+            # R    Sub-Architectures
+            export PATH="${R_HOME}/bin${R_ARCH}:${PATH}"
+          fi
 
 
       - name: Windows non-msvc Meson PL/R Setup Compile and Non-Meson Manual Test
