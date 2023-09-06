@@ -1438,33 +1438,6 @@ jobs:
             fi
           fi
 
-          if [ "${OperatingSystem}" == "Cygwin" ]
-          then
-            echo "cygrunsrv START"
-            # shutdown current
-            #### cygrunsrv -E cygserver || true
-            # uninstall previous
-            #### cygrunsrv -R cygserver || true
-            # install
-            cygserver-config --yes
-            # postgresql failing with below error on lion os x
-            # https://stackoverflow.com/questions/6861945/postgresql-failing-with-below-error-on-lion-os-x#:~:text=Failed%20system%20call%20was%20shmget,the%20kernel%20with%20larger%20SHMMAX.
-            echo kern.ipc.shmall 4096 >>     /etc/defaults/etc/cygserver.conf
-            echo kern.ipc.shmmax 16777216 >> /etc/defaults/etc/cygserver.conf
-
-            # start
-            cygrunsrv -S cygserver
-          fi
-
-          echo "whoami: $(whoami)"
-
-          #
-          # Create and start the cluster before
-          # the non-setup regression test (see FAR below).
-          #
-          initdb -D PGDATA
-          pg_ctl -D PGDATA -l logfile start
-
           # Create the contribplr directory parallel to contrib.
           # Copy all of the PL/R source code into contribplr.
           #
@@ -1512,6 +1485,33 @@ jobs:
           cp plr--*.sql  "${SHAREDIR}/extension"
           ls -alrt        ${SHAREDIR}/extension/plr--*.sql
 
+          if [ "${OperatingSystem}" == "Cygwin" ]
+          then
+            echo "cygrunsrv START"
+            # shutdown current
+            #### cygrunsrv -E cygserver || true
+            # uninstall previous
+            #### cygrunsrv -R cygserver || true
+            # install
+            cygserver-config --yes
+            # postgresql failing with below error on lion os x
+            # https://stackoverflow.com/questions/6861945/postgresql-failing-with-below-error-on-lion-os-x#:~:text=Failed%20system%20call%20was%20shmget,the%20kernel%20with%20larger%20SHMMAX.
+            echo kern.ipc.shmall 4096 >>     /etc/defaults/etc/cygserver.conf
+            echo kern.ipc.shmmax 16777216 >> /etc/defaults/etc/cygserver.conf
+
+            # start
+            cygrunsrv -S cygserver
+          fi
+
+          echo "whoami: $(whoami)"
+
+          #
+          # Create and start the cluster before
+          # the non-setup regression test (see FAR below).
+          #
+          initdb -D ${WORKSPACE}/PGDATA
+          pg_ctl -D ${WORKSPACE}/PGDATA -l logfile start
+
           # non-setup regression test
           # Directories of testing "sql" and testing "expected" results exist here
           #
@@ -1519,6 +1519,20 @@ jobs:
           export PGUSER=$(whoami)
           echo "PGUSER: ${PGUSER}"
           "${PKGLIBDIR}/pgxs/src/test/regress/pg_regress" --bindir="${PG_HOME}/bin" --dbname=pl_regression plr bad_fun opt_window do out_args plr_transaction opt_window_frame || (cat regression.diffs && false)
+
+          # Stop the cluster after
+          # the non-setup regression test (see above).
+          #
+          pg_ctl -D ${WORKSPACE}/PGDATA -l logfile stop
+
+          if [ "${OperatingSystem}" == "Cygwin" ]
+          then
+            echo "cygrunsrv STOP"
+            # shutdown current
+            cygrunsrv -E cygserver
+            # uninstall previous
+            #### cygrunsrv -R cygserver
+          fi
 
           # save GOOD artifact plr.dll
           #
@@ -1555,22 +1569,6 @@ jobs:
           fi
 
           popd # from "${PG_HOME}/contribplr"
-
-          #
-          # Stop the cluster after
-          # the non-setup regression test (see FAR above).
-          #
-          pg_ctl -D PGDATA -l logfile stop
-
-          # HERE2
-          if [ "${OperatingSystem}" == "Cygwin" ]
-          then
-            echo "cygrunsrv STOP"
-            # shutdown current
-            cygrunsrv -E cygserver
-            # uninstall previous
-            #### cygrunsrv -R cygserver
-          fi
 
           # if "PostgreSQL for Windows" exists, then
           # copy "Msys artifacts into "PostgreSQL for Windows" for future testing if env.MSYS2testonpgWIN == 'true'.
