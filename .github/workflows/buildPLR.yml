@@ -317,6 +317,12 @@ jobs:
 
           echo "buildpgFromSRCmethod: ${env:buildpgFromSRCmethod}"
 
+          ${env:buildpgANDplrInSRCcontrib} = "${{ matrix.buildpgANDplrInSRCcontrib }}"
+          if("${env:buildpgANDplrInSRCcontrib}" -eq ""){${env:buildpgANDplrInSRCcontrib} = "notset"}
+          Set-EnvVar "buildpgANDplrInSRCcontrib=${env:buildpgANDplrInSRCcontrib}"
+
+          echo "buildpgANDplrInSRCcontrib: ${env:buildpgANDplrInSRCcontrib}"
+
           ${env:PG_HOME} = "${{ matrix.PG_HOME }}"
           if("${env:PG_HOME}" -eq ""){${env:PG_HOME} = "notset"}
           Set-EnvVar "PG_HOME=${env:PG_HOME}"
