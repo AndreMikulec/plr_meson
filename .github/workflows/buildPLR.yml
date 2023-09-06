@@ -1573,11 +1573,10 @@ jobs:
             #### cygrunsrv -R cygserver
           fi
 
-          #
           # if "PostgreSQL for Windows" exists, then
-          # copy artifacts into "PostgreSQL for Windows" for future testing.
+          # copy "Msys artifacts into "PostgreSQL for Windows" for future testing if env.MSYS2testonpgWIN == 'true'.
           #
-          if [ ! "${PGROOT2}" == "notset" ] && [ ! "${PGROOT2}" == "" ]
+          if ( [ ! "${PGROOT2}" == "notset" ] && [ ! "${PGROOT2}" == "" ] ) && [ "${OperatingSystem}" == "Msys" ]
           then
             export PGROOT2=$(cygpath "${PGROOT2}")
             echo  "cygpath PGROOT2: ${PGROOT2}"
