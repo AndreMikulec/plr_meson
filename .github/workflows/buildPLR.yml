@@ -27,7 +27,7 @@ jobs:
             Platform: x64
             ignore_fail: false
 
-          # bleeding edge R and bleeding edge PostgreSQL
+          # bleeding edge R and next PostgreSQL 
           - os: windows-latest
             compilerEnv: UCRT64
             shellEnv: msys2 {0}
@@ -37,7 +37,7 @@ jobs:
             R_HOME: 'D:\RINSTALL'
             R_ARCH: /x64
             #
-            pgSRCversion: master
+            pgSRCversion: REL_16_RC1
             ignore_fail: true
             PG_SOURCE: 'D:\PGSOURCE'
             #
@@ -53,7 +53,7 @@ jobs:
           # [to PostgreSQL 16 itself] Add meson build system (Andres Freund, Nazir Bilal Yavuz, Peter Eisentraut)
           # https://www.postgresql.org/docs/16/release-16.html
 
-          # bleeding edge R and next PostgreSQL 
+          # bleeding edge R and bleeding edge PostgreSQL
           - os: windows-latest
             compilerEnv: UCRT64
             shellEnv: msys2 {0}
@@ -63,7 +63,7 @@ jobs:
             R_HOME: 'D:\RINSTALL'
             R_ARCH: /x64
             #
-            pgSRCversion: REL_16_RC1
+            pgSRCversion: master
             ignore_fail: false
             PG_SOURCE: 'D:\PGSOURCE'
             buildpgFromSRC: true
