@@ -1033,6 +1033,14 @@ jobs:
             popd # from "${PG_SOURCE}"
           fi
 
+          #
+          # For artifact naming, determine the Compiler Supplied pgversion.
+          #
+          export pgversion=$("${PG_HOME}/bin/pg_config" | grep "^VERSION" | sed "s/ = /=/" | sed "s/^.*=//" | grep -oP '[ ].*$' | grep -oP '\d.*$')
+          # potential override
+          echo "pgversion=${pgversion}" >> ${GITHUB_ENV}
+          echo "pg_config VERSION pgversion: ${pgversion}"
+
           if [ -d "${PG_HOME}" ]
           then
             echo "BEGIN compressing pg artifact"
