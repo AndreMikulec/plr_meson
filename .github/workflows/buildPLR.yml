@@ -8,7 +8,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     # Prevents a workflow run from failing when a job fails. Set to true to allow a workflow run to pass when this job fails.
     # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idcontinue-on-error
-    continue-on-error: ${{ matrix.ignore_fail }}
+    continue-on-error: ${{ matrix.GithubActionsIgnoreFail }}
     strategy:
       # Disable fail-fast as we want results from all even if one fails.
       fail-fast: false
@@ -25,7 +25,7 @@ jobs:
           - os: windows-latest
             compilerEnv: cygwin
             Platform: x64
-            ignore_fail: false
+            GithubActionsIgnoreFail: false
 
           # bleeding edge R and next PostgreSQL 
           - os: windows-latest
@@ -38,12 +38,12 @@ jobs:
             R_ARCH: /x64
             #
             pgSRCversion: REL_16_RC1
-            ignore_fail: true
+            GithubActionsIgnoreFail: true
             PG_SOURCE: 'D:\PGSOURCE'
             #
             # buildpgFromSRC: true
-            # buildpgFromSRCmethod: make/meson
-            # xor
+            # buildpgFromSRCmethod: make/meson(PostgreSQL 16 or later)
+            # xor 
             buildpgANDplrInSRCcontrib: true
             #
             PG_HOME: 'D:\PGINSTALL'
@@ -64,7 +64,7 @@ jobs:
             R_ARCH: /x64
             #
             pgSRCversion: master
-            ignore_fail: false
+            GithubActionsIgnoreFail: false
             PG_SOURCE: 'D:\PGSOURCE'
             buildpgFromSRC: true
             buildpgFromSRCmethod: meson
@@ -90,7 +90,7 @@ jobs:
             # https://packages.msys2.org/package/mingw-w64-ucrt-x86_64-postgresql
             #
             # pgSRCversion: REL_15
-            ignore_fail: false
+            GithubActionsIgnoreFail: false
             # PG_SOURCE: 'D:\PGSOURCE'
             # buildpgFromSRC: true
             # buildpgFromSRCmethod: make
@@ -125,7 +125,7 @@ jobs:
             R_ARCH: /x64
             #
             pgSRCversion: REL_14_8
-            ignore_fail: false
+            GithubActionsIgnoreFail: false
             PG_SOURCE: 'D:\PGSOURCE'
             buildpgFromSRC: true
             buildpgFromSRCmethod: make
