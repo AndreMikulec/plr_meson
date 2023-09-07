@@ -42,16 +42,15 @@ jobs:
             PG_SOURCE: 'D:\PGSOURCE'
             #
             # buildpgFromSRC: true
-            # buildpgFromSRCmethod: make/meson(PostgreSQL 16 or later)
+            # buildpgFromSRCmethod: make/meson
+            #   Add meson build system (Andres Freund, Nazir Bilal Yavuz, Peter Eisentraut)
+            #   https://www.postgresql.org/docs/16/release-16.html
             # xor 
             buildpgANDplrInSRCcontrib: true
             #
             PG_HOME: 'D:\PGINSTALL'
             #
             # not "MSYS2testonpgWIN: true" - because no existing "PostgreSQL for Windows master" exists anywhere.
-
-          # [to PostgreSQL 16 itself] Add meson build system (Andres Freund, Nazir Bilal Yavuz, Peter Eisentraut)
-          # https://www.postgresql.org/docs/16/release-16.html
 
           # bleeding edge R and bleeding edge PostgreSQL
           - os: windows-latest
