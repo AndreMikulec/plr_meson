@@ -109,12 +109,16 @@ jobs:
             Platform: x64
             #
             # plr for "R for Windows 4.3.0 and later" can not be compiled with Microsoft Visual Studio
+            #
             # Bug 18544 - private_data_c Visual Studio 2022 R-4.3.0 Complex.h(81,21): syntax error: missing ';' before identifier 'private_data_c'
             # Status: CLOSED WONTFIX
             # https://bugs.r-project.org/show_bug.cgi?id=18544
             #
             # The new definition does not work with MSVC compilers because they don't support the C99 _Complex type
             # https://learn.microsoft.com/en-us/cpp/c-runtime-library/complex-math-support?view=msvc-170
+            #
+            # C Complex Numbers in C++?
+            # https://stackoverflow.com/questions/10540228/c-complex-numbers-in-c
             #
             rversion: 4.3.1
             R_HOME: 'D:\RINSTALL'
