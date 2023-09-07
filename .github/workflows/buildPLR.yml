@@ -1398,8 +1398,8 @@ jobs:
           cat _meson_options.txt_postgres_root_additional_plr_option.txt >>         ${PG_SOURCE}/meson_options.txt
           echo 'subdir('"'"'plr'"'"')'                                   >> ${PG_SOURCE}/contrib/meson.build
 
-          mv  meson.build meson.build.STANDALONE.HIDDEN
-          mv _meson.build meson.build
+          ######## mv  meson.build meson.build.STANDALONE.HIDDEN
+          ######## mv _meson.build meson.build
 
           #### END SETUP MESON.BUILD FILES AND OPTIONS ####
 
@@ -1925,6 +1925,10 @@ jobs:
           # PG_HOME and/or R_HOME in the form producted by $(cygpath -wl "${X_HOME}")
           # TODO - Re-verify this.
           #
+          mv  meson.build __meson.build.ROOT_CONTRIB_METHOD.HIDDEN
+          mv _meson.build   meson.build
+          mv _meson_options.txt meson_options.txt
+
           meson setup --prefix="${PG_HOME}/contrib/plr" -DR_HOME="${R_HOME}" -DPG_HOME="${PG_HOME}" -Db_pie=true ../contrib/plr
           meson compile -C ../contrib/plr  -v
 

@@ -1,17 +1,3 @@
-project('plr', 'c',
-  version : '8_4_6',
-  license : 'GNU Public License Version 2',
-)
-
-R_home = get_option('R_HOME')
-if R_home == ''
-  error('One must supply: -DR_HOME=newvalue')
-endif
-
-pg_home = get_option('PG_HOME')
-if pg_home == ''
-  error('One must supply: -DPG_HOME=newvalue')
-endif
 
 plr_sources = files(
   'plr.c',
@@ -21,69 +7,67 @@ plr_sources = files(
   'pg_rsupport.c',
 )
 
+plr_regress = [
+  'plr',
+  'bad_fun',
+  'opt_window',
+  'do',
+  'out_args',
+  'plr_transaction',
+  'opt_window_frame',
+]
+
+R_home = get_option('R_HOME')
+if R_home == ''
+  error('One must supply: -DR_HOME=newvalue')
+endif
+
 plr_deps = []
-dep_libR = dependency('libR', required : true)
-plr_deps += dep_libR
-dep_libpq = dependency('libpq', required : true)
-plr_deps += dep_libpq
-dep_libpostgres = dependency('libpostgres', required : true)
-plr_deps += dep_libpostgres
+dep_R = dependency('libR')
+plr_deps +=  dep_R
 
 plr_incdir = []
-pg_incdir1= include_directories(R_home / 'include')
-plr_incdir += pg_incdir1
-pg_incdir2 = include_directories(pg_home / 'include' / 'postgresql' / 'server' )
-plr_incdir += pg_incdir2
-#  mingw
-pg_incdir3 = include_directories(pg_home / 'include' / 'postgresql' / 'server' / 'port' / 'win32' )
-plr_incdir += pg_incdir3
+R_incdir = include_directories(R_home / 'include')
+plr_incdir += R_incdir
 
-# Refactor DLSUFFIX handling (PostreSQL 15 AND newer)
-# https://github.com/postgres/postgres/commit/23119d51a14c046dae35ae5e6ad9e35982d044fd
-#
-# PostgreSQL 14 and older
-# USE_PGXS=1 make CPPFLAGS=-DDLSUFFIX=\".so\"
-# https://github.com/postgres-plr/plr/issues/4
-#
-plr_c_args = []
-#
-# Detect MinGW host #8776
-# https://github.com/mesonbuild/meson/issues/8776
-#
-# Operating system names
-# https://mesonbuild.com/Reference-tables.html#operating-system-names
-#
-if ((host_machine.system() == 'windows') or (host_machine.system()  == 'cygwin'))
-  message('begin -DDLSUFFIX=".dll"')
-  dlsuffix = '-DDLSUFFIX=".dll"'
-  message('end   -DDLSUFFIX=".dll"')
+if host_system == 'windows'
+  plr_sources += rc_lib_gen.process(win32ver_rc, extra_args: [
+    '--NAME', 'plr',
+    '--FILEDESC', 'PL/R - PostgreSQL support for R as a procedural language (PLR)',])
 endif
-
-if host_machine.system() == 'linux'
-  dlsuffix = '-DDLSUFFIX=".so"'
-endif
-if host_machine.system() == 'darwin'
-  dlsuffix = '-DDLSUFFIX=".dylib"'
-endif
-plr_c_args += dlsuffix
 
 plr = shared_module('plr',
   plr_sources,
-  c_args: plr_c_args,
-  name_prefix : '',
+  c_pch: pch_postgres_h,
   include_directories: plr_incdir,
-  dependencies: plr_deps,
+  kwargs: contrib_mod_args + {
+    'dependencies': [plr_deps, contrib_mod_args['dependencies']]
+  },
 )
 
-if meson.version().version_compare('>=0.57')
+contrib_targets += plr
 
-  summary(
-    {
-      'libR'               : dep_libR,
-      'libpq'              : dep_libpq,
-      'libpostgres (fake)' : dep_libpostgres,
-    },
-    section: 'Required Dependencies',
-  )
+install_data(
+  'plr--unpackaged--8.4.6.sql',
+  'plr--8.3.0.18--8.4.sql',
+  'plr--8.4.1--8.4.2.sql',
+  'plr--8.4.3--8.4.4.sql',
+  'plr--8.4--8.4.1.sql',
+  'plr--8.4.2--8.4.3.sql',
+  'plr--8.4.4--8.4.5.sql',
+  'plr--8.4.5--8.4.6.sql',
+  'plr--8.4.6.sql',
+  'plr.control',
+  kwargs: contrib_data_args,
+)
 
-endif
+tests += {
+  'name': 'plr',
+  'sd': meson.current_source_dir(),
+  'bd': meson.current_build_dir(),
+  'regress': {
+    'sql': [
+      plr_regress
+    ],
+  },
+}
