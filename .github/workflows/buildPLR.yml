@@ -6,6 +6,9 @@ jobs:
   build_test_install:
     name: R ${{ matrix.rversion }} PGsrc ${{ matrix.pgSRCversion }} PGbin ${{ matrix.pgWINversion }} ${{ matrix.compilerEnv }} ${{ matrix.Platform }}  ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    # Prevents a workflow run from failing when a job fails. Set to true to allow a workflow run to pass when this job fails.
+    # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idcontinue-on-error
+    continue-on-error: ${{ matrix.ignore_fail }}
     strategy:
       # Disable fail-fast as we want results from all even if one fails.
       fail-fast: false
@@ -22,8 +25,9 @@ jobs:
           - os: windows-latest
             compilerEnv: cygwin
             Platform: x64
+            ignore_fail: false
 
-          # bleeding edge R and next PostgreSQL
+          # bleeding edge R and bleeding edge PostgreSQL
           - os: windows-latest
             compilerEnv: UCRT64
             shellEnv: msys2 {0}
@@ -33,7 +37,8 @@ jobs:
             R_HOME: 'D:\RINSTALL'
             R_ARCH: /x64
             #
-            pgSRCversion: REL_16_RC1
+            pgSRCversion: master
+            ignore_fail: true
             PG_SOURCE: 'D:\PGSOURCE'
             #
             # buildpgFromSRC: true
@@ -48,7 +53,7 @@ jobs:
           # [to PostgreSQL 16 itself] Add meson build system (Andres Freund, Nazir Bilal Yavuz, Peter Eisentraut)
           # https://www.postgresql.org/docs/16/release-16.html
 
-          # bleeding edge R and bleeding edge PostgreSQL
+          # bleeding edge R and next PostgreSQL 
           - os: windows-latest
             compilerEnv: UCRT64
             shellEnv: msys2 {0}
@@ -58,7 +63,8 @@ jobs:
             R_HOME: 'D:\RINSTALL'
             R_ARCH: /x64
             #
-            pgSRCversion: master
+            pgSRCversion: REL_16_RC1
+            ignore_fail: false
             PG_SOURCE: 'D:\PGSOURCE'
             buildpgFromSRC: true
             buildpgFromSRCmethod: meson
@@ -84,6 +90,7 @@ jobs:
             # https://packages.msys2.org/package/mingw-w64-ucrt-x86_64-postgresql
             #
             # pgSRCversion: REL_15
+            ignore_fail: false
             # PG_SOURCE: 'D:\PGSOURCE'
             # buildpgFromSRC: true
             # buildpgFromSRCmethod: make
@@ -110,6 +117,7 @@ jobs:
             R_ARCH: /x64
             #
             pgSRCversion: REL_14_8
+            ignore_fail: false
             PG_SOURCE: 'D:\PGSOURCE'
             buildpgFromSRC: true
             buildpgFromSRCmethod: make
