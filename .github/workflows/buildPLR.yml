@@ -15,7 +15,8 @@ jobs:
       matrix:
         include:
 
-          # Note, the x86 Cygwin Server will "not start" on Github Actions(therfore x86 is not PostgreSQL regression testable)
+          # Note, the x86 Cygwin Server will "not start" on Github Actions
+          # Therfore cygwin x86 is "not PostgreSQL regression testable."
           # Repository R and Repository Postgresql
           #
           # Package: R
@@ -538,16 +539,16 @@ jobs:
           Move-Item -Path PGSOURCE -Destination ${{ env.PG_SOURCE }}
           Get-ChildItem                         ${{ env.PG_SOURCE }}
 
-      # Currently will cache *patched* and *devel* and I do not want to cache these.
+      # I do not want to cache "R for Windows devel version".
       #
       # Manage my caches
-      # https://github.com/AndreMikulec/plr_meson/actions/caches
+      # https://github.com/GITHUBUSER/GITHUBREPOSITORY/actions/caches
       #
       # TODO - possiblity of a FUTURE workaround
       # https://github.com/actions/cache/blob/main/tips-and-workarounds.md#update-a-cache
       #
       - name: Cache R-x.y.z Windows Installer Exe
-        if: ${{ env.os == 'windows-latest' && ( env.compilerClass == 'MSYS2' || env.compilerClass == 'msvc' ) }}
+        if: ${{ env.os == 'windows-latest' && ( env.compilerClass == 'MSYS2' || env.compilerClass == 'msvc' ) && env.rversion != 'devel' }}
         uses: actions/cache@v3
         id: cacheRWindowsInstallerExe
         with:
@@ -639,10 +640,8 @@ jobs:
         with:
           url: ${{ env.ENTDB_PG_DOWNLOAD_URL }}
 
-#     # BUT the "crazy-max/ghaction-chocolatey@v2" "install diffutils" file download often times-out
+#     # The "crazy-max/ghaction-chocolatey@v2" "install SOMEHING_AT_SOURCEFORGE" file download often times-out.
 #     - name: Choco Install GNU diffutils for Test on PostgreSQL for Windows
-#       if: ${{ env.os == 'windows-latest' && env.compilerClass == 'MSYS2' && OTHER_CRITERIA }}
-#       # Keep v2.  v2.2.0 may have connection to Sourceforge problems
 #       uses: crazy-max/ghaction-chocolatey@v2
 #       with:
 #         args: install diffutils
@@ -655,7 +654,6 @@ jobs:
         id: downloadDiffutilsZip
         with:
           retry-times: 1
-        # url: https://github.com/AndreMikulec/plr_meson/releases/download/0.0.0.0.0.GITHUBCACHE/diffutils-2.8.7-1-bin.zip
           url: https://zenlayer.dl.sourceforge.net/project/gnuwin32/diffutils/2.8.7-1/diffutils-2.8.7-1-bin.zip
 
       - name: Download pkgconfiglite for Compile using msvc and meson
@@ -708,7 +706,7 @@ jobs:
           "${{ env.rversionlong }}.exe" /VERYSILENT /COMPONENTS=main,%R_ARCHplat% /DIR=%R_HOME% /NOICONS /TASKS=
           dir "%R_HOME%"
 
-      # Github Actions provided PostgreSQL x64-14 (as of AUGUST 2023)
+      # Github Actions provided PostgreSQL x64-14 (as of SEPTEMBER 2023)
       #
       # # AUGUST 2023
       # # The PL/R extension was built using PostreSQL 15
@@ -858,16 +856,6 @@ jobs:
           path-type: strict
           msystem: ${{ env.compilerEnv }}
           #
-          # if a 2nd run (not the proper way to install "postgres" separately)
-          # if a 2nd run DO NOT DO "update: true"
-          # if a 2nd run May not be able to find "postgres"
-          # 100% sure THIS IS broken
-          # location: D:\
-          #
-          # By default (true), caches various things between runs to make repeated runs faster.
-          # TEMP USING THE DEFAULT OF TRUE - SEE WHAT HAPPENS
-          # cache: false
-          #
           install: >-
             ${{ env.MINGW_PACKAGE_PREFIX }}-pkg-config
             ${{ env.MINGW_PACKAGE_PREFIX }}-curl
@@ -926,7 +914,7 @@ jobs:
              libpq-devel
              R  R-debuginfo
 
-      # FUTURE - if the PostgreSQL version is 16 or greater, I could compile PG using meson
+      # If the PostgreSQL version is 16 or greater, I can compile PostgreSQL using meson.
       - name: Compile PG using pgSRCversion and PG_SOURCE and Install to here PG_HOME
         if: ${{ env.os == 'windows-latest' && ( env.compilerClass == 'MSYS2' || env.compilerClass == 'cygwin' ) && env.buildpgFromSRC == 'true' }}
         env:
@@ -1578,6 +1566,8 @@ jobs:
           export WORKSPACE=$(pwd)
           echo "WORKSPACE ${WORKSPACE}"
 
+          #### BEGIN R SECTION ####
+
           #
           # Trying smartly and hard to find the R_HOME
           #
@@ -1726,6 +1716,10 @@ jobs:
             export PATH="${R_HOME}/bin${R_ARCH}:${PATH}"
           fi
 
+          #### END R SECTION ####
+
+          #### BEGIN PG_HOME SECTION ####
+
           #
           # Trying smartly and hard to find the PG_HOME
           #
@@ -1793,6 +1787,10 @@ jobs:
 
           echo "pg_config SHAREDIR: ${SHAREDIR}"
 
+          #### END PG_HOME SECTION ####
+
+          #### BEGIN PKGCONFIG SECTION ####
+
           echo "PKG_CONFIG_PATH: ${PKG_CONFIG_PATH}"
           echo "PKG_CONFIG_SYSTEM_INCLUDE_PATH: ${PKG_CONFIG_SYSTEM_INCLUDE_PATH}"
           echo "PKG_CONFIG_SYSTEM_LIBRARY_PATH: ${PKG_CONFIG_SYSTEM_LIBRARY_PATH}"
@@ -1838,6 +1836,10 @@ jobs:
           echo "PKG_CONFIG_SYSTEM_INCLUDE_PATH: ${PKG_CONFIG_SYSTEM_INCLUDE_PATH}"
           echo "PKG_CONFIG_SYSTEM_LIBRARY_PATH: ${PKG_CONFIG_SYSTEM_LIBRARY_PATH}"
 
+          #### END PKGCONFIG SECTION ####
+
+          #### BEGIN MAKE POSTGRES INTO A LIBRARY ####
+
           # This is Part 1 of 2 of a hack to make "meson" think that "libpostgres" is a library.
           # From the libpq.pc file, create a libpostgres.pc file.
           if [ ! -f "${PG_HOME}/lib/pkgconfig/libpostgres.pc" ]
@@ -1857,6 +1859,10 @@ jobs:
           fi
 
           ls -alrt "${PG_HOME}"/lib/libpostgres*
+
+          #### END MAKE POSTGRES INTO A LIBRARY ####
+
+          #### BEGIN MAKE R INTO A LIBRARY ####
 
           # Make R into a library
           if [ ! -d "${PKG_CONFIG_SYSTEM_LIBRARY_PATH_ORIG}/pkgconfig" ]
@@ -1915,6 +1921,10 @@ jobs:
             fi
           fi
 
+          #### END MAKE R INTO A LIBRARY ####
+
+          #### BEGIN CREATE THE PLR DIRECTORY ####
+
           # Create the contribplr directory parallel to contrib.
           # Copy all of the PL/R source code into contribplr.
           #
@@ -1925,16 +1935,17 @@ jobs:
           #
           pushd     "${PG_HOME}/contribplr"
 
-          # build(create) artifacts (A "started" database is not required.)
-          #
-          # Note, from my "bad" memory,
-          # a non-script interactive MSYS2 session, may require either or both
-          # PG_HOME and/or R_HOME in the form producted by $(cygpath -wl "${X_HOME}")
-          # TODO - Re-verify this.
-          #
+          #### END CREATE THE PLR DIRECTORY ####
+
+          #### BEGIN SETUP MESON.BUILD FILES AND OPTIONS ####
+
           mv  meson.build __meson.build.ROOT_CONTRIB_METHOD.HIDDEN
           mv _meson.build   meson.build
           mv _meson_options.txt meson_options.txt
+
+          #### END CREATE THE PLR DIRECTORY ####
+
+          #### BEGIN BUILD PLR AND TEST PLR ####
 
           meson setup --prefix="${PG_HOME}/contrib/plr" -DR_HOME="${R_HOME}" -DPG_HOME="${PG_HOME}" -Db_pie=true ../contrib/plr
           meson compile -C ../contrib/plr  -v
@@ -2017,6 +2028,8 @@ jobs:
 
           popd # from "${PG_HOME}/contribplr"
           # back into WORKSPACE
+
+          #### END BUILD PG AND PLR AND TEST PLR ####
 
           # save GOOD artifact plr.dll
           #
