@@ -26,6 +26,7 @@ jobs:
           - os: windows-latest
             compilerEnv: cygwin
             Platform: x64
+            Configuration: Release
             GithubActionsIgnoreFail: false
 
           # bleeding edge R and next PostgreSQL 
@@ -34,6 +35,7 @@ jobs:
             shellEnv: msys2 {0}
             compilerExe: gcc
             Platform: x64
+            Configuration: Debug
             rversion:  devel
             R_HOME: 'D:\RINSTALL'
             R_ARCH: /x64
@@ -59,6 +61,7 @@ jobs:
             shellEnv: msys2 {0}
             compilerExe: gcc
             Platform: x64
+            Configuration: Debug
             rversion:  devel
             R_HOME: 'D:\RINSTALL'
             R_ARCH: /x64
@@ -79,10 +82,10 @@ jobs:
             shellEnv: msys2 {0}
             compilerExe: gcc
             Platform: x64
+            Configuration: Release
             rversion: 4.3.1
             R_HOME: 'D:\RINSTALL'
             R_ARCH: /x64
-            #
             #
             # September 2023 - MSYS2 PostgreSQL version is 15.3
             #
@@ -107,6 +110,7 @@ jobs:
             shellEnv: msys2 {0}
             compilerExe: gcc
             Platform: x64
+            Configuration: Release
             #
             # plr for "R for Windows 4.3.0 and later" can not be compiled with Microsoft Visual Studio
             #
