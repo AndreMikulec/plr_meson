@@ -1566,6 +1566,7 @@ jobs:
           CHERE_INVOKING: 1
           # Msys shell variable
           msystem: ${{ env.compilerEnv }}
+          Configuration: ${{ env.Configuration }}
           #
           R_HOME: ${{ env.R_HOME }}
           Platform: ${{ env.Platform }}
@@ -1986,7 +1987,16 @@ jobs:
 
           #### BEGIN BUILD PLR AND TEST PLR ####
 
-          meson setup --prefix="${PG_HOME}/contrib/plr" -DR_HOME="${R_HOME}" -DPG_HOME="${PG_HOME}" -Db_pie=true ../contrib/plr
+          if [ "${Configuration}" == "Debug" ]
+          then
+            meson setup --prefix="${PG_HOME}/contrib/plr"             --debug -DR_HOME="${R_HOME}" -DPG_HOME="${PG_HOME}" -Db_pie=true ../contrib/plr
+          fi
+
+          if [ "${Configuration}" == "Release" ]
+          then
+            meson setup --prefix="${PG_HOME}/contrib/plr" --buildtype=release -DR_HOME="${R_HOME}" -DPG_HOME="${PG_HOME}" -Db_pie=true ../contrib/plr
+          fi
+
           meson compile -C ../contrib/plr  -v
 
           # install GOOD or BAD artifacts into NIX PG plr.dll and plr.dll.a.
