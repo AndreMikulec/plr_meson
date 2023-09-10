@@ -1110,6 +1110,7 @@ jobs:
           CHERE_INVOKING: 1
           # Msys shell variable
           msystem: ${{ env.compilerEnv }}
+          Configuration: ${{ env.Configuration }}
           #
           R_HOME: ${{ env.R_HOME }}
           Platform: ${{ env.Platform }}
@@ -1443,7 +1444,15 @@ jobs:
           # from WORKSPACE
           pushd "${PG_SOURCE}"
 
-          meson setup --prefix "${PG_HOME}" -DR_HOME=${R_HOME} -Dbuildtype=release -Db_pie=true -Dnls=disabled -Dplperl=disabled -Dplpython=disabled -Dpltcl=disabled -Dicu=disabled -Dllvm=disabled -Dlz4=disabled -Dzstd=disabled -Dgssapi=disabled -Dldap=disabled -Dpam=disabled -Dbsd_auth=disabled -Dsystemd=disabled -Dbonjour=disabled -Dlibxml=disabled -Dlibxslt=disabled -Dreadline=enabled -Dzlib=disabled -Ddocs=disabled -Ddocs_pdf=disabled -Dcassert=false -Dtap_tests=disabled -Db_coverage=false -Ddtrace=disabled build
+          if [ "${Configuration}" == "Debug" ]
+          then
+            meson setup --prefix "${PG_HOME}" -DR_HOME=${R_HOME}                      --debug -Db_pie=true -Dnls=disabled -Dplperl=disabled -Dplpython=disabled -Dpltcl=disabled -Dicu=disabled -Dllvm=disabled -Dlz4=disabled -Dzstd=disabled -Dgssapi=disabled -Dldap=disabled -Dpam=disabled -Dbsd_auth=disabled -Dsystemd=disabled -Dbonjour=disabled -Dlibxml=disabled -Dlibxslt=disabled -Dreadline=enabled -Dzlib=disabled -Ddocs=disabled -Ddocs_pdf=disabled -Dcassert=false -Dtap_tests=disabled -Db_coverage=false -Ddtrace=disabled build
+          fi
+
+          if [ "${Configuration}" == "Release" ]
+          then
+            meson setup --prefix "${PG_HOME}" -DR_HOME=${R_HOME} --buildtype=release          -Db_pie=true -Dnls=disabled -Dplperl=disabled -Dplpython=disabled -Dpltcl=disabled -Dicu=disabled -Dllvm=disabled -Dlz4=disabled -Dzstd=disabled -Dgssapi=disabled -Dldap=disabled -Dpam=disabled -Dbsd_auth=disabled -Dsystemd=disabled -Dbonjour=disabled -Dlibxml=disabled -Dlibxslt=disabled -Dreadline=enabled -Dzlib=disabled -Ddocs=disabled -Ddocs_pdf=disabled -Dcassert=false -Dtap_tests=disabled -Db_coverage=false -Ddtrace=disabled build
+          fi
 
           meson compile -C build -v
 
