@@ -192,6 +192,12 @@ jobs:
 
           echo "Platform: ${env:Platform}"
 
+          ${env:Configuration} = "${{ matrix.Configuration }}"
+          if("${env:Configuration}" -eq ""){${env:Configuration} = "notset"}
+          Set-EnvVar "Configuration=${env:Configuration}"
+
+          echo "Configuration: ${env:Configuration}"
+
           ${env:rversion} = "${{ matrix.rversion }}"
           if("${env:rversion}" -eq ""){${env:rversion} = "notset"}
           Set-EnvVar "rversion=${env:rversion}"
