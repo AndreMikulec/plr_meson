@@ -934,6 +934,7 @@ jobs:
           CHERE_INVOKING: 1
           # Msys OS variable
           msystem: ${{ env.compilerEnv }}
+          Configuration: ${{ env.Configuration }}
           #
           PG_SOURCE: ${{ env.PG_SOURCE }}
           PG_HOME: ${{ env.PG_HOME }}
@@ -1001,7 +1002,17 @@ jobs:
 
             echo "BEGIN PostgreSQL make CONFIGURE"
             set +x +v +e
-            ./configure --enable-depend --disable-rpath --without-icu --prefix="${PG_HOME}"
+
+            if [ "${Configuration}" == "Debug" ]
+            then
+              ./configure --enable-depend --disable-rpath --without-icu --enable-debug --enable-cassert CFLAGS="-ggdb -Og -g3 -fno-omit-frame-pointer" --prefix="${PG_HOME}"
+            fi
+
+            if [ "${Configuration}" == "Release" ]
+            then
+              ./configure --enable-depend --disable-rpath --without-icu --prefix="${PG_HOME}"
+            fi
+
             set -x -v -e
             echo "END   PostgreSQL make CONFIGURE"
 
